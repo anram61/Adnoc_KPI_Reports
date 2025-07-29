@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KPI Report Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <img src="assets/adnoc-logo.png" alt="ADNOC Logo" class="logo" />
+    <h1>KPI Report Viewer</h1>
+  </header>
+
+  <section class="full-width-banner">
+    <h2>📊 View Monthly KPI Reports</h2>
+    <p>Select a company, then choose a month to view the summary.</p>
+  </section>
+
+  <section class="company-buttons">
+    <div class="grid">
+      <button>Adnoc Onshore</button>
+      <button>Adnoc Offshore</button>
+      <button>Adnoc Al Dhafra & Al Yasat</button>
+      <button>Adnoc Drilling</button>
+      <button>Adnoc Sour Gas</button>
+      <button>Adnoc Refining</button>
+      <button>Adnoc Distribution</button>
+      <button>Adnoc Borouge</button>
+      <button>Adnoc L & S</button>
+      <button>Adnoc Global Trading</button>
+      <button>Adnoc LNG</button>
+      <button>Adnoc Taziz</button>
+    </div>
+  </section>
+
+  <section class="month-selector">
+    <select id="monthSelect">
+      <option>January 2025</option>
+      <option>February 2025</option>
+      <option>March 2025</option>
+      <option>April 2025</option>
+      <option selected>May 2025</option>
+      <option>June 2025</option>
+    </select>
+    <button onclick="viewReport()">View Report</button>
+  </section>
+
+  <section id="report-summary" class="summary hidden">
+    <h3>📁 Report Summary</h3>
+    <p><strong>Company:</strong> <span id="selectedCompany"></span></p>
+    <p><strong>Month:</strong> <span id="selectedMonth"></span></p>
+    <p id="placeholderText"></p>
+  </section>
+
+  <footer>
+    <p>© 2025 ADNOC. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
