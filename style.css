@@ -1,4 +1,4 @@
-/* Reset and base styles */
+/* Reset & Base */
 * {
   margin: 0;
   padding: 0;
@@ -7,107 +7,108 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f5f9;
-  color: #333;
+  background-color: #f0f6fc;
+  color: #000;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
+/* Header */
 header {
+  background-color: #004b91;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  background-color: #004b93;
-  padding: 10px 20px;
 }
 
-header img {
+.logo-title {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
   height: 60px;
-  margin-right: 20px;
+  margin-right: 15px;
 }
 
-h1 {
-  text-align: center;
-  margin: 20px 0;
-  font-size: 2rem;
-}
-
-.main-title {
-  text-align: center;
-  padding: 20px;
-  background-color: #004b93;
+header h1 {
   color: white;
+  font-size: 28px;
 }
 
-.sub-title {
-  text-align: center;
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 30px 20px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  color: #003366;
+}
+
+.section-header p {
   margin-bottom: 20px;
-  color: #333;
 }
 
+/* Buttons Layout */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px;
-}
-
-.company-buttons button {
-  background-color: #0055b8;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.company-buttons button:hover {
-  background-color: #003f8a;
-}
-
-.selector {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-select, button#view-report-btn {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.company {
+  background-color: #005eb8;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-#report {
-  background: white;
-  padding: 20px;
-  margin: 20px auto;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 900px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.company:hover {
+  background-color: #003f7d;
 }
 
-#report h2 {
+/* Month Selector */
+.month-selector {
   display: flex;
   align-items: center;
-  font-size: 1.25rem;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+select,
+#view-report {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Report Box */
+.report-box {
+  background: white;
+  padding: 20px;
+  border-left: 6px solid orange;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  max-width: 800px;
+}
+
+.report-box h3 {
   margin-bottom: 10px;
+  color: #333;
 }
 
-#report h2::before {
-  content: "\1F4C1";
-  margin-right: 8px;
-}
-
+/* Footer */
 footer {
-  background-color: #004b93;
+  background-color: #004b91;
   color: white;
   text-align: center;
-  padding: 15px;
+  padding: 15px 0;
   margin-top: auto;
 }
