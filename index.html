@@ -1,65 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ADNOC KPI Viewer</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <header class="header">
-    <img src="adnoc-logo.png" alt="ADNOC Logo" class="logo" />
-    <h1>KPI Report Viewer</h1>
+  <header>
+    <div class="logo-title">
+      <img src="adnoc-logo.png" alt="ADNOC Logo" class="logo" />
+      <h1>KPI Report Viewer</h1>
+    </div>
   </header>
 
-  <section class="hero">
-    <h2>📊 View Monthly KPI Reports</h2>
-    <p>Select a company, then choose a month to view the summary.</p>
-  </section>
+  <section class="main-content">
+    <div class="section-header">
+      <h2>📊 View Monthly KPI Reports</h2>
+      <p>Select a company, then choose a month to view the summary.</p>
+    </div>
 
-  <section class="selector">
-    <div class="button-grid">
-      <button onclick="selectCompany('Adnoc Onshore')">Adnoc Onshore</button>
-      <button onclick="selectCompany('Adnoc Offshore')">Adnoc Offshore</button>
-      <button onclick="selectCompany('Adnoc Al Dhafra & Al Yasat')">Adnoc Al Dhafra & Al Yasat</button>
-      <button onclick="selectCompany('Adnoc Drilling')">Adnoc Drilling</button>
-      <button onclick="selectCompany('Adnoc Sour Gas')">Adnoc Sour Gas</button>
-      <button onclick="selectCompany('Adnoc Refining')">Adnoc Refining</button>
-      <button onclick="selectCompany('Adnoc Distribution')">Adnoc Distribution</button>
-      <button onclick="selectCompany('Adnoc Borouge')">Adnoc Borouge</button>
-      <button onclick="selectCompany('Adnoc L & S')">Adnoc L & S</button>
-      <button onclick="selectCompany('Adnoc Global Trading')">Adnoc Global Trading</button>
-      <button onclick="selectCompany('Adnoc LNG')">Adnoc LNG</button>
-      <button onclick="selectCompany('Adnoc Taziz')">Adnoc Taziz</button>
+    <div class="company-buttons">
+      <button class="company" data-company="Adnoc Onshore">Adnoc Onshore</button>
+      <button class="company" data-company="Adnoc Offshore">Adnoc Offshore</button>
+      <button class="company" data-company="Adnoc Al Dhafra & Al Yasat">Adnoc Al Dhafra & Al Yasat</button>
+      <button class="company" data-company="Adnoc Drilling">Adnoc Drilling</button>
+      <button class="company" data-company="Adnoc Sour Gas">Adnoc Sour Gas</button>
+      <button class="company" data-company="Adnoc Refining">Adnoc Refining</button>
+      <button class="company" data-company="Adnoc Distribution">Adnoc Distribution</button>
+      <button class="company" data-company="Adnoc Borouge">Adnoc Borouge</button>
+      <button class="company" data-company="Adnoc L & S">Adnoc L & S</button>
+      <button class="company" data-company="Adnoc Global Trading">Adnoc Global Trading</button>
+      <button class="company" data-company="Adnoc LNG">Adnoc LNG</button>
+      <button class="company" data-company="Adnoc Taziz">Adnoc Taziz</button>
     </div>
 
     <div class="month-selector">
-      <select id="month">
-        <option value="January 2025">January 2025</option>
-        <option value="February 2025">February 2025</option>
-        <option value="March 2025">March 2025</option>
-        <option value="April 2025">April 2025</option>
-        <option value="May 2025">May 2025</option>
-        <option value="June 2025">June 2025</option>
+      <select id="month-select">
+        <option>January 2025</option>
+        <option>February 2025</option>
+        <option>March 2025</option>
+        <option>April 2025</option>
+        <option>May 2025</option>
+        <option>June 2025</option>
       </select>
-      <button onclick="viewReport()">View Report</button>
+      <button id="view-report">View Report</button>
+    </div>
+
+    <div class="report-box" id="report-box">
+      <h3>📂 Report Summary</h3>
+      <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
+      <p><strong>Month:</strong> <span id="report-month">N/A</span></p>
+      <p id="report-text">Please select a company and month to see the KPI summary.</p>
     </div>
   </section>
 
-  <section id="report" class="report" style="display: none">
-    <h3>📁 Report Summary</h3>
-    <p><strong>Company:</strong> <span id="selectedCompany"></span></p>
-    <p><strong>Month:</strong> <span id="selectedMonth"></span></p>
-    <p id="reportContent"></p>
-  </section>
-
-  <footer class="footer">
+  <footer>
     <p>© 2025 ADNOC. All rights reserved.</p>
   </footer>
 
   <script src="script.js"></script>
 </body>
-
 </html>
