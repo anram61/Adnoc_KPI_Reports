@@ -1,4 +1,4 @@
-/* Reset & Base */
+/* Reset & Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -7,29 +7,24 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f6fc;
+  background-color: #eef3f7;
   color: #000;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 /* Header */
 header {
+  display: flex;
+  align-items: center;
   background-color: #004b91;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-}
-
-.logo-title {
-  display: flex;
-  align-items: center;
+  padding: 15px 30px;
+  gap: 20px;
 }
 
 .logo {
   height: 60px;
-  margin-right: 15px;
 }
 
 header h1 {
@@ -38,13 +33,17 @@ header h1 {
 }
 
 /* Main Content */
-.main-content {
+main {
   flex: 1;
-  padding: 30px 20px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
 }
 
+/* Section Header */
 .section-header h2 {
   font-size: 24px;
+  margin-bottom: 10px;
   color: #003366;
 }
 
@@ -52,7 +51,7 @@ header h1 {
   margin-bottom: 20px;
 }
 
-/* Buttons Layout */
+/* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -61,42 +60,42 @@ header h1 {
 }
 
 .company {
-  background-color: #005eb8;
+  background-color: #0077cc;
   color: white;
+  padding: 10px 14px;
   border: none;
-  padding: 10px 15px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s ease;
+  font-size: 14px;
 }
 
 .company:hover {
-  background-color: #003f7d;
+  background-color: #005fa3;
 }
 
-/* Month Selector */
-.month-selector {
+/* Month Select + Button */
+.month-select-row {
   display: flex;
-  align-items: center;
   gap: 10px;
   margin-bottom: 30px;
 }
 
 select,
 #view-report {
-  padding: 10px 15px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 14px;
 }
 
 /* Report Box */
 .report-box {
-  background: white;
+  background-color: #fff;
   padding: 20px;
   border-left: 6px solid orange;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  max-width: 800px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .report-box h3 {
@@ -110,5 +109,4 @@ footer {
   color: white;
   text-align: center;
   padding: 15px 0;
-  margin-top: auto;
 }
