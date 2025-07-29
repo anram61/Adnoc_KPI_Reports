@@ -1,23 +1,24 @@
-let selectedCompany = "";
+const companies = document.querySelectorAll('.company');
+const reportCompany = document.getElementById('report-company');
+const reportMonth = document.getElementById('report-month');
+const reportText = document.getElementById('report-text');
 
-document.querySelectorAll(".company-buttons button").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    selectedCompany = btn.innerText;
-    document.querySelectorAll(".company-buttons button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+let selectedCompany = '';
+let selectedMonth = '';
+
+companies.forEach(button => {
+  button.addEventListener('click', () => {
+    selectedCompany = button.getAttribute('data-company');
   });
 });
 
-function viewReport() {
-  const month = document.getElementById("monthSelect").value;
+document.getElementById('view-report').addEventListener('click', () => {
+  selectedMonth = document.getElementById('month-select').value;
   if (!selectedCompany) {
-    alert("Please select a company.");
+    alert('Please select a company.');
     return;
   }
-  document.getElementById("selectedCompany").textContent = selectedCompany;
-  document.getElementById("selectedMonth").textContent = month;
-  document.getElementById("placeholderText").textContent =
-    `This is a placeholder for the KPI summary for ${selectedCompany} in ${month}.`;
-
-  document.getElementById("report-summary").classList.remove("hidden");
-}
+  reportCompany.textContent = selectedCompany;
+  reportMonth.textContent = selectedMonth;
+  reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
+});
