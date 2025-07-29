@@ -1,107 +1,113 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
+/* Reset and base styles */
+* {
   margin: 0;
   padding: 0;
-  background-color: #f2f7fc;
-  color: #333;
+  box-sizing: border-box;
 }
 
-.logo {
-  display: block;
-  margin: 20px auto;
-  max-height: 60px;
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f5f9;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 header {
-  text-align: center;
-  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  background-color: #004b93;
+  padding: 10px 20px;
+}
+
+header img {
+  height: 60px;
+  margin-right: 20px;
 }
 
 h1 {
-  margin-bottom: 0;
-}
-
-section.intro {
-  background-color: #004a99;
-  color: white;
   text-align: center;
-  padding: 20px 10px;
-  width: 100%;
+  margin: 20px 0;
+  font-size: 2rem;
 }
 
-section.intro h2 {
-  margin: 0;
-  font-size: 24px;
+.main-title {
+  text-align: center;
+  padding: 20px;
+  background-color: #004b93;
+  color: white;
 }
 
-section.intro p {
-  margin-top: 5px;
+.sub-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.company-buttons .grid {
+.company-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
-  padding: 20px;
-  width: 100%;
+  gap: 10px;
+  margin: 20px;
 }
 
 .company-buttons button {
-  background-color: #005bbb;
+  background-color: #0055b8;
   color: white;
-  padding: 12px 20px;
+  padding: 10px 15px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: bold;
 }
 
-.company-buttons button:hover,
-.company-buttons button.active {
-  background-color: #003f7f;
+.company-buttons button:hover {
+  background-color: #003f8a;
 }
 
-.month-selector {
+.selector {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  padding: 20px;
+  margin-bottom: 20px;
 }
 
-select, button#viewReport {
-  padding: 10px 15px;
-  font-size: 16px;
-  border-radius: 6px;
+select, button#view-report-btn {
+  padding: 10px;
+  border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-button#viewReport {
-  background-color: #004a99;
-  color: white;
-  border: none;
-}
-
-button#viewReport:hover {
-  background-color: #003366;
-}
-
-.summary {
-  background-color: white;
-  margin: 30px auto;
+#report {
+  background: white;
   padding: 20px;
-  width: 90%;
+  margin: 20px auto;
   border-radius: 10px;
-  border-left: 5px solid #004a99;
+  width: 90%;
+  max-width: 900px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#report h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+#report h2::before {
+  content: "\1F4C1";
+  margin-right: 8px;
 }
 
 footer {
-  background-color: #004a99;
+  background-color: #004b93;
   color: white;
   text-align: center;
   padding: 15px;
-  position: relative;
-  width: 100%;
+  margin-top: auto;
 }
