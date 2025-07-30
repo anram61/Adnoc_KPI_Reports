@@ -30,7 +30,7 @@ companies.forEach(company => {
   companyContainer.appendChild(button);
 });
 
-// Populate month dropdown
+// Create month dropdown
 months.forEach(month => {
   const option = document.createElement('option');
   option.value = month;
@@ -38,16 +38,16 @@ months.forEach(month => {
   monthSelect.appendChild(option);
 });
 
-// Listen for month change
+// Month selection
 monthSelect.addEventListener('change', (e) => {
   selectedMonth = e.target.value;
   tryShowReport();
 });
 
-// Display report if both selected
+// Show the report
 function tryShowReport() {
   if (selectedCompany && selectedMonth) {
-    const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and')}_${selectedMonth.toLowerCase().replace(' ', '')}`;
+    const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and')}_${selectedMonth.toLowerCase().replace(/ /g, '')}`;
     const pdfPath = `reports/${fileName}.pdf`;
     const imgPath = `reports/${fileName}.png`;
 
@@ -57,7 +57,7 @@ function tryShowReport() {
         <p><strong>Company:</strong> ${selectedCompany}</p>
         <p><strong>Month:</strong> ${selectedMonth}</p>
         <embed src="${pdfPath}" type="application/pdf" width="100%" height="600px" onerror="this.style.display='none'; document.getElementById('fallback-${fileName}').style.display='block';" />
-        <img id="fallback-${fileName}" src="${imgPath}" alt="KPI Report Image" style="display:none; max-width:100%; height:auto;" />
+        <img id="fallback-${fileName}" src="${imgPath}" alt="KPI Report" style="display:none; max-width:100%; height:auto;" />
       </div>
     `;
   }
