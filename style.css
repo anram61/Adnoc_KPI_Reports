@@ -92,7 +92,7 @@ main {
 }
 
 .ytd-button:hover {
-  box-shadow: 0 0 12px 5px rgba(0, 95, 163, 0.7);
+  box-shadow: 0 0 12px 5px rgba(255, 0, 0);
 }
 
 /* Month Select */
