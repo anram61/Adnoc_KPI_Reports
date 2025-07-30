@@ -16,7 +16,7 @@ const reportContainer = document.getElementById('report-container');
 let selectedCompany = null;
 let selectedMonth = null;
 
-// Populate company buttons
+// Create company buttons
 companies.forEach(company => {
   const button = document.createElement('button');
   button.className = 'company-button';
@@ -25,7 +25,7 @@ companies.forEach(company => {
     selectedCompany = company;
     document.querySelectorAll('.company-button').forEach(btn => btn.classList.remove('selected'));
     button.classList.add('selected');
-    tryShowReport(); // Try to show report when company is selected
+    tryShowReport();
   });
   companyContainer.appendChild(button);
 });
@@ -38,16 +38,16 @@ months.forEach(month => {
   monthSelect.appendChild(option);
 });
 
-// Trigger on month select
+// Listen for month change
 monthSelect.addEventListener('change', (e) => {
   selectedMonth = e.target.value;
-  tryShowReport(); // Try to show report when month is selected
+  tryShowReport();
 });
 
-// Show report if both selections are made
+// Display report if both selected
 function tryShowReport() {
   if (selectedCompany && selectedMonth) {
-    const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_')}_${selectedMonth.toLowerCase().replace(' ', '')}`;
+    const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and')}_${selectedMonth.toLowerCase().replace(' ', '')}`;
     const pdfPath = `reports/${fileName}.pdf`;
     const imgPath = `reports/${fileName}.png`;
 
