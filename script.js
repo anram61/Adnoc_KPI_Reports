@@ -4,7 +4,8 @@ const reportBox = document.getElementById('report-box');
 const reportCompany = document.getElementById('report-company');
 const reportMonth = document.getElementById('report-month');
 const reportText = document.getElementById('report-text');
-const reportContent = document.getElementById('report-content');
+const pdfContainer = document.getElementById('pdf-container');
+const pdfFrame = document.getElementById('pdf-frame');
 
 let selectedCompany = '';
 let selectedMonth = '';
@@ -14,22 +15,13 @@ function displayReport() {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
 
-    // Clear previous content
-    reportContent.innerHTML = '';
-
-    // Check for special case
-    if (selectedCompany === 'Adnoc Offshore') {
-      const iframe = document.createElement('iframe');
-      iframe.src = 'Performance Dashboard - Offshore-web.pdf';
-      iframe.width = '100%';
-      iframe.height = '500px';
-      iframe.style.border = 'none';
-      reportContent.appendChild(iframe);
+    if (selectedCompany === "Adnoc Offshore") {
+      pdfContainer.classList.remove('hidden');
+      pdfFrame.src = "assets/offshore-report.pdf";
+      reportText.textContent = "";
     } else {
-      const text = document.createElement('p');
-      text.id = 'report-text';
-      text.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
-      reportContent.appendChild(text);
+      pdfContainer.classList.add('hidden');
+      reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
     }
   }
 }
