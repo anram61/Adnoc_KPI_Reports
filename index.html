@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ADNOC KPI Viewer</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="animated-line left-line"></div>
-  <div class="animated-line right-line"></div>
+  <!-- Blue Stripes -->
+  <div class="animated-stripe left"></div>
+  <div class="animated-stripe right"></div>
 
   <header>
     <img src="assets/adnoc-logo.png" alt="ADNOC Logo" class="logo" />
@@ -39,7 +42,7 @@
 
       <div class="month-select-row">
         <select id="month-select">
-          <option disabled selected>Select Month</option>
+          <option value="">Select Month</option>
           <option>January 2025</option>
           <option>February 2025</option>
           <option>March 2025</option>
@@ -50,7 +53,7 @@
       </div>
     </section>
 
-    <section class="report-box">
+    <section class="report-box" id="report-box">
       <h3>📂 Report Summary</h3>
       <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
       <p><strong>Month:</strong> <span id="report-month">N/A</span></p>
