@@ -8,26 +8,23 @@ const reportText = document.getElementById('report-text');
 let selectedCompany = '';
 let selectedMonth = '';
 
-// Show report when both selected
-function showReportIfReady() {
+function displayReport() {
   if (selectedCompany && selectedMonth) {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
     reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
-    reportBox.classList.remove('hidden');
+    reportBox.classList.add('visible');
   }
 }
 
-// When company is selected
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
-    showReportIfReady();
+    displayReport();
   });
 });
 
-// When month is selected
 monthSelect.addEventListener('change', () => {
   selectedMonth = monthSelect.value;
-  showReportIfReady();
+  displayReport();
 });
