@@ -1,70 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ADNOC KPI Viewer</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="animated-line left-line"></div>
-  <div class="animated-line right-line"></div>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  <header>
-    <img src="assets/adnoc-logo.png" alt="ADNOC Logo" class="logo" />
-    <h1>KPI Report Viewer</h1>
-  </header>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #eef3f7;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  <main>
-    <section class="section-header">
-      <h2>📊 View Monthly KPI Reports</h2>
-      <p>Select a company, then choose a month to view the summary.</p>
-    </section>
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  background-color: #004b91;
+  padding: 15px 30px;
+  gap: 20px;
+}
 
-    <section class="controls">
-      <div class="company-buttons">
-        <button class="company" data-company="Adnoc Onshore">Adnoc Onshore</button>
-        <button class="company" data-company="Adnoc Offshore">Adnoc Offshore</button>
-        <button class="company" data-company="Adnoc Al Dhafra & Al Yasat">Adnoc Al Dhafra & Al Yasat</button>
-        <button class="company" data-company="Adnoc Drilling">Adnoc Drilling</button>
-        <button class="company" data-company="Adnoc Sour Gas">Adnoc Sour Gas</button>
-        <button class="company" data-company="Adnoc Refining">Adnoc Refining</button>
-        <button class="company" data-company="Adnoc Distribution">Adnoc Distribution</button>
-        <button class="company large special" data-company="Year to date Average">📈 Year to date Average</button>
-        <button class="company" data-company="Adnoc Borouge">Adnoc Borouge</button>
-        <button class="company" data-company="Adnoc L & S">Adnoc L & S</button>
-        <button class="company" data-company="Adnoc Global Trading">Adnoc Global Trading</button>
-        <button class="company" data-company="Adnoc LNG">Adnoc LNG</button>
-        <button class="company" data-company="Adnoc Gas">Adnoc Gas</button>
-      </div>
+.logo {
+  height: 60px;
+}
 
-      <div class="month-select-row">
-        <select id="month-select">
-          <option disabled selected>Select Month</option>
-          <option>January 2025</option>
-          <option>February 2025</option>
-          <option>March 2025</option>
-          <option>April 2025</option>
-          <option>May 2025</option>
-          <option>June 2025</option>
-        </select>
-      </div>
-    </section>
+header h1 {
+  color: white;
+  font-size: 28px;
+}
 
-    <section class="report-box" id="report-box">
-      <h3>📂 Report Summary</h3>
-      <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
-      <p><strong>Month:</strong> <span id="report-month">N/A</span></p>
-      <div id="report-content">
-        <p id="report-text">Please select a company and month to see the KPI summary.</p>
-      </div>
-    </section>
-  </main>
+/* Main */
+main {
+  flex: 1;
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+  position: relative;
+  z-index: 1;
+}
 
-  <footer>
-    <p>© 2025 ADNOC. All rights reserved.</p>
-  </footer>
+/* Section Header */
+.section-header h2 {
+  font-size: 30px;
+  margin-bottom: 10px;
+  color: #003366;
+  text-align: center;
+}
 
-  <script src="script.js"></script>
-</body>
-</html>
+.section-header p {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Company Buttons */
+.company-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.company {
+  background-color: #0077cc;
+  color: white;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 180px;
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.company:hover {
+  box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Year to Date Button */
+.ytd-button {
+  font-size: 18px;
+  padding: 16px 28px;
+  background-color: #005fa3;
+  border: 2px solid #004b91;
+}
+
+.ytd-button:hover {
+  box-shadow: 0 0 12px 5px rgba(0, 95, 163, 0.7);
+}
+
+/* Month Select */
+.month-select-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Report Box */
+.report-box {
+  background-color: #fff;
+  padding: 20px;
+  border-left: 6px solid orange;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.report-box h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Footer */
+footer {
+  background-color: #004b91;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Animated Side Lines */
+.animated-line {
+  position: fixed;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(#004b91, #0077cc, #004b91);
+  animation: slide 3s linear infinite;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+.left-line {
+  left: 0;
+}
+
+.right-line {
+  right: 0;
+}
+
+@keyframes slide {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
