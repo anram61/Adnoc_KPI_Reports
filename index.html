@@ -13,15 +13,25 @@
   </header>
 
   <section class="kpi-section">
-    <h2>View Monthly KPI Reports</h2>
+    <h2>📊 View Monthly KPI Reports</h2>
+    <p>Select a company, then choose a month to view the summary.</p>
+
     <div id="company-container" class="company-buttons"></div>
-    <select id="month-select">
-      <option value="" disabled selected>Select Month</option>
-    </select>
+
+    <div class="month-select-wrapper">
+      <select id="month-select">
+        <option value="" disabled selected>Select Month</option>
+      </select>
+    </div>
   </section>
 
   <section id="report-container" class="report-section">
-    <!-- KPI Report will appear here -->
+    <div class="report-box" id="placeholder-report">
+      <h3>📁 Report Summary</h3>
+      <p><strong>Company:</strong> N/A</p>
+      <p><strong>Month:</strong> N/A</p>
+      <p>Please select a company and month to see the KPI summary.</p>
+    </div>
   </section>
 
   <footer>
