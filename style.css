@@ -1,4 +1,4 @@
- * {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -83,6 +83,18 @@ main {
   transform: translateY(-2px);
 }
 
+/* Year to Date Button */
+.ytd-button {
+  font-size: 18px;
+  padding: 16px 28px;
+  background-color: #005fa3;
+  border: 2px solid #004b91;
+}
+
+.ytd-button:hover {
+  box-shadow: 0 0 12px 5px rgba(0, 95, 163, 0.7);
+}
+
 /* Month Select */
 .month-select-row {
   display: flex;
@@ -127,10 +139,10 @@ footer {
   position: fixed;
   width: 6px;
   height: 100%;
-  background: linear-gradient(blue, lightblue, blue);
+  background: linear-gradient(#004b91, #0077cc, #004b91);
   animation: slide 3s linear infinite;
   z-index: 0;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 .left-line {
