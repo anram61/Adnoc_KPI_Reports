@@ -6,22 +6,22 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: #eef3f7;
   color: #000;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  scroll-behavior: smooth;
 }
 
 /* Header */
 header {
   display: flex;
   align-items: center;
-  background-color: #004b91;
-  padding: 15px 30px;
+  background: linear-gradient(90deg, #004b91, #0077cc);
+  padding: 20px 40px;
   gap: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .logo {
@@ -31,14 +31,16 @@ header {
 header h1 {
   color: white;
   font-size: 30px;
+  font-weight: 600;
 }
 
 /* Main Content */
 main {
   flex: 1;
-  padding: 30px;
+  padding: 40px 20px;
   max-width: 1200px;
   margin: auto;
+  animation: fadeIn 1s ease-in;
 }
 
 /* Section Header */
@@ -50,68 +52,70 @@ main {
 }
 
 .section-header p {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
+  font-weight: 300;
 }
 
 /* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 18px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .company {
   background-color: #0077cc;
   color: white;
-  padding: 16px 24px;
+  padding: 16px 26px;
   font-size: 16px;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
   min-width: 180px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .company:hover {
-  transform: scale(1.05);
   background-color: #005fa3;
+  box-shadow: 0 8px 12px rgba(0, 85, 160, 0.2);
 }
 
-/* Month Select */
+/* Month Dropdown */
 .month-select-row {
   display: flex;
   justify-content: center;
+  gap: 10px;
   margin-bottom: 30px;
 }
 
 select {
-  padding: 12px 18px;
-  font-size: 15px;
-  border-radius: 6px;
+  padding: 12px;
   border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: 0.3s ease;
 }
 
 /* Report Box */
 .report-box {
   background-color: #fff;
   padding: 25px;
-  border-left: 6px solid orange;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
+  border-left: 6px solid #ff9900;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.5s ease-in-out;
+  max-width: 800px;
+  margin: 0 auto 30px;
 }
 
-.report-box.show {
-  opacity: 1;
-  transform: translateY(0);
+.report-box.hidden {
+  display: none;
 }
 
 .report-box h3 {
@@ -125,9 +129,16 @@ footer {
   color: white;
   text-align: center;
   padding: 15px 0;
+  font-size: 14px;
 }
 
-/* Hidden */
-.hidden {
-  display: none;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
