@@ -1,4 +1,3 @@
-/* Reset and Base */
 * {
   margin: 0;
   padding: 0;
@@ -7,159 +6,146 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f1f6fb;
-  min-height: 100vh;
+  background-color: #eef3f7;
+  color: #000;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Header */
 header {
-  background-color: #0056b3;
-  color: white;
-  padding: 10px 20px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #004b91;
+  padding: 15px 30px;
+  gap: 20px;
 }
 
 .logo {
   height: 60px;
-  margin-right: 20px;
 }
 
 header h1 {
-  font-size: 1.8rem;
+  color: white;
+  font-size: 28px;
 }
 
-/* Main Content */
+/* Main */
 main {
   flex: 1;
-  padding: 20px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
   position: relative;
   z-index: 1;
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
+/* Section Header */
 .section-header h2 {
+  font-size: 30px;
+  margin-bottom: 10px;
   color: #003366;
-  font-size: 2rem;
-  margin-bottom: 5px;
+  text-align: center;
 }
 
 .section-header p {
-  color: #333;
-  font-size: 1rem;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 /* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
+  gap: 15px;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.company {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-.company:hover {
-  box-shadow: 0 0 15px 4px rgba(0, 123, 255, 0.7);
-  transform: translateY(-2px);
-}
-
-/* Month Selector */
-.month-select-row {
-  text-align: center;
   margin-bottom: 30px;
 }
 
-#month-select {
-  padding: 10px 14px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.company {
+  background-color: #0077cc;
+  color: white;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 180px;
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* Report Summary */
+.company:hover {
+  box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Month Select */
+.month-select-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Report Box */
 .report-box {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 25px 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  padding: 20px;
   border-left: 6px solid orange;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .report-box h3 {
-  font-size: 1.3rem;
   margin-bottom: 10px;
-  color: #333;
-}
-
-.report-box p {
-  margin-bottom: 8px;
   color: #333;
 }
 
 /* Footer */
 footer {
-  background-color: #004080;
+  background-color: #004b91;
   color: white;
   text-align: center;
-  padding: 12px;
-  font-size: 0.9rem;
-  margin-top: auto;
+  padding: 15px 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Animated Side Blue Lines */
+/* Animated Side Lines */
 .animated-line {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 30px;
-  background: linear-gradient(to bottom, #007bff, #0056b3);
-  opacity: 0.4;
+  width: 8px;
+  height: 100%;
+  background: linear-gradient(#004b91, #0077cc, #004b91);
+  animation: slide 3s linear infinite;
   z-index: 0;
-  border-radius: 5px;
+  opacity: 0.85;
 }
 
-.animated-line.left {
+.left-line {
   left: 0;
-  animation: waveLeft 5s ease-in-out infinite;
 }
 
-.animated-line.right {
+.right-line {
   right: 0;
-  animation: waveRight 5s ease-in-out infinite;
 }
 
-@keyframes waveLeft {
-  0%   { transform: translateY(0) translateX(0); }
-  25%  { transform: translateY(10px) translateX(10px); }
-  50%  { transform: translateY(0) translateX(20px); }
-  75%  { transform: translateY(-10px) translateX(10px); }
-  100% { transform: translateY(0) translateX(0); }
-}
-
-@keyframes waveRight {
-  0%   { transform: translateY(0) translateX(0); }
-  25%  { transform: translateY(-10px) translateX(-10px); }
-  50%  { transform: translateY(0) translateX(-20px); }
-  75%  { transform: translateY(10px) translateX(-10px); }
-  100% { transform: translateY(0) translateX(0); }
+@keyframes slide {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
