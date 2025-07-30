@@ -1,8 +1,10 @@
 const companies = document.querySelectorAll('.company');
 const monthSelect = document.getElementById('month-select');
+const reportBox = document.getElementById('report-box');
 const reportCompany = document.getElementById('report-company');
 const reportMonth = document.getElementById('report-month');
 const reportText = document.getElementById('report-text');
+const reportContent = document.getElementById('report-content');
 
 let selectedCompany = '';
 let selectedMonth = '';
@@ -12,19 +14,22 @@ function displayReport() {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
 
+    // Clear previous content
+    reportContent.innerHTML = '';
+
+    // Check for special case
     if (selectedCompany === 'Adnoc Offshore') {
-      // Embed the PDF for Adnoc Offshore
-      reportText.innerHTML = `
-        <iframe src="reports/offshore-report.pdf#toolbar=0" width="100%" height="600px" style="border: none;"></iframe>
-      `;
-    } else if (selectedCompany === 'Year to date Average') {
-      // Custom message for YTD average
-      reportText.innerHTML = `
-        <strong>This section will display the Year-to-Date performance summary when available.</strong>
-      `;
+      const iframe = document.createElement('iframe');
+      iframe.src = 'Performance Dashboard - Offshore-web.pdf';
+      iframe.width = '100%';
+      iframe.height = '500px';
+      iframe.style.border = 'none';
+      reportContent.appendChild(iframe);
     } else {
-      // Default placeholder
-      reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
+      const text = document.createElement('p');
+      text.id = 'report-text';
+      text.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
+      reportContent.appendChild(text);
     }
   }
 }
