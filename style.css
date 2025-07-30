@@ -125,12 +125,12 @@ footer {
 /* Animated Side Lines */
 .animated-line {
   position: fixed;
-  width: 8px;
+  width: 6px;
   height: 100%;
-  background: linear-gradient(#004b91, #0077cc, #004b91);
+  background: linear-gradient(blue, lightblue, blue);
   animation: slide 3s linear infinite;
   z-index: 0;
-  opacity: 0.85;
+  opacity: 0.5;
 }
 
 .left-line {
