@@ -1,119 +1,98 @@
-/* Reset & Base Styles */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #eef3f7;
-  color: #000;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  background-color: #f4f9ff;
+  color: #000;
 }
 
-/* Header */
 header {
   display: flex;
   align-items: center;
-  background-color: #004b91;
-  padding: 15px 30px;
-  gap: 20px;
+  background-color: #00205b;
+  color: white;
+  padding: 20px;
 }
 
 .logo {
   height: 60px;
+  margin-right: 20px;
 }
 
-header h1 {
+h1 {
+  font-size: 2rem;
+}
+
+.kpi-section {
+  background-color: #0077b6;
   color: white;
-  font-size: 28px;
-}
-
-/* Main Content */
-main {
-  flex: 1;
-  padding: 30px;
-  max-width: 1200px;
-  margin: auto;
-}
-
-/* Section Header */
-.section-header h2 {
-  font-size: 30px; /* bigger */
-  margin-bottom: 10px;
-  color: #003366;
+  padding: 30px 20px;
   text-align: center;
 }
 
-.section-header p {
+.kpi-section h2 {
+  font-size: 1.8rem;
   margin-bottom: 20px;
-  text-align: center;
 }
 
-/* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 15px;
-  justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
-.company {
-  background-color: #0077cc;
-  color: white;
-  padding: 14px 22px;
-  font-size: 16px;
-  font-weight: 600;
+.company-button {
+  padding: 12px 20px;
+  background-color: white;
+  color: #0077b6;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  min-width: 180px;
-  text-align: center;
-}
-
-.company:hover {
-  background-color: #005fa3;
-}
-
-/* Month Select + Button */
-.month-select-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
-select,
-#view-report {
-  padding: 10px;
-  border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* Report Box */
+.company-button:hover {
+  background-color: #e0f0ff;
+}
+
+.company-button.selected {
+  background-color: #003f75;
+  color: white;
+}
+
+select#month-select {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+}
+
+.report-section {
+  flex: 1;
+  padding: 30px 20px;
+}
+
 .report-box {
-  background-color: #fff;
-  padding: 20px;
-  border-left: 6px solid orange;
+  background-color: white;
+  padding: 25px;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.report-box h3 {
-  margin-bottom: 10px;
-  color: #333;
-}
-
-/* Footer */
 footer {
-  background-color: #004b91;
+  background-color: #0077b6;
   color: white;
   text-align: center;
-  padding: 15px 0;
+  padding: 15px;
+  margin-top: auto;
 }
