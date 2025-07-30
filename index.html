@@ -8,31 +8,52 @@
 </head>
 <body>
   <header>
-    <img src="assets/adnoc-logo.png" alt="ADNOC Logo" class="logo" />
-    <h1>ADNOC KPI Report Viewer</h1>
+    <img src="assets/adnoc-logo" alt="ADNOC Logo" class="logo"/>
+    <h1>KPI Report Viewer</h1>
   </header>
 
-  <section class="kpi-section">
-    <h2>📊 View Monthly KPI Reports</h2>
-    <p>Select a company, then choose a month to view the summary.</p>
+  <main>
+    <section class="kpi-section">
+      <h2>📊 View Monthly KPI Reports</h2>
+      <p>Select a company, then choose a month to view the summary.</p>
+      
+      <div class="button-container">
+        <button class="company-btn">Adnoc Onshore</button>
+        <button class="company-btn">Adnoc Offshore</button>
+        <button class="company-btn">Adnoc Al Dhafra & Al Yasat</button>
+        <button class="company-btn">Adnoc Drilling</button>
+        <button class="company-btn">Adnoc Sour Gas</button>
+        <button class="company-btn">Adnoc Refining</button>
+        <button class="company-btn">Adnoc Distribution</button>
+        <button class="company-btn">Adnoc Borouge</button>
+        <button class="company-btn">Adnoc L & S</button>
+        <button class="company-btn">Adnoc Global Trading</button>
+        <button class="company-btn">Adnoc LNG</button>
+        <button class="company-btn">Adnoc Taziz</button>
+      </div>
 
-    <div id="company-container" class="company-buttons"></div>
+      <div class="month-selectors">
+        <select id="month-select">
+          <option value="">Select Month</option>
+          <option>January 2025</option>
+          <option>February 2025</option>
+          <option>March 2025</option>
+          <option>April 2025</option>
+          <option>May 2025</option>
+          <option>June 2025</option>
+        </select>
+      </div>
+    </section>
 
-    <div class="month-select-wrapper">
-      <select id="month-select">
-        <option value="" disabled selected>Select Month</option>
-      </select>
-    </div>
-  </section>
-
-  <section id="report-container" class="report-section">
-    <div class="report-box" id="placeholder-report">
-      <h3>📁 Report Summary</h3>
-      <p><strong>Company:</strong> N/A</p>
-      <p><strong>Month:</strong> N/A</p>
-      <p>Please select a company and month to see the KPI summary.</p>
-    </div>
-  </section>
+    <section class="report-section" id="report-section">
+      <div class="report-box">
+        <h3>📁 Report Summary</h3>
+        <p><strong>Company:</strong> <span id="selected-company">N/A</span></p>
+        <p><strong>Month:</strong> <span id="selected-month">N/A</span></p>
+        <p id="report-text">Please select a company and month to see the KPI summary.</p>
+      </div>
+    </section>
+  </main>
 
   <footer>
     <p>© 2025 ADNOC. All rights reserved.</p>
