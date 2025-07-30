@@ -14,20 +14,26 @@ function displayReport() {
     reportMonth.textContent = selectedMonth;
 
     if (selectedCompany === 'Adnoc Offshore') {
-      // Remove padding from report box for seamless scroll
+      // Style the report box to remove scroll feel
       reportBox.style.padding = "0";
       reportBox.style.border = "none";
       reportBox.style.boxShadow = "none";
+      reportBox.style.backgroundColor = "#fff";
 
-      // Show full embedded PDF, flowing naturally in page
+      // Embed PDF directly in page, tall enough to scroll normally
       reportText.innerHTML = `
-        <embed src="reports/offshore-report.pdf#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" width="100%" height="1800px" style="display: block;" />
+        <embed src="reports/offshore-report.pdf#toolbar=0&navpanes=0&scrollbar=0" 
+               type="application/pdf" 
+               width="100%" 
+               height="1800px" 
+               style="display: block; margin: 0 auto;" />
       `;
     } else {
-      // Restore default styles
+      // Restore original styling
       reportBox.style.padding = "10px";
       reportBox.style.borderLeft = "6px solid orange";
       reportBox.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.1)";
+      reportBox.style.backgroundColor = "#fff";
 
       if (selectedCompany === 'Year to date Average') {
         reportText.innerHTML = `
