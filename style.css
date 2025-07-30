@@ -39,7 +39,7 @@ h1 {
 
 .kpi-section h2 {
   font-size: 1.8rem;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .company-buttons {
@@ -47,7 +47,7 @@ h1 {
   flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .company-button {
@@ -68,6 +68,10 @@ h1 {
 .company-button.selected {
   background-color: #003f75;
   color: white;
+}
+
+.month-select-wrapper {
+  margin-top: 10px;
 }
 
 select#month-select {
