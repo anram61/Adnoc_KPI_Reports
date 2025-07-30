@@ -25,7 +25,7 @@ companies.forEach(company => {
     selectedCompany = company;
     document.querySelectorAll('.company-button').forEach(btn => btn.classList.remove('selected'));
     button.classList.add('selected');
-    tryShowReport();
+    showReportIfReady();
   });
   companyContainer.appendChild(button);
 });
@@ -41,24 +41,24 @@ months.forEach(month => {
 // Month selection
 monthSelect.addEventListener('change', (e) => {
   selectedMonth = e.target.value;
-  tryShowReport();
+  showReportIfReady();
 });
 
-// Show the report
-function tryShowReport() {
-  if (selectedCompany && selectedMonth) {
-    const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and')}_${selectedMonth.toLowerCase().replace(/ /g, '')}`;
-    const pdfPath = `reports/${fileName}.pdf`;
-    const imgPath = `reports/${fileName}.png`;
+// Show report when both values are selected
+function showReportIfReady() {
+  if (!selectedCompany || !selectedMonth) return;
 
-    reportContainer.innerHTML = `
-      <div class="report-box">
-        <h3>📂 Report Summary</h3>
-        <p><strong>Company:</strong> ${selectedCompany}</p>
-        <p><strong>Month:</strong> ${selectedMonth}</p>
-        <embed src="${pdfPath}" type="application/pdf" width="100%" height="600px" onerror="this.style.display='none'; document.getElementById('fallback-${fileName}').style.display='block';" />
-        <img id="fallback-${fileName}" src="${imgPath}" alt="KPI Report" style="display:none; max-width:100%; height:auto;" />
-      </div>
-    `;
-  }
+  const fileName = `${selectedCompany.toLowerCase().replace(/ /g, '_').replace(/&/g, 'and')}_${selectedMonth.toLowerCase().replace(/ /g, '')}`;
+  const pdfPath = `reports/${fileName}.pdf`;
+  const imgPath = `reports/${fileName}.png`;
+
+  reportContainer.innerHTML = `
+    <div class="report-box">
+      <h3>📁 Report Summary</h3>
+      <p><strong>Company:</strong> ${selectedCompany}</p>
+      <p><strong>Month:</strong> ${selectedMonth}</p>
+      <embed src="${pdfPath}" type="application/pdf" width="100%" height="600px" onerror="this.style.display='none'; document.getElementById('fallback-${fileName}').style.display='block';" />
+      <img id="fallback-${fileName}" src="${imgPath}" alt="KPI Report" style="display:none; max-width:100%; height:auto;" />
+    </div>
+  `;
 }
