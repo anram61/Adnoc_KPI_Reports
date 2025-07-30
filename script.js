@@ -17,7 +17,7 @@ function displayReport() {
 
     if (selectedCompany === "Adnoc Offshore") {
       pdfContainer.classList.remove('hidden');
-      pdfFrame.src = "assets/offshore-report.pdf";
+      pdfFrame.src = "reports/offshore-report.pdf";
       reportText.textContent = "";
     } else {
       pdfContainer.classList.add('hidden');
