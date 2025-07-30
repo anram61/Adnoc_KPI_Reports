@@ -1,29 +1,29 @@
+const companies = document.querySelectorAll('.company');
+const reportCompany = document.getElementById('report-company');
+const reportMonth = document.getElementById('report-month');
+const reportText = document.getElementById('report-text');
+const monthSelect = document.getElementById('month-select');
+
 let selectedCompany = '';
 let selectedMonth = '';
 
-document.querySelectorAll('.company-btn').forEach(button => {
+// Display report if both are selected
+function updateReport() {
+  if (selectedCompany && selectedMonth) {
+    reportCompany.textContent = selectedCompany;
+    reportMonth.textContent = selectedMonth;
+    reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
+  }
+}
+
+companies.forEach(button => {
   button.addEventListener('click', () => {
-    selectedCompany = button.textContent;
+    selectedCompany = button.getAttribute('data-company');
     updateReport();
   });
 });
 
-document.getElementById('month-select').addEventListener('change', (e) => {
-  selectedMonth = e.target.value;
+monthSelect.addEventListener('change', () => {
+  selectedMonth = monthSelect.value;
   updateReport();
 });
-
-function updateReport() {
-  const companySpan = document.getElementById('selected-company');
-  const monthSpan = document.getElementById('selected-month');
-  const reportText = document.getElementById('report-text');
-
-  companySpan.textContent = selectedCompany || 'N/A';
-  monthSpan.textContent = selectedMonth || 'N/A';
-
-  if (selectedCompany && selectedMonth) {
-    reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
-  } else {
-    reportText.textContent = 'Please select a company and month to see the KPI summary.';
-  }
-}
