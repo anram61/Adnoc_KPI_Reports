@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ADNOC KPI Viewer</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -36,7 +38,7 @@
 
       <div class="month-select-row">
         <select id="month-select">
-          <option disabled selected>Select a month</option>
+          <option disabled selected>Select Month</option>
           <option>January 2025</option>
           <option>February 2025</option>
           <option>March 2025</option>
@@ -47,11 +49,11 @@
       </div>
     </section>
 
-    <section class="report-box hidden" id="report-box">
+    <section id="report-box" class="report-box hidden">
       <h3>📂 Report Summary</h3>
-      <p><strong>🏢 Company:</strong> <span id="report-company">N/A</span></p>
-      <p><strong>📅 Month:</strong> <span id="report-month">N/A</span></p>
-      <p id="report-text">This is a placeholder for the KPI summary.</p>
+      <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
+      <p><strong>Month:</strong> <span id="report-month">N/A</span></p>
+      <p id="report-text">Please select a company and month to see the KPI summary.</p>
     </section>
   </main>
 
