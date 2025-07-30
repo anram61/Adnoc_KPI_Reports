@@ -1,102 +1,96 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-}
-
 body {
-  min-height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #eef3f7;
   display: flex;
   flex-direction: column;
-  background-color: #f4f9ff;
-  color: #000;
+  min-height: 100vh;
 }
 
 header {
+  background-color: #004b93;
+  color: white;
   display: flex;
   align-items: center;
-  background-color: #00205b;
-  color: white;
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .logo {
-  height: 60px;
-  margin-right: 20px;
+  height: 50px;
+  margin-right: 15px;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 24px;
+  margin: 0;
+}
+
+main {
+  flex: 1;
+  padding: 30px 40px;
 }
 
 .kpi-section {
-  background-color: #0077b6;
-  color: white;
-  padding: 30px 20px;
   text-align: center;
 }
 
 .kpi-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
+  font-size: 28px;
+  margin-bottom: 5px;
 }
 
-.company-buttons {
+.button-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
+  gap: 12px;
   margin: 20px 0;
 }
 
-.company-button {
-  padding: 12px 20px;
-  background-color: white;
-  color: #0077b6;
+.company-btn {
+  padding: 12px 18px;
+  background-color: #0071c5;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  color: white;
+  border-radius: 8px;
+  font-size: 15px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.company-button:hover {
-  background-color: #e0f0ff;
+.company-btn:hover {
+  background-color: #005fa3;
 }
 
-.company-button.selected {
-  background-color: #003f75;
-  color: white;
+.month-selectors {
+  margin-bottom: 30px;
 }
 
-.month-select-wrapper {
-  margin-top: 10px;
-}
-
-select#month-select {
-  padding: 10px 15px;
-  border-radius: 5px;
-  border: none;
-  font-size: 1rem;
+select {
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 .report-section {
-  flex: 1;
-  padding: 30px 20px;
+  display: flex;
+  justify-content: center;
 }
 
 .report-box {
   background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 25px 30px;
+  border-left: 6px solid orange;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: 100%;
 }
 
 footer {
-  background-color: #0077b6;
+  background-color: #004b93;
   color: white;
   text-align: center;
-  padding: 15px;
-  margin-top: auto;
+  padding: 10px 0;
 }
