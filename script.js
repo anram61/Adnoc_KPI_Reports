@@ -1,28 +1,30 @@
 const companies = document.querySelectorAll('.company');
+const monthSelect = document.getElementById('month-select');
+const reportBox = document.getElementById('report-box');
 const reportCompany = document.getElementById('report-company');
 const reportMonth = document.getElementById('report-month');
 const reportText = document.getElementById('report-text');
-const monthSelect = document.getElementById('month-select');
 
 let selectedCompany = '';
 let selectedMonth = '';
 
-function updateReport() {
-  if (selectedCompany && selectedMonth && selectedMonth !== "Select Month") {
+function displayReport() {
+  if (selectedCompany && selectedMonth) {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
     reportText.textContent = `This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.`;
+    reportBox.classList.add('visible');
   }
 }
 
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
-    updateReport();
+    displayReport();
   });
 });
 
 monthSelect.addEventListener('change', () => {
   selectedMonth = monthSelect.value;
-  updateReport();
+  displayReport();
 });
