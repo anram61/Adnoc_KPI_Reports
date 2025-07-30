@@ -14,6 +14,7 @@ body {
   overflow-x: hidden;
 }
 
+/* Header */
 header {
   display: flex;
   align-items: center;
@@ -31,6 +32,7 @@ header h1 {
   font-size: 28px;
 }
 
+/* Main */
 main {
   flex: 1;
   padding: 30px;
@@ -40,6 +42,7 @@ main {
   z-index: 1;
 }
 
+/* Section Header */
 .section-header h2 {
   font-size: 30px;
   margin-bottom: 10px;
@@ -52,6 +55,7 @@ main {
   text-align: center;
 }
 
+/* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -79,11 +83,13 @@ main {
   transform: translateY(-2px);
 }
 
-.company.large {
-  min-width: 220px;
+.year-button {
   font-size: 17px;
+  padding: 16px 26px;
+  background-color: #005fa3;
 }
 
+/* Month Select */
 .month-select-row {
   display: flex;
   justify-content: center;
@@ -98,14 +104,15 @@ select {
   font-size: 14px;
 }
 
+/* Report Box */
 .report-box {
   background-color: #fff;
   padding: 20px;
   border-left: 6px solid orange;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  max-height: 520px;
-  overflow-y: auto;
+  max-width: 900px;
+  margin: auto;
 }
 
 .report-box h3 {
@@ -113,6 +120,24 @@ select {
   color: #333;
 }
 
+.pdf-container {
+  margin-top: 20px;
+  max-height: 480px;
+  overflow: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.pdf-container iframe {
+  width: 100%;
+  height: 500px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Footer */
 footer {
   background-color: #004b91;
   color: white;
@@ -122,14 +147,15 @@ footer {
   z-index: 1;
 }
 
+/* Animated Side Lines */
 .animated-line {
   position: fixed;
-  width: 10px;
+  width: 12px;
   height: 100%;
-  background: linear-gradient(blue, lightblue, blue);
-  animation: wave 5s linear infinite;
+  background: linear-gradient(blue, #0080ff, blue);
+  animation: wave 6s linear infinite;
   z-index: 0;
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
 .left-line {
@@ -142,12 +168,12 @@ footer {
 
 @keyframes wave {
   0% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
   50% {
-    background-position: 100% 50%;
+    background-position: 0 50%;
   }
   100% {
-    background-position: 0% 100%;
+    background-position: 0 100%;
   }
 }
