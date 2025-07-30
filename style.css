@@ -1,4 +1,3 @@
-/* Reset & Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -6,50 +5,22 @@
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: Arial, sans-serif;
   background-color: #eef3f7;
   color: #000;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  position: relative;
   overflow-x: hidden;
-}
-
-/* Animated Blue Stripes Left & Right */
-.animated-stripe {
-  position: fixed;
-  top: 0;
-  width: 10px;
-  height: 100%;
-  background: linear-gradient(to bottom, #0077cc, #004b91);
-  animation: moveStripe 4s linear infinite;
-  opacity: 0.2;
-  z-index: 0;
-}
-
-.animated-stripe.left {
-  left: 0;
-}
-
-.animated-stripe.right {
-  right: 0;
-}
-
-@keyframes moveStripe {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100%); }
 }
 
 /* Header */
 header {
   display: flex;
   align-items: center;
-  background: linear-gradient(90deg, #004b91, #0066b2);
+  background-color: #004b91;
   padding: 15px 30px;
   gap: 20px;
-  position: relative;
-  z-index: 1;
 }
 
 .logo {
@@ -61,14 +32,14 @@ header h1 {
   font-size: 28px;
 }
 
-/* Main Content */
+/* Main */
 main {
   flex: 1;
   padding: 30px;
   max-width: 1200px;
   margin: auto;
-  z-index: 1;
   position: relative;
+  z-index: 1;
 }
 
 /* Section Header */
@@ -104,23 +75,20 @@ main {
   cursor: pointer;
   min-width: 180px;
   text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 0 transparent;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .company:hover {
-  background-color: #005fa3;
-  box-shadow: 0 0 10px #0077cc;
-  transform: scale(1.05);
+  box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.6);
+  transform: translateY(-2px);
 }
 
-/* Month Select Row */
+/* Month Select */
 .month-select-row {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-bottom: 30px;
-  animation: fadeIn 1s ease-in;
 }
 
 select {
@@ -137,14 +105,6 @@ select {
   border-left: 6px solid orange;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
-}
-
-.report-box.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .report-box h3 {
@@ -158,12 +118,34 @@ footer {
   color: white;
   text-align: center;
   padding: 15px 0;
-  z-index: 1;
   position: relative;
+  z-index: 1;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Animated Side Lines */
+.animated-line {
+  position: fixed;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(blue, lightblue, blue);
+  animation: slide 3s linear infinite;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.left-line {
+  left: 0;
+}
+
+.right-line {
+  right: 0;
+}
+
+@keyframes slide {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
