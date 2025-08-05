@@ -12,19 +12,30 @@ function displayReport() {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
 
-    if (selectedCompany === 'Adnoc Offshore') {
-      // Embed the PDF with no internal scroll (large height)
-      reportText.innerHTML = 
-        <iframe src="reports/offshore-report.pdf#toolbar=0" width="100%" height="1800px" style="border: none; overflow: hidden;"></iframe>
-      ;
+    if (selectedCompany === 'Adnoc Global Trading' && selectedMonth === 'June 2025') {
+      reportText.innerHTML = `
+        <iframe 
+          src="reports/AGT.pdf#toolbar=0" 
+          width="100%" 
+          height="1800px" 
+          style="border: none;"></iframe>
+      `;
+    } else if (selectedCompany === 'Year to date Average' && selectedMonth === 'June 2025') {
+      reportText.innerHTML = `
+        <iframe 
+          src="reports/YTD.pdf#toolbar=0" 
+          width="100%" 
+          height="1800px" 
+          style="border: none;"></iframe>
+      `;
     } else if (selectedCompany === 'Year to date Average') {
-      // Custom message for YTD average
-      reportText.innerHTML = 
+      reportText.innerHTML = `
         <strong>This section will display the Year-to-Date performance summary when available.</strong>
-      ;
+      `;
     } else {
-      // Default placeholder
-      reportText.textContent = This is a placeholder for the KPI summary for ${selectedCompany} in ${selectedMonth}.;
+      reportText.innerHTML = `
+        <p>This is a placeholder for the KPI summary for <strong>${selectedCompany}</strong> in <strong>${selectedMonth}</strong>.</p>
+      `;
     }
   }
 }
