@@ -13,13 +13,14 @@ function displayReport() {
     reportMonth.textContent = selectedMonth;
 
     if (selectedCompany === 'Adnoc Offshore') {
-      reportText.innerHTML = `
-        <iframe 
-          src="reports/offshore-report.pdf#toolbar=0" 
-          width="100%" 
-          height="2400px" 
-          style="border: none;"></iframe>
-      `;
+     reportText.innerHTML = `
+  <iframe 
+    src="reports/offshore-report.pdf#toolbar=0" 
+    width="100%" 
+    height="1800px" 
+    style="border: none;"></iframe>
+`;
+
     } else if (selectedCompany === 'Adnoc Global Trading') {
       reportText.innerHTML = `
         <iframe 
