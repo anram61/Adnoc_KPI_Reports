@@ -155,7 +155,7 @@ footer {
 @media (max-width: 768px) {
   .responsive-iframe-container {
     transform: scale(0.65);
-    aspect-ratio: 4 / 6;
+    aspect-ratio: 3 / 7;
   }
 
   .company {
