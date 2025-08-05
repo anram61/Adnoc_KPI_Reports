@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: Arial, sans-serif;
   background-color: #eef3f7;
@@ -11,7 +16,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 header {
@@ -90,20 +94,6 @@ main {
   box-shadow: 0 0 12px 5px rgba(255, 0, 0);
 }
 
-.month-select-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
-select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
 .report-box {
   background-color: #fff;
   padding: 10px;
@@ -149,16 +139,23 @@ footer {
   100% { background-position: 0% 100%; }
 }
 
-iframe {
-  max-width: 100%;
-  height: 1350px;
+.responsive-iframe-container {
+  position: relative;
+  width: 100%;
+  padding-top: 130%; /* Aspect ratio */
+  overflow: hidden;
 }
 
-@media (max-width: 100%) {
-  .report-box iframe {
-    height: 1350px;
-  }
+.responsive-iframe-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 
+@media (max-width: 768px) {
   .company {
     font-size: 14px;
     min-width: 140px;
@@ -168,10 +165,5 @@ iframe {
   .ytd-button {
     font-size: 15px;
     padding: 12px 20px;
-  }
-
-  select {
-    font-size: 14px;
-    width: 90%;
   }
 }
