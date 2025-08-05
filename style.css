@@ -151,12 +151,12 @@ footer {
 
 iframe {
   max-width: 100%;
-  height: 2000px;
+  height: 1800px;
 }
 
 @media (max-width: 768px) {
   .report-box iframe {
-    height: 2000px;
+    height: 1800px;
   }
 
   .company {
