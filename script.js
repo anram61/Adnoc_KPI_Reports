@@ -8,25 +8,21 @@ function displayReport() {
   if (selectedCompany) {
     reportCompany.textContent = selectedCompany;
 
+    let pdfPath = '';
+
     if (selectedCompany === 'Adnoc Offshore') {
-      reportText.innerHTML = `
-        <div class="responsive-iframe-container">
-          <iframe 
-            src="reports/offshore-report.pdf#toolbar=0" 
-            frameborder="0"></iframe>
-        </div>`;
+      pdfPath = 'reports/offshore-report.pdf';
     } else if (selectedCompany === 'Adnoc Global Trading') {
-      reportText.innerHTML = `
-        <div class="responsive-iframe-container">
-          <iframe 
-            src="reports/AGT.pdf#toolbar=0" 
-            frameborder="0"></iframe>
-        </div>`;
+      pdfPath = 'reports/AGT.pdf';
     } else if (selectedCompany === 'Year to date Average') {
+      pdfPath = 'reports/YTD.pdf';
+    }
+
+    if (pdfPath) {
       reportText.innerHTML = `
         <div class="responsive-iframe-container">
           <iframe 
-            src="reports/YTD.pdf#toolbar=0" 
+            src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
             frameborder="0"></iframe>
         </div>`;
     } else {
@@ -35,6 +31,7 @@ function displayReport() {
     }
   }
 }
+
 
 companies.forEach(button => {
   button.addEventListener('click', () => {
