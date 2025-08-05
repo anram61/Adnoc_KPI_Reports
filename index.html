@@ -17,8 +17,8 @@
 
   <main>
     <section class="section-header">
-      <h2>📊 View Monthly KPI Reports</h2>
-      <p>Select a company, then choose a month to view the summary.</p>
+      <h2>📊 View KPI Reports</h2>
+      <p>Select a company to view the summary.</p>
     </section>
 
     <section class="controls">
@@ -37,25 +37,14 @@
         <button class="company" data-company="Adnoc LNG">Adnoc LNG</button>
         <button class="company" data-company="Adnoc Gas">Adnoc Gas</button>
       </div>
-
-      <div class="month-select-row">
-        <select id="month-select">
-          <option disabled selected>Select Month</option>
-          <option>January 2025</option>
-          <option>February 2025</option>
-          <option>March 2025</option>
-          <option>April 2025</option>
-          <option>May 2025</option>
-          <option>June 2025</option>
-        </select>
-      </div>
     </section>
 
     <section class="report-box" id="report-box">
       <h3>📂 Report Summary</h3>
       <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
-      <p><strong>Month:</strong> <span id="report-month">N/A</span></p>
-      <p id="report-text">Please select a company and month to see the KPI summary.</p>
+      <div id="report-text">
+        <p>Please select a company to see the KPI summary.</p>
+      </div>
     </section>
   </main>
 
