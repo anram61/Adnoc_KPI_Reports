@@ -15,10 +15,9 @@ function displayReport() {
     if (selectedCompany === 'Adnoc Offshore') {
       // Embed the PDF with no internal scroll (large height)
      reportText.innerHTML = `
-  <div class="pdf-container">
-    <iframe src="reports/offshore-report.pdf#toolbar=0"></iframe>
-  </div>
+  <iframe src="reports/offshore-report.pdf#toolbar=0" width="100%" height="1400px" style="border: none; overflow: hidden;"></iframe>
 `;
+
 
     } else if (selectedCompany === 'Year to date Average') {
       // Custom message for YTD average
