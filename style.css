@@ -139,10 +139,11 @@ footer {
   100% { background-position: 0% 100%; }
 }
 
+/* Embed wrapper */
 .responsive-iframe-container {
   position: relative;
   width: 100%;
-  padding-top: 130%; /* Aspect ratio */
+  padding-top: 130%; /* Default aspect ratio */
   overflow: hidden;
 }
 
@@ -153,9 +154,24 @@ footer {
   width: 100%;
   height: 100%;
   border: none;
+  transform-origin: top left;
 }
 
+/* 🔧 Scale iframe smaller on small screens */
 @media (max-width: 768px) {
+  .responsive-iframe-container {
+    transform: scale(0.65);
+    transform-origin: top left;
+    height: 900px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .responsive-iframe-container iframe {
+    height: 1350px;
+    width: 100%;
+  }
+
   .company {
     font-size: 14px;
     min-width: 140px;
