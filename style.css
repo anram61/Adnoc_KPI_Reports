@@ -14,7 +14,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Header */
 header {
   display: flex;
   align-items: center;
@@ -32,7 +31,6 @@ header h1 {
   font-size: 28px;
 }
 
-/* Main */
 main {
   flex: 1;
   padding: 30px;
@@ -42,7 +40,6 @@ main {
   z-index: 1;
 }
 
-/* Section Header */
 .section-header h2 {
   font-size: 30px;
   margin-bottom: 10px;
@@ -55,7 +52,6 @@ main {
   text-align: center;
 }
 
-/* Company Buttons */
 .company-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -83,7 +79,6 @@ main {
   transform: translateY(-2px);
 }
 
-/* Year to Date Button */
 .ytd-button {
   font-size: 18px;
   padding: 16px 28px;
@@ -95,7 +90,6 @@ main {
   box-shadow: 0 0 12px 5px rgba(255, 0, 0);
 }
 
-/* Month Select */
 .month-select-row {
   display: flex;
   justify-content: center;
@@ -110,7 +104,6 @@ select {
   font-size: 14px;
 }
 
-/* Report Box */
 .report-box {
   background-color: #fff;
   padding: 10px;
@@ -124,7 +117,6 @@ select {
   color: #333;
 }
 
-/* Footer */
 footer {
   background-color: #004b91;
   color: white;
@@ -134,7 +126,6 @@ footer {
   z-index: 1;
 }
 
-/* Animated Side Lines */
 .animated-line {
   position: fixed;
   width: 6px;
@@ -154,10 +145,33 @@ footer {
 }
 
 @keyframes slide {
-  0% {
-    background-position: 0% 0%;
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .report-box iframe {
+    height: 1200px;
   }
-  100% {
-    background-position: 0% 100%;
+
+  .company {
+    font-size: 14px;
+    min-width: 140px;
+    padding: 10px 14px;
+  }
+
+  .ytd-button {
+    font-size: 15px;
+    padding: 12px 20px;
+  }
+
+  select {
+    font-size: 14px;
+    width: 90%;
   }
 }
