@@ -139,36 +139,22 @@ footer {
   100% { background-position: 0% 100%; }
 }
 
-/* Embed wrapper */
 .responsive-iframe-container {
-  position: relative;
   width: 100%;
-  padding-top: 130%; /* Default aspect ratio */
+  aspect-ratio: 4 / 5;
   overflow: hidden;
 }
 
 .responsive-iframe-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   border: none;
-  transform-origin: top left;
 }
 
+/* On phones: keep same ratio but tighten layout */
 @media (max-width: 768px) {
   .responsive-iframe-container {
-    width: 100%;
-    height: 1350px;
-    overflow: hidden;
-    zoom: 0.6; /* Shrinks the entire container + PDF */
-  }
-
-  .responsive-iframe-container iframe {
-    width: 100%;
-    height: 900px;
-    border: none;
+    aspect-ratio: 4 / 6;
   }
 
   .company {
