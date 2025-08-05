@@ -157,19 +157,19 @@ footer {
   transform-origin: top left;
 }
 
-/* 🔧 Scale iframe smaller on small screens */
-@media (max-width: 100%) {
+@media (max-width: 768px) {
   .responsive-iframe-container {
-    transform: scale(0.55);
-    transform-origin: top left;
-    height: 900px;
-    padding: 0;
+    width: 100%;
+    height: auto;
     overflow: hidden;
+    zoom: 0.6; /* Shrinks the entire container + PDF */
+    margin-bottom: -150px; /* Removes white space at bottom */
   }
 
   .responsive-iframe-container iframe {
-    height: 1350px;
     width: 100%;
+    height: 900px;
+    border: none;
   }
 
   .company {
