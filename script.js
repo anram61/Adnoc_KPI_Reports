@@ -17,7 +17,7 @@ function displayReport() {
   <iframe 
     src="reports/offshore-report.pdf#toolbar=0" 
     width="100%" 
-    height="1800px" 
+    height="1600px" 
     style="border: none;"></iframe>
 `;
 
@@ -26,7 +26,7 @@ function displayReport() {
         <iframe 
           src="reports/AGT.pdf#toolbar=0" 
           width="100%" 
-          height="1800px" 
+          height="1600px" 
           style="border: none;"></iframe>
       `;
     } else if (selectedCompany === 'Year to date Average') {
@@ -34,7 +34,7 @@ function displayReport() {
         <iframe 
           src="reports/YTD.pdf#toolbar=0" 
           width="100%" 
-          height="1800px" 
+          height="1600px" 
           style="border: none;"></iframe>
       `;
     } else {
