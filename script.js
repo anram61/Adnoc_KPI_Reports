@@ -12,7 +12,15 @@ function displayReport() {
     reportCompany.textContent = selectedCompany;
     reportMonth.textContent = selectedMonth;
 
-    if (selectedCompany === 'Adnoc Global Trading' && selectedMonth === 'June 2025') {
+    if (selectedCompany === 'Adnoc Offshore') {
+      reportText.innerHTML = `
+        <iframe 
+          src="reports/offshore-report.pdf#toolbar=0" 
+          width="100%" 
+          height="1800px" 
+          style="border: none;"></iframe>
+      `;
+    } else if (selectedCompany === 'Adnoc Global Trading') {
       reportText.innerHTML = `
         <iframe 
           src="reports/AGT.pdf#toolbar=0" 
@@ -20,17 +28,13 @@ function displayReport() {
           height="1800px" 
           style="border: none;"></iframe>
       `;
-    } else if (selectedCompany === 'Year to date Average' && selectedMonth === 'June 2025') {
+    } else if (selectedCompany === 'Year to date Average') {
       reportText.innerHTML = `
         <iframe 
           src="reports/YTD.pdf#toolbar=0" 
           width="100%" 
           height="1800px" 
           style="border: none;"></iframe>
-      `;
-    } else if (selectedCompany === 'Year to date Average') {
-      reportText.innerHTML = `
-        <strong>This section will display the Year-to-Date performance summary when available.</strong>
       `;
     } else {
       reportText.innerHTML = `
