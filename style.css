@@ -134,7 +134,7 @@ select {
 /* ✅ Responsive iframe size for phones */
 @media (max-width: 768px) {
   .report-box iframe {
-    height: 500px; /* or adjust as needed */
+    height: 1000px; /* or adjust as needed */
     max-height: 60vh;
     transform: scale(1);
   }
