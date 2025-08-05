@@ -1,46 +1,37 @@
 const companies = document.querySelectorAll('.company');
-const monthSelect = document.getElementById('month-select');
 const reportCompany = document.getElementById('report-company');
-const reportMonth = document.getElementById('report-month');
 const reportText = document.getElementById('report-text');
 
 let selectedCompany = '';
-let selectedMonth = '';
 
 function displayReport() {
-  if (selectedCompany && selectedMonth) {
+  if (selectedCompany) {
     reportCompany.textContent = selectedCompany;
-    reportMonth.textContent = selectedMonth;
 
     if (selectedCompany === 'Adnoc Offshore') {
-     reportText.innerHTML = `
-  <iframe 
-    src="reports/offshore-report.pdf#toolbar=0" 
-    width="100%" 
-    height="1600px" 
-    style="border: none;"></iframe>
-`;
-
+      reportText.innerHTML = `
+        <div class="responsive-iframe-container">
+          <iframe 
+            src="reports/offshore-report.pdf#toolbar=0" 
+            frameborder="0"></iframe>
+        </div>`;
     } else if (selectedCompany === 'Adnoc Global Trading') {
       reportText.innerHTML = `
-        <iframe 
-          src="reports/AGT.pdf#toolbar=0" 
-          width="100%" 
-          height="1600px" 
-          style="border: none;"></iframe>
-      `;
+        <div class="responsive-iframe-container">
+          <iframe 
+            src="reports/AGT.pdf#toolbar=0" 
+            frameborder="0"></iframe>
+        </div>`;
     } else if (selectedCompany === 'Year to date Average') {
       reportText.innerHTML = `
-        <iframe 
-          src="reports/YTD.pdf#toolbar=0" 
-          width="100%" 
-          height="1600px" 
-          style="border: none;"></iframe>
-      `;
+        <div class="responsive-iframe-container">
+          <iframe 
+            src="reports/YTD.pdf#toolbar=0" 
+            frameborder="0"></iframe>
+        </div>`;
     } else {
       reportText.innerHTML = `
-        <p>This is a placeholder for the KPI summary for <strong>${selectedCompany}</strong> in <strong>${selectedMonth}</strong>.</p>
-      `;
+        <p>This is a placeholder for the KPI summary for <strong>${selectedCompany}</strong>.</p>`;
     }
   }
 }
@@ -50,9 +41,4 @@ companies.forEach(button => {
     selectedCompany = button.getAttribute('data-company');
     displayReport();
   });
-});
-
-monthSelect.addEventListener('change', () => {
-  selectedMonth = monthSelect.value;
-  displayReport();
 });
