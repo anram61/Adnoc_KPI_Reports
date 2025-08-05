@@ -17,7 +17,7 @@ function displayReport() {
         <iframe 
           src="reports/offshore-report.pdf#toolbar=0" 
           width="100%" 
-          height="1800px" 
+          height="2400px" 
           style="border: none;"></iframe>
       `;
     } else if (selectedCompany === 'Adnoc Global Trading') {
