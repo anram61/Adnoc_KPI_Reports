@@ -158,9 +158,9 @@ footer {
 }
 
 /* 🔧 Scale iframe smaller on small screens */
-@media (max-width: 768px) {
+@media (max-width: 100%) {
   .responsive-iframe-container {
-    transform: scale(0.65);
+    transform: scale(0.55);
     transform-origin: top left;
     height: 900px;
     padding: 0;
