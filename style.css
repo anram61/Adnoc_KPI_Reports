@@ -160,10 +160,9 @@ footer {
 @media (max-width: 768px) {
   .responsive-iframe-container {
     width: 100%;
-    height: auto;
+    height: 1350px;
     overflow: hidden;
     zoom: 0.6; /* Shrinks the entire container + PDF */
-    margin-bottom: -150px; /* Removes white space at bottom */
   }
 
   .responsive-iframe-container iframe {
