@@ -18,7 +18,6 @@ function displayReport() {
   <iframe src="reports/offshore-report.pdf#toolbar=0" width="100%" height="1400px" style="border: none; overflow: hidden;"></iframe>
 `;
 
-
     } else if (selectedCompany === 'Year to date Average') {
       // Custom message for YTD average
       reportText.innerHTML = `
