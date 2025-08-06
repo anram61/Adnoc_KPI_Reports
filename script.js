@@ -21,34 +21,34 @@ const reportPDFs = {
 };
 
 function displayReport() {
-  if (!selectedCompany) return;
+  if (selectedCompany) {
+    reportCompany.textContent = selectedCompany + " (Latest Report)";
 
-  reportCompany.textContent = selectedCompany;
+    const selectedMonth = document.getElementById("month-dropdown").value;
+    let pdfPath = "";
 
-  let pdfPath = "";
-  let message = "";
+    if (selectedCompany === 'Adnoc Offshore') {
+      pdfPath = 'reports/offshore-report.pdf';
+    } else if (selectedCompany === 'Adnoc Global Trading') {
+      pdfPath = 'reports/AGT.pdf';
+    } else if (selectedCompany === 'Year to date Average') {
+      pdfPath = 'reports/YTD.pdf';
+    }
 
-  if (selectedMonth && reportPDFs[selectedCompany]?.[selectedMonth]) {
-    pdfPath = reportPDFs[selectedCompany][selectedMonth];
-    message = `<p>Showing report for <strong>${selectedMonth} 2025</strong>.</p>`;
-  } else if (reportPDFs[selectedCompany]?.default) {
-    pdfPath = reportPDFs[selectedCompany].default;
-    message = `<p><em>Currently showing the latest available report.</em></p>`;
-  }
-
-  if (pdfPath) {
-    reportText.innerHTML = `
-      ${message}
-      <div class="responsive-iframe-container">
-        <embed 
-          src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
-          type="application/pdf" />
-      </div>`;
-  } else {
-    reportText.innerHTML = `
-      <p>No KPI report found for <strong>${selectedCompany}</strong>${
-        selectedMonth ? " in " + selectedMonth : ""
-      }.</p>`;
+    // Use Google Docs Viewer for compatibility
+    if (pdfPath) {
+      const fullUrl = `${location.origin}/${pdfPath}`;
+      reportText.innerHTML = `
+        <div class="responsive-iframe-container">
+          <iframe 
+            src="https://docs.google.com/gview?embedded=true&url=${fullUrl}" 
+            frameborder="0">
+          </iframe>
+        </div>`;
+    } else {
+      reportText.innerHTML = `
+        <p>This is a placeholder for the KPI summary for <strong>${selectedCompany}</strong>.</p>`;
+    }
   }
 }
 
