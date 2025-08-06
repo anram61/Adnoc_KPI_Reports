@@ -20,10 +20,14 @@ const reportPDFs = {
   // Add more companies here if needed
 };
 
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+
 function displayReport() {
   if (selectedCompany) {
     reportCompany.textContent = selectedCompany + " (Latest Report)";
-
+    
     const selectedMonth = document.getElementById("month-dropdown").value;
     let pdfPath = "";
 
@@ -35,14 +39,20 @@ function displayReport() {
       pdfPath = 'reports/YTD.pdf';
     }
 
-    // Use Google Docs Viewer for compatibility
     if (pdfPath) {
       const fullUrl = `${location.origin}/${pdfPath}`;
+      
+      // Use Google Docs viewer only for Android
+      const iframeSrc = isAndroid()
+        ? `https://docs.google.com/gview?embedded=true&url=${fullUrl}`
+        : `${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
+
       reportText.innerHTML = `
         <div class="responsive-iframe-container">
           <iframe 
-            src="https://docs.google.com/gview?embedded=true&url=${fullUrl}" 
-            frameborder="0">
+            src="${iframeSrc}"
+            frameborder="0" 
+            allowfullscreen>
           </iframe>
         </div>`;
     } else {
