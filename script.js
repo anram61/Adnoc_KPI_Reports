@@ -20,6 +20,10 @@ const reportPDFs = {
   // Add more companies here if needed
 };
 
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+
 function displayReport() {
   if (!selectedCompany) return;
 
@@ -37,12 +41,16 @@ function displayReport() {
   }
 
   if (pdfPath) {
+    const fullUrl = `${location.origin}/${pdfPath}`;
+
+    const viewer = isAndroid()
+      ? `<iframe src="https://docs.google.com/gview?embedded=true&url=${fullUrl}" frameborder="0" allowfullscreen></iframe>`
+      : `<embed src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" />`;
+
     reportText.innerHTML = `
       ${message}
       <div class="responsive-iframe-container">
-        <embed 
-          src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
-          type="application/pdf" />
+        ${viewer}
       </div>`;
   } else {
     reportText.innerHTML = `
