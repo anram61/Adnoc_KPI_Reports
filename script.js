@@ -20,45 +20,35 @@ const reportPDFs = {
   // Add more companies here if needed
 };
 
-function isAndroid() {
-  return /Android/i.test(navigator.userAgent);
-}
-
 function displayReport() {
-  if (selectedCompany) {
-    reportCompany.textContent = selectedCompany + " (Latest Report)";
-    
-    const selectedMonth = document.getElementById("month-dropdown").value;
-    let pdfPath = "";
+  if (!selectedCompany) return;
 
-    if (selectedCompany === 'Adnoc Offshore') {
-      pdfPath = 'reports/offshore-report.pdf';
-    } else if (selectedCompany === 'Adnoc Global Trading') {
-      pdfPath = 'reports/AGT.pdf';
-    } else if (selectedCompany === 'Year to date Average') {
-      pdfPath = 'reports/YTD.pdf';
-    }
+  reportCompany.textContent = selectedCompany;
 
-    if (pdfPath) {
-      const fullUrl = `${location.origin}/${pdfPath}`;
-      
-      // Use Google Docs viewer only for Android
-      const iframeSrc = isAndroid()
-        ? `https://docs.google.com/gview?embedded=true&url=${fullUrl}`
-        : `${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
+  let pdfPath = "";
+  let message = "";
 
-      reportText.innerHTML = `
-        <div class="responsive-iframe-container">
-          <iframe 
-            src="${iframeSrc}"
-            frameborder="0" 
-            allowfullscreen>
-          </iframe>
-        </div>`;
-    } else {
-      reportText.innerHTML = `
-        <p>This is a placeholder for the KPI summary for <strong>${selectedCompany}</strong>.</p>`;
-    }
+  if (selectedMonth && reportPDFs[selectedCompany]?.[selectedMonth]) {
+    pdfPath = reportPDFs[selectedCompany][selectedMonth];
+    message = `<p>Showing report for <strong>${selectedMonth} 2025</strong>.</p>`;
+  } else if (reportPDFs[selectedCompany]?.default) {
+    pdfPath = reportPDFs[selectedCompany].default;
+    message = `<p><em>Currently showing the latest available report.</em></p>`;
+  }
+
+  if (pdfPath) {
+    reportText.innerHTML = `
+      ${message}
+      <div class="responsive-iframe-container">
+        <embed 
+          src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
+          type="application/pdf" />
+      </div>`;
+  } else {
+    reportText.innerHTML = `
+      <p>No KPI report found for <strong>${selectedCompany}</strong>${
+        selectedMonth ? " in " + selectedMonth : ""
+      }.</p>`;
   }
 }
 
