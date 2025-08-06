@@ -154,7 +154,7 @@ footer {
 
 .responsive-iframe-container {
   width: 100%;
-  aspect-ratio: 3 / 3.5;
+  aspect-ratio: 3 / 3.6;
   overflow: hidden;
   border: 1px solid #ccc;
   border-radius: 8px;
