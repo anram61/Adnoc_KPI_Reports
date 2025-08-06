@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generate KPI Report</title>
+  <link rel="stylesheet" href="dashboard-style.css" />
+</head>
+<body>
+  <main class="admin-container">
+    <h1>Create KPI Dashboard Report</h1>
+
+    <form id="report-form">
+      <label>Company:</label>
+      <select id="company" required>
+        <option value="">-- Select Company --</option>
+        <option>Adnoc Offshore</option>
+        <option>Adnoc Onshore</option>
+        <option>Adnoc Global Trading</option>
+        <option>Adnoc Al Dhafra & Al Yasat</option>
+        <option>Adnoc Drilling</option>
+        <option>Adnoc Sour Gas</option>
+        <option>Adnoc Refining</option>
+        <option>Adnoc Distribution</option>
+        <option>Adnoc Borouge</option>
+        <option>Adnoc L & S</option>
+        <option>Adnoc LNG</option>
+        <option>Adnoc Gas</option>
+      </select>
+
+      <label>Month:</label>
+      <select id="month" required>
+        <option value="">-- Select Month --</option>
+        <option>January</option><option>February</option><option>March</option>
+        <option>April</option><option>May</option><option>June</option>
+        <option>July</option><option>August</option><option>September</option>
+        <option>October</option><option>November</option><option>December</option>
+      </select>
+
+      <label>YTD Score:</label>
+      <input type="number" step="0.01" id="ytdScore" required />
+
+      <label>Top KPIs (label + rating):</label>
+      <textarea id="topKpis" placeholder="e.g. % Resolved on First Attempt - 4/5" rows="4" required></textarea>
+
+      <label>Focus KPIs (label + rating):</label>
+      <textarea id="focusKpis" placeholder="e.g. App Modernization - 5/5" rows="4" required></textarea>
+
+      <label>Pillar Scores (Leadership, Efficiency, People, etc.):</label>
+      <textarea id="pillars" placeholder="Leadership: 3/5, Efficiency: 4/5, ..." rows="3" required></textarea>
+
+      <label>Executive Summary Link:</label>
+      <input type="url" id="summaryLink" placeholder="https://..." required />
+
+      <button type="submit">Generate Report</button>
+    </form>
+  </main>
+
+  <script src="admin-script.js"></script>
+</body>
+</html>
