@@ -6,7 +6,6 @@ const monthDropdown = document.getElementById('month-dropdown');
 let selectedCompany = '';
 let selectedMonth = '';
 
-// Map of available reports
 const reportPDFs = {
   "Adnoc Offshore": {
     default: "reports/offshore-report.pdf"
@@ -17,60 +16,55 @@ const reportPDFs = {
   "Year to date Average": {
     default: "reports/YTD.pdf"
   }
-  // Add more companies here if needed
 };
-
-function isAndroid() {
-  return /Android/i.test(navigator.userAgent);
-}
 
 function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
 
-  let pdfPath = "";
-  let message = "";
+  const baseFolder = "reports";
+  const selected = selectedMonth || "default";
+  const folderName = selectedCompany.replace(/ /g, "%20");
+  const fileName = `${selected}.html`;
+  const fallbackPDF = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
 
-  if (selectedMonth && reportPDFs[selectedCompany]?.[selectedMonth]) {
-    pdfPath = reportPDFs[selectedCompany][selectedMonth];
-    message = `<p>Showing report for <strong>${selectedMonth} 2025</strong>.</p>`;
-  } else if (reportPDFs[selectedCompany]?.default) {
-    pdfPath = reportPDFs[selectedCompany].default;
-    message = `<p><em>Currently showing the latest available report.</em></p>`;
-  }
+  const htmlPath = `${baseFolder}/${folderName}/${fileName}`;
 
-  if (pdfPath) {
-    const fullUrl = `${location.origin}/${pdfPath}`;
-
-    const viewer = isAndroid()
-      ? `<iframe src="https://docs.google.com/gview?embedded=true&url=${fullUrl}" frameborder="0" allowfullscreen></iframe>`
-      : `<embed src="${pdfPath}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" />`;
-
-    reportText.innerHTML = `
-      ${message}
-      <div class="responsive-iframe-container">
-        ${viewer}
-      </div>`;
-  } else {
-    reportText.innerHTML = `
-      <p>No KPI report found for <strong>${selectedCompany}</strong>${
-        selectedMonth ? " in " + selectedMonth : ""
-      }.</p>`;
-  }
+  fetch(htmlPath)
+    .then(response => {
+      if (response.ok) {
+        reportText.innerHTML = `
+          <p><em>Showing dashboard report for <strong>${selected} 2025</strong>.</em></p>
+          <div class="responsive-iframe-container">
+            <iframe src="${htmlPath}" frameborder="0"></iframe>
+          </div>
+        `;
+      } else if (fallbackPDF) {
+        reportText.innerHTML = `
+          <p><em>Dashboard not found. Showing fallback PDF instead.</em></p>
+          <div class="responsive-iframe-container">
+            <embed src="${fallbackPDF}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" />
+          </div>
+        `;
+      } else {
+        reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong> in <strong>${selected}</strong>.</p>`;
+      }
+    })
+    .catch(() => {
+      reportText.innerHTML = `<p>Error loading report.</p>`;
+    });
 }
 
-// Handle company selection
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
-    selectedMonth = ''; // Reset to default (latest)
-    monthDropdown.value = ''; // Reset dropdown
+    selectedMonth = '';
+    monthDropdown.value = '';
     displayReport();
   });
 });
 
-// Handle month selection
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
