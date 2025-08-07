@@ -185,3 +185,18 @@ footer {
     padding: 12px 20px;
   }
 }
+
+.admin-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 16px;
+  text-decoration: none;
+  background-color: #004b91;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+.admin-link:hover {
+  background-color: #0077cc;
+}
