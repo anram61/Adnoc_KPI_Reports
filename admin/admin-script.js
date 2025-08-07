@@ -13,9 +13,8 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
   const trend = document.getElementById("kpi-trend").value;
 
   const avg = ((eff + ppl + ops + fin) / 4).toFixed(1);
-  const starRating = rating => "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating));
   const trendPoints = trend.split(',').map((val, i) => {
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     return `{ x: "${months[i]}", y: ${parseFloat(val)} }`;
   }).join(",");
 
@@ -28,89 +27,104 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        background: #f0f4f9;
         margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #e0f7ff, #f2f2f2);
         padding: 40px;
+        color: #003366;
       }
 
       .dashboard {
-        background: white;
+        background: #fff;
         max-width: 1100px;
         margin: auto;
-        border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        border-radius: 14px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.08);
         padding: 40px;
       }
 
-      .header-bar {
+      .header {
         background: #004b91;
         color: white;
-        padding: 20px;
-        border-radius: 8px;
+        padding: 20px 30px;
+        border-radius: 10px;
         text-align: center;
         margin-bottom: 30px;
       }
 
-      .header-bar h1 {
-        margin: 0;
+      .header h1 {
         font-size: 28px;
+        margin: 0 0 10px;
       }
 
-      .subheading {
+      .header h2 {
+        font-size: 18px;
+        font-weight: normal;
+        margin: 0;
+      }
+
+      .kpi-bar {
+        margin: 30px auto;
         text-align: center;
-        font-size: 20px;
-        margin-bottom: 20px;
-        color: #003366;
+      }
+
+      .kpi-bar .label {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .kpi-bar .bar-container {
+        width: 90%;
+        height: 30px;
+        background: #eee;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: auto;
+        border: 2px solid #ccc;
+      }
+
+      .kpi-bar .bar {
+        height: 100%;
+        background: linear-gradient(to right, #28a745, #ffc107, #dc3545);
+        width: ${(avg / 5) * 100}%;
+        transition: width 0.4s ease-in-out;
       }
 
       .pillars {
         display: flex;
-        justify-content: space-between;
         gap: 20px;
-        margin-bottom: 30px;
+        justify-content: space-between;
+        margin-top: 30px;
       }
 
       .pillar {
         flex: 1;
-        padding: 15px;
-        border-left: 6px solid #0077cc;
-        background: #f5faff;
-        border-radius: 8px;
-        text-align: center;
+        padding: 15px 20px;
+        border-radius: 10px;
+        background: #f0f8ff;
         box-shadow: 0 0 6px rgba(0,0,0,0.05);
+        border-left: 6px solid #0077cc;
       }
 
       .pillar h3 {
-        margin-bottom: 10px;
+        margin: 0 0 10px;
         color: #004b91;
-        font-size: 16px;
       }
 
-      .stars {
-        font-size: 20px;
-        color: #ffaa00;
-      }
-
-      .score-box {
-        background: #dff0d8;
-        color: #2e7d32;
-        text-align: center;
-        padding: 10px;
-        font-weight: bold;
+      .pillar .score {
         font-size: 18px;
-        border-radius: 6px;
-        margin: 20px 0 30px;
-        border-left: 8px solid #28a745;
+        font-weight: bold;
+        color: #333;
       }
 
       canvas {
         max-width: 100%;
-        margin: 30px auto 10px;
+        margin: 40px auto;
         display: block;
-        background: #fff;
-        border-radius: 8px;
-        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
         box-shadow: 0 0 6px rgba(0,0,0,0.05);
       }
 
@@ -122,57 +136,57 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
 
       .box {
         flex: 1;
-        background: #f9f9f9;
+        background: #fff;
+        border-radius: 10px;
         padding: 20px;
-        border-radius: 8px;
-        border-left: 6px solid #0077cc;
-        box-shadow: 0 0 6px rgba(0,0,0,0.03);
+        border-left: 6px solid #004b91;
+        box-shadow: 0 0 8px rgba(0,0,0,0.05);
       }
 
       .box h3 {
         margin-top: 0;
-        margin-bottom: 10px;
-        color: #004b91;
+        color: #003366;
       }
 
-      .footer-note {
+      .footer {
         text-align: center;
-        color: #666;
         font-size: 13px;
-        margin-top: 40px;
+        color: #777;
+        margin-top: 50px;
       }
     </style>
   </head>
   <body>
     <div class="dashboard">
-      <div class="header-bar">
+      <div class="header">
         <h1>${company}</h1>
-        <div>${month} 2025 – Digital Performance Dashboard</div>
+        <h2>${month} 2025 — Performance Dashboard</h2>
       </div>
 
-      <div class="subheading">Overall KPI Rating: ${avg} / 5</div>
+      <div class="kpi-bar">
+        <div class="label">Overall KPI Rating: ${avg} / 5</div>
+        <div class="bar-container">
+          <div class="bar"></div>
+        </div>
+      </div>
 
       <div class="pillars">
         <div class="pillar">
           <h3>Efficiency</h3>
-          <div class="stars">${starRating(eff)}</div>
+          <div class="score">${eff} / 5</div>
         </div>
         <div class="pillar">
           <h3>People</h3>
-          <div class="stars">${starRating(ppl)}</div>
+          <div class="score">${ppl} / 5</div>
         </div>
         <div class="pillar">
-          <h3>Profitability – Ops</h3>
-          <div class="stars">${starRating(ops)}</div>
+          <h3>Profitability - Ops</h3>
+          <div class="score">${ops} / 5</div>
         </div>
         <div class="pillar">
-          <h3>Profitability – Financials</h3>
-          <div class="stars">${starRating(fin)}</div>
+          <h3>Profitability - Financials</h3>
+          <div class="score">${fin} / 5</div>
         </div>
-      </div>
-
-      <div class="score-box">
-        📈 YTD Score: ${avg} / 5 – Strong performance
       </div>
 
       <canvas id="kpiChart" height="120"></canvas>
@@ -192,7 +206,7 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
         </div>
       </div>
 
-      <div class="footer-note">© 2025 ADNOC Dashboard – Automated KPI Generator</div>
+      <div class="footer">© 2025 ADNOC — Generated Dashboard</div>
     </div>
 
     <script>
@@ -201,27 +215,26 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
         type: "line",
         data: {
           datasets: [{
-            label: "KPI Rating",
+            label: "KPI Trend",
             data: [${trendPoints}],
-            borderColor: "#0077cc",
-            backgroundColor: "#e0f0ff",
-            tension: 0.3,
-            pointRadius: 4,
+            borderColor: "#004b91",
+            backgroundColor: "rgba(0, 123, 255, 0.2)",
+            tension: 0.4,
+            pointRadius: 5,
             pointBackgroundColor: "#004b91",
-            borderWidth: 3
+            fill: true
           }]
         },
         options: {
           scales: {
             x: {
-              type: 'category',
-              title: { display: true, text: 'Month' }
+              type: "category",
+              title: { display: true, text: "Month" }
             },
             y: {
               beginAtZero: true,
               max: 5,
-              title: { display: true, text: 'Rating' },
-              ticks: { stepSize: 0.5 }
+              title: { display: true, text: "Rating" }
             }
           },
           plugins: {
