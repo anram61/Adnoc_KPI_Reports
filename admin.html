@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Generate KPI Report</title>
-  <link rel="stylesheet" href="dashboard-style.css" />
+  <link rel="stylesheet" href="/admin/dashboard-style.css" />
 </head>
 <body>
   <main class="admin-container">
     <h1>Create KPI Dashboard Report</h1>
-
     <form id="report-form">
       <label>Company:</label>
       <select id="company" required>
@@ -41,13 +40,13 @@
       <input type="number" step="0.01" id="ytdScore" required />
 
       <label>Top KPIs (label + rating):</label>
-      <textarea id="topKpis" placeholder="e.g. % Resolved on First Attempt - 4/5" rows="4" required></textarea>
+      <textarea id="topKpis" rows="4" required></textarea>
 
       <label>Focus KPIs (label + rating):</label>
-      <textarea id="focusKpis" placeholder="e.g. App Modernization - 5/5" rows="4" required></textarea>
+      <textarea id="focusKpis" rows="4" required></textarea>
 
       <label>Pillar Scores (Leadership, Efficiency, People, etc.):</label>
-      <textarea id="pillars" placeholder="Leadership: 3/5, Efficiency: 4/5, ..." rows="3" required></textarea>
+      <textarea id="pillars" rows="3" required></textarea>
 
       <label>Executive Summary Link:</label>
       <input type="url" id="summaryLink" placeholder="https://..." required />
@@ -55,7 +54,6 @@
       <button type="submit">Generate Report</button>
     </form>
   </main>
-
-  <script src="admin-script.js"></script>
+  <script src="/admin/admin-script.js"></script>
 </body>
 </html>
