@@ -16,7 +16,7 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>${company} - ${month} 2025 KPI Dashboard</title>
-  <link rel="stylesheet" href="dashboard-style.css" />
+  <link rel="stylesheet" href="../admin/dashboard-style.css" />
 </head>
 <body>
   <div class="dashboard-wrapper">
@@ -25,26 +25,22 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
     <div class="ytd-box">
       <strong>YTD Score:</strong> ${ytdScore}
     </div>
-
     <section class="kpi-section">
       <h3>Top KPIs</h3>
       <ul>
-        ${topKpis.split("\n").map(kpi => `<li>${kpi}</li>`).join("")}
+        ${topKpis.split("\\n").map(kpi => `<li>${kpi}</li>`).join("")}
       </ul>
     </section>
-
     <section class="kpi-section">
       <h3>Focus Areas / Underperforming KPIs</h3>
       <ul>
-        ${focusKpis.split("\n").map(kpi => `<li>${kpi}</li>`).join("")}
+        ${focusKpis.split("\\n").map(kpi => `<li>${kpi}</li>`).join("")}
       </ul>
     </section>
-
     <section class="pillar-section">
       <h3>Pillar Ratings</h3>
       <p>${pillars}</p>
     </section>
-
     <footer class="dashboard-footer">
       <p><a href="${summaryLink}" target="_blank">Executive Summary</a></p>
       <p>Generated via ADNOC KPI Viewer</p>
@@ -54,7 +50,7 @@ document.getElementById("report-form").addEventListener("submit", function (e) {
 </html>
 `;
 
-  const newWindow = window.open();
-  newWindow.document.write(content);
-  newWindow.document.close();
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
 });
