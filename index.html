@@ -18,7 +18,8 @@
   <main>
     <section class="section-header">
       <h2>📊 View KPI Reports</h2>
-      <p>Select a company to view the latest summary report. You can also change the month after selection.</p>
+      <p>Select a company to view the summary.</p>
+      <p><a href="admin/admin.html" target="_blank" class="admin-link">➕ Generate New Report</a></p>
     </section>
 
     <section class="controls">
@@ -37,23 +38,13 @@
         <button class="company" data-company="Adnoc LNG">Adnoc LNG</button>
         <button class="company" data-company="Adnoc Gas">Adnoc Gas</button>
       </div>
-
       <div class="month-selector">
-        <label for="month-dropdown"><strong>Select Month:</strong></label>
         <select id="month-dropdown">
-          <option value="">-- Latest (Default) --</option>
-          <option value="January">January 2025</option>
-          <option value="February">February 2025</option>
-          <option value="March">March 2025</option>
-          <option value="April">April 2025</option>
-          <option value="May">May 2025</option>
-          <option value="June">June 2025</option>
-          <option value="July">July 2025</option>
-          <option value="August">August 2025</option>
-          <option value="September">September 2025</option>
-          <option value="October">October 2025</option>
-          <option value="November">November 2025</option>
-          <option value="December">December 2025</option>
+          <option value="">-- Select Month --</option>
+          <option>January</option><option>February</option><option>March</option>
+          <option>April</option><option>May</option><option>June</option>
+          <option>July</option><option>August</option><option>September</option>
+          <option>October</option><option>November</option><option>December</option>
         </select>
       </div>
     </section>
