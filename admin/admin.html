@@ -2,79 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Generate KPI Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Generate KPI Report</title>
 <link rel="stylesheet" href="admin-style.css">
 </head>
 <body>
 
 <header>
-    <h1>Generate KPI Report</h1>
+  <h1>Generate KPI Report</h1>
 </header>
 
 <main>
-    <form id="report-form">
-        <label for="company">Select Company:</label>
-        <select id="company" required>
-            <option value="">-- Select Company --</option>
-            <option>Adnoc Onshore</option>
-            <option>Adnoc Offshore</option>
-            <option>Adnoc Al Dhafra & Al Yasat</option>
-            <option>Adnoc Drilling</option>
-            <option>Adnoc Sour Gas</option>
-            <option>Adnoc Refining</option>
-            <option>Adnoc Distribution</option>
-            <option>Adnoc Borouge</option>
-            <option>Adnoc L & S</option>
-            <option>Adnoc Global Trading</option>
-            <option>Adnoc LNG</option>
-            <option>Adnoc Gas</option>
-        </select>
+  <form id="reportForm">
+    <div class="form-group">
+      <label for="company">Select Company:</label>
+      <select id="company" name="company" required>
+        <option value="">-- Select Company --</option>
+        <option>Adnoc Onshore</option>
+        <option>Adnoc Offshore</option>
+        <option>Adnoc Al Dhafra & Al Yasat</option>
+        <option>Adnoc Drilling</option>
+        <option>Adnoc Sour Gas</option>
+        <option>Adnoc Refining</option>
+        <option>Adnoc Distribution</option>
+        <option>Adnoc Borouge</option>
+        <option>Adnoc L & S</option>
+        <option>Adnoc Global Trading</option>
+        <option>Adnoc LNG</option>
+        <option>Adnoc Gas</option>
+      </select>
+    </div>
 
-        <label for="month">Select Month:</label>
-        <select id="month" required>
-            <option value="">-- Select Month --</option>
-            <option>January</option>
-            <option>February</option>
-            <option>March</option>
-            <option>April</option>
-            <option>May</option>
-            <option>June</option>
-            <option>July</option>
-            <option>August</option>
-            <option>September</option>
-            <option>October</option>
-            <option>November</option>
-            <option>December</option>
-        </select>
+    <div class="form-group">
+      <label for="month">Select Month:</label>
+      <select id="month" name="month" required>
+        <option value="">-- Select Month --</option>
+        <option>January</option>
+        <option>February</option>
+        <option>March</option>
+        <option>April</option>
+        <option>May</option>
+        <option>June</option>
+        <option>July</option>
+        <option>August</option>
+        <option>September</option>
+        <option>October</option>
+        <option>November</option>
+        <option>December</option>
+      </select>
+    </div>
 
-        <h3>Pillar Ratings (1–5)</h3>
-        <label>Efficiency:</label>
-        <input type="number" id="efficiency" min="1" max="5" step="0.1" required>
+    <div class="pillar-section">
+      <h3>Pillar Ratings</h3>
+      <label>Efficiency: <input type="number" step="0.01" min="0" max="5" id="efficiency" required></label>
+      <label>People: <input type="number" step="0.01" min="0" max="5" id="people" required></label>
+      <label>Profitability - Operations: <input type="number" step="0.01" min="0" max="5" id="operations" required></label>
+      <label>Profitability - Financials: <input type="number" step="0.01" min="0" max="5" id="financials" required></label>
+    </div>
 
-        <label>People:</label>
-        <input type="number" id="people" min="1" max="5" step="0.1" required>
+    <div class="form-group">
+      <label>Top KPIs:</label>
+      <textarea id="topKpi" rows="3" required></textarea>
+    </div>
 
-        <label>Profitability - Operations:</label>
-        <input type="number" id="operations" min="1" max="5" step="0.1" required>
+    <div class="form-group">
+      <label>Underperforming KPIs:</label>
+      <textarea id="underKpi" rows="3" required></textarea>
+    </div>
 
-        <label>Profitability - Financials:</label>
-        <input type="number" id="financials" min="1" max="5" step="0.1" required>
+    <div class="form-group">
+      <label>Remedial Actions:</label>
+      <textarea id="remedial" rows="3" required></textarea>
+    </div>
 
-        <h3>Additional Information</h3>
-        <label>Top KPIs:</label>
-        <textarea id="top-kpis" rows="3"></textarea>
-
-        <label>Underperforming KPIs:</label>
-        <textarea id="under-kpis" rows="3"></textarea>
-
-        <label>Remedial Actions:</label>
-        <textarea id="remedial" rows="3"></textarea>
-
-        <label>KPI Trend (comma-separated, Jan–Dec):</label>
-        <input type="text" id="kpi-trend" placeholder="Example: 3.2,3.5,3.7,4,4.1,4.3">
-
-        <button type="submit" id="generate-btn">Generate Report</button>
-    </form>
+    <button type="submit" class="btn-generate">Generate Report</button>
+  </form>
 </main>
 
 <script src="admin-script.js"></script>
