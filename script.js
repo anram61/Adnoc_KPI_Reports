@@ -17,34 +17,34 @@ const reportPDFs = {
     default: "reports/YTD.pdf"
   }
   "Adnoc Onshore": {
-    default: "reports/YTD.pdf"
+    default: "reports/onshore.pdf"
   }
 "Adnoc Al Dhafra & Al Yasat": {
-    default: "reports/YTD.pdf"
+    default: "reports/alds.pdf"
   }
 "Adnoc Drilling": {
-    default: "reports/YTD.pdf"
+    default: "reports/drilling.pdf"
   }
 "Adnoc Sour Gas": {
-    default: "reports/YTD.pdf"
+    default: "reports/sourgas.pdf"
   }
 "Adnoc Refining": {
-    default: "reports/YTD.pdf"
+    default: "reports/refining.pdf"
   }
 "Adnoc Distribution": {
-    default: "reports/YTD.pdf"
+    default: "reports/distribution.pdf"
   }
 "Adnoc Borouge": {
-    default: "reports/YTD.pdf"
+    default: "reports/borouge.pdf"
   }
 "Adnoc L&S": {
-    default: "reports/YTD.pdf"
+    default: "reports/L&S.pdf"
   }
 "Adnoc LNG": {
-    default: "reports/YTD.pdf"
+    default: "reports/.pdf"
   }
 "Adnoc Gas": {
-    default: "reports/YTD.pdf"
+    default: "reports/adnocgas.pdf"
   }
 };
 
