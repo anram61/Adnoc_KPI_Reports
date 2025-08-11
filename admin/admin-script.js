@@ -159,7 +159,7 @@ document.getElementById('reportForm').addEventListener('submit', function (e) {
             <h1 style="text-transform:uppercase">${esc(company)} YTD</h1>
           </div>
           <div class="meta-right">
-            <img src="/assets/adnoc-logo.png" alt="logo" style="height:58px"/>
+            <img src="assets/adnoc-logo.png" alt="logo" style="height:58px"/>
           </div>
         </div>
 
