@@ -15,37 +15,37 @@ const reportPDFs = {
   },
   "Year to date Average": {
     default: "reports/YTD.pdf"
-  }
+  },
   "Adnoc Onshore": {
     default: "reports/onshore.pdf"
-  }
+  },
 "Adnoc Al Dhafra & Al Yasat": {
     default: "reports/alds.pdf"
-  }
+  },
 "Adnoc Drilling": {
     default: "reports/drilling.pdf"
-  }
+  },
 "Adnoc Sour Gas": {
     default: "reports/sourgas.pdf"
-  }
+  },
 "Adnoc Refining": {
     default: "reports/refining.pdf"
-  }
+  },
 "Adnoc Distribution": {
     default: "reports/distribution.pdf"
-  }
+  },
 "Adnoc Borouge": {
     default: "reports/borouge.pdf"
-  }
+  },
 "Adnoc L&S": {
     default: "reports/L&S.pdf"
-  }
+  },
 "Adnoc LNG": {
     default: "reports/.pdf"
-  }
+  },
 "Adnoc Gas": {
     default: "reports/adnocgas.pdf"
-  }
+  },
 };
 
 function displayReport() {
