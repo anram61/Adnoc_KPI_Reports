@@ -40,8 +40,8 @@ const reportPDFs = {
 "Adnoc L&S": {
     default: "reports/L&S.pdf"
   },
-"Adnoc LNG": {
-    default: "reports/.pdf"
+"GBDO": {
+    default: "reports/gbdo.pdf"
   },
 "Adnoc Gas": {
     default: "reports/adnocgas.pdf"
