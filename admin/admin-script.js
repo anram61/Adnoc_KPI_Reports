@@ -1,118 +1,123 @@
-document.getElementById("report-form").addEventListener("submit", function (e) {
+document.getElementById('reportForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const company = document.getElementById("company").value;
-    const month = document.getElementById("month").value;
-    const eff = parseFloat(document.getElementById("efficiency").value);
-    const ppl = parseFloat(document.getElementById("people").value);
-    const ops = parseFloat(document.getElementById("operations").value);
-    const fin = parseFloat(document.getElementById("financials").value);
-    const topKPIs = document.getElementById("top-kpis").value;
-    const underKPIs = document.getElementById("under-kpis").value;
-    const remedial = document.getElementById("remedial").value;
-    const trend = document.getElementById("kpi-trend").value;
+    const company = document.getElementById('company').value;
+    const month = document.getElementById('month').value;
+    const efficiency = parseFloat(document.getElementById('efficiency').value);
+    const people = parseFloat(document.getElementById('people').value);
+    const operations = parseFloat(document.getElementById('operations').value);
+    const financials = parseFloat(document.getElementById('financials').value);
+    const topKpi = document.getElementById('topKpi').value;
+    const underKpi = document.getElementById('underKpi').value;
+    const remedial = document.getElementById('remedial').value;
 
-    const avg = ((eff + ppl + ops + fin) / 4).toFixed(1);
+    const overallScore = ((efficiency + people + operations + financials) / 4).toFixed(2);
 
-    const defaultScores = {
-        "Adnoc Onshore": 3.5,
-        "Adnoc Offshore": 4.0,
-        "Adnoc Al Dhafra & Al Yasat": 3.8,
-        "Adnoc Drilling": 3.6,
-        "Adnoc Sour Gas": 4.1,
-        "Adnoc Refining": 3.9,
-        "Adnoc Distribution": 3.7,
-        "Adnoc Borouge": 3.8,
-        "Adnoc L & S": 4.0,
-        "Adnoc Global Trading": 4.2,
-        "Adnoc LNG": 3.9,
-        "Adnoc Gas": 4.1
-    };
-    defaultScores[company] = parseFloat(avg);
+    // Placeholder leaderboard scores
+    const leaderboard = [
+        { name: "AGT", score: 3.00 },
+        { name: "Adnoc Onshore", score: 3.19 },
+        { name: "Adnoc Offshore", score: 3.91 },
+        { name: "Adnoc Distribution", score: 3.20 },
+        { name: "Adnoc Gas", score: 3.75 },
+        { name: "Adnoc Sour Gas", score: 3.68 },
+        { name: "Refining", score: 4.44 },
+        { name: "Borouge", score: 3.21 },
+        { name: "Al Dhafra & Yasat", score: 3.51 },
+        { name: "Adnoc L&S", score: 3.65 },
+        { name: "Adnoc Drilling", score: 3.88 }
+    ];
 
-    const trendPoints = trend.split(',').map((val, i) => {
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        return `{ x: "${months[i]}", y: ${parseFloat(val)} }`;
-    }).join(",");
+    const reportHTML = `
+    <div style="font-family: Arial, sans-serif; background: white; padding: 20px; border-radius: 8px; max-width: 1200px; margin: auto; color: #333;">
+        <h2 style="margin-bottom: 5px;">Group Digital 2025</h2>
+        <h3 style="margin-top: 0; color: gray;">BSC – ${month} (Mid-Year)</h3>
+        <h1 style="margin: 5px 0;">${company} YTD</h1>
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Solid Performance <span style="color: #004b91;">${overallScore}/5</span></div>
 
-    const companyListHTML = Object.keys(defaultScores)
-        .map(name => `<tr><td>${name}</td><td>${defaultScores[name]}</td></tr>`)
-        .join("");
-
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <title>${company} – ${month} Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
-        .container { display: flex; }
-        .sidebar { width: 300px; background: #004b91; color: white; padding: 20px; }
-        .sidebar h2 { font-size: 18px; margin-bottom: 15px; }
-        .sidebar table { width: 100%; color: white; border-collapse: collapse; }
-        .sidebar td { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .main { flex: 1; padding: 30px; background: white; }
-        .kpi-bar { height: 30px; background: #ddd; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
-        .kpi-bar-fill { height: 100%; background: linear-gradient(to right, green, yellow, red); width: ${(avg/5)*100}%;}
-        .pillars { display: flex; gap: 15px; margin-bottom: 20px; }
-        .pillar { flex: 1; background: #eef3f7; padding: 15px; border-radius: 8px; border-left: 6px solid #0077cc; }
-        .boxes { display: flex; gap: 15px; margin-top: 20px; }
-        .box { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 6px solid #004b91; }
-    </style>
-    </head>
-    <body>
-    <div class="container">
-        <div class="sidebar">
-            <h2>Company KPI Scores</h2>
-            <table>${companyListHTML}</table>
+        <!-- KPI Bar -->
+        <div style="display: flex; margin-bottom: 15px; font-size: 12px; text-align: center;">
+            <div style="flex: 1; background: #1565c0; color: white; padding: 4px;">Needs improvement</div>
+            <div style="flex: 1; background: #2196f3; color: white; padding: 4px;">Underperforming</div>
+            <div style="flex: 1; background: #1976d2; color: white; padding: 4px;">Solid Performance</div>
+            <div style="flex: 1; background: #64b5f6; color: white; padding: 4px;">Exceed Expectation</div>
+            <div style="flex: 1; background: #90caf9; color: white; padding: 4px;">Outstanding</div>
         </div>
-        <div class="main">
-            <h1>${company} — ${month} 2025</h1>
-            <h3>Overall KPI: ${avg} / 5</h3>
-            <div class="kpi-bar"><div class="kpi-bar-fill"></div></div>
 
-            <div class="pillars">
-                <div class="pillar">Efficiency: ${eff}</div>
-                <div class="pillar">People: ${ppl}</div>
-                <div class="pillar">Profitability - Ops: ${ops}</div>
-                <div class="pillar">Profitability - Financials: ${fin}</div>
+        <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+            <!-- Pillars -->
+            <div style="flex: 3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+                <div>
+                    <div>Efficiency</div>
+                    <div style="color: green; font-size: 20px; font-weight: bold;">${efficiency}/5</div>
+                </div>
+                <div>
+                    <div>People</div>
+                    <div style="color: red; font-size: 20px; font-weight: bold;">${people}/5</div>
+                </div>
+                <div>
+                    <div>Profitability - Operations</div>
+                    <div style="color: #1565c0; font-size: 20px; font-weight: bold;">${operations}/5</div>
+                </div>
+                <div>
+                    <div>Profitability - Financials</div>
+                    <div style="color: orange; font-size: 20px; font-weight: bold;">${financials}/5</div>
+                </div>
             </div>
 
-            <canvas id="kpiChart"></canvas>
-
-            <div class="boxes">
-                <div class="box"><h4>Top KPIs</h4><p>${topKPIs}</p></div>
-                <div class="box"><h4>Underperforming KPIs</h4><p>${underKPIs}</p></div>
-                <div class="box"><h4>Remedial Actions</h4><p>${remedial}</p></div>
+            <!-- Leaderboard -->
+            <div style="flex: 2;">
+                <h4 style="margin-bottom: 5px; color: #004b91;">Leadership Score Board</h4>
+                ${leaderboard.map(item => `
+                    <div style="display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #ddd;">
+                        <span>${item.name}</span>
+                        <span style="background: #e0f2f1; padding: 2px 6px; border-radius: 4px;">${item.score}</span>
+                    </div>
+                `).join('')}
             </div>
         </div>
+
+        <!-- Chart -->
+        <canvas id="kpiChart" style="width:100%; height:250px; margin-bottom: 20px;"></canvas>
+
+        <!-- Bottom Boxes -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+            <div style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #f9f9f9;">
+                <h4 style="color: green;">Top KPIs</h4>
+                <p>${topKpi.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #fff8f8;">
+                <h4 style="color: red;">Under Performing KPIs</h4>
+                <p>${underKpi.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; background: #f9f9f9;">
+                <h4>Recommendation</h4>
+                <p>${remedial.replace(/\n/g, '<br>')}</p>
+            </div>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 12px; color: gray;">All figures subject to GBDO approval*</p>
     </div>
+    `;
 
-    <script>
-        const ctx = document.getElementById("kpiChart");
+    // Open in new tab
+    const newWindow = window.open();
+    newWindow.document.write(`<html><head><title>${company} - ${month} Report</title></head><body>${reportHTML}<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><script>
+        const ctx = document.getElementById('kpiChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
+                labels: ['January','February','March','April','May','June','July','August','September','October','November','December'],
                 datasets: [{
-                    label: "KPI Trend",
-                    data: [${trendPoints}],
-                    borderColor: "#004b91",
-                    backgroundColor: "rgba(0,75,145,0.2)",
-                    tension: 0.4
+                    label: '${company}',
+                    data: [3.2, 3.5, 3.4, 3.3, 3.1, ${overallScore}, null, null, null, null, null, null],
+                    borderColor: '#1565c0',
+                    backgroundColor: '#90caf9',
+                    fill: false,
+                    tension: 0.3
                 }]
             },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true, max: 5 } }
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
-    </script>
-    </body>
-    </html>`;
-
-    const win = window.open();
-    win.document.write(html);
-    win.document.close();
+    <\/script></body></html>`);
 });
