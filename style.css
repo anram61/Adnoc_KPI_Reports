@@ -17,10 +17,6 @@ html, body {
   min-height: 100vh;
 }
 
-body {
-  /* Already flex container and column */
-}
-
 header {
   display: flex;
   align-items: center;
@@ -39,7 +35,7 @@ header h1 {
 }
 
 main {
-  flex: 1 0 auto; /* Grow and shrink but don’t shrink below content */
+  flex: 1 0 auto;
   padding: 30px;
   max-width: 1200px;
   margin: auto;
@@ -116,6 +112,9 @@ main {
   border-left: 6px solid orange;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  min-height: 700px; /* increased height to fit iframe */
+  display: flex;
+  flex-direction: column;
 }
 
 .report-box h3 {
@@ -124,7 +123,7 @@ main {
 }
 
 footer {
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
   background-color: #004b91;
   color: white;
   text-align: center;
@@ -208,16 +207,28 @@ footer {
 }
 
 #pdf-viewer-container {
-  width: 100%;
+  flex-grow: 1;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   margin-top: 10px;
   position: relative;
+  overflow-y: auto;
 }
 
+/* iframe for offshore */
+#pdf-viewer-container iframe {
+  width: 100%;
+  height: 650px;
+  border: none;
+  border-radius: 6px;
+}
+
+/* canvas for PDF.js */
 #pdf-viewer-container canvas {
   max-width: 100%;
   height: auto;
+  border-radius: 6px;
 }
 
 .textLayer {
