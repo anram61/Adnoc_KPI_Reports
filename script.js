@@ -27,29 +27,62 @@ const reportPDFs = {
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = ""; // clear old content
+async function renderPDF(pdfPath) {
+  pdfContainer.innerHTML = ""; // Clear previous content
 
-  const loadingTask = pdfjsLib.getDocument(pdfPath);
-  loadingTask.promise.then(pdf => {
-    pdf.getPage(1).then(page => {
-      const scale = 1.25; // Adjust zoom
-      const viewport = page.getViewport({ scale: scale });
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+  try {
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
 
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+    // Calculate scale based on container width to improve clarity
+    const containerWidth = pdfContainer.clientWidth || 800;
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = containerWidth / viewport.width;
+    const scaledViewport = page.getViewport({ scale: scale });
 
-      const renderContext = { canvasContext: context, viewport: viewport };
-      page.render(renderContext).promise.then(() => {
-        pdfContainer.appendChild(canvas);
-        pdfContainer.style.height = canvas.height + "px";
-      });
+    // Prepare canvas for rendering page
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+
+    // Container to hold canvas and text layer
+    const pageContainer = document.createElement("div");
+    pageContainer.style.position = "relative";
+    pageContainer.style.width = canvas.width + "px";
+    pageContainer.style.height = canvas.height + "px";
+
+    // Append canvas
+    pageContainer.appendChild(canvas);
+    pdfContainer.appendChild(pageContainer);
+
+    // Render PDF page on canvas
+    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+    // Prepare text layer for selectable text and links
+    const textContent = await page.getTextContent();
+    const textLayerDiv = document.createElement("div");
+    textLayerDiv.className = "textLayer";
+    textLayerDiv.style.position = "absolute";
+    textLayerDiv.style.top = "0";
+    textLayerDiv.style.left = "0";
+    textLayerDiv.style.height = canvas.height + "px";
+    textLayerDiv.style.width = canvas.width + "px";
+    textLayerDiv.style.pointerEvents = "auto"; // Allow interaction with links
+    pageContainer.appendChild(textLayerDiv);
+
+    pdfjsLib.renderTextLayer({
+      textContent,
+      container: textLayerDiv,
+      viewport: scaledViewport,
+      textDivs: [],
+      enhanceTextSelection: true,
     });
-  }).catch(err => {
+
+  } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
-  });
+  }
 }
 
 function displayReport() {
@@ -57,6 +90,7 @@ function displayReport() {
 
   reportCompany.textContent = selectedCompany;
 
+  // Use selected month if available or fallback to default
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
   if (pdfPath) {
