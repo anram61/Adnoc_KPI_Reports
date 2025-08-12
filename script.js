@@ -1,4 +1,5 @@
 const companies = document.querySelectorAll('.company');
+const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
