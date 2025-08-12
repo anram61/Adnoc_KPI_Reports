@@ -1,16 +1,73 @@
-/* admin-style.css */
-*{box-sizing:border-box}
-body{font-family:Inter, "Segoe UI", Arial; background:#eef3f7; margin:0; color:#123;}
-header{background:#004b91;color:#fff;padding:14px 20px;text-align:center}
-h1{margin:0;font-size:18px}
-main{max-width:880px;margin:20px auto;padding:18px}
-form{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-.row{margin-bottom:12px}
-label{display:block;font-weight:600;margin-bottom:6px;color:#223}
-select,input,textarea{width:100%;padding:8px;border-radius:6px;border:1px solid #d1dbe6;font-size:14px;background:#fff}
-.pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;border-radius:8px;border:1px solid #e6edf6;background:#fbfdff;margin-bottom:12px}
-.pillars label{display:flex;justify-content:space-between;align-items:center}
-.actions{display:flex;justify-content:flex-end}
-.btn{background:#28a745;color:#fff;padding:10px 16px;border-radius:8px;border:none;font-weight:700;cursor:pointer}
-.btn:hover{background:#218838}
-@media (max-width:600px){.pillars{grid-template-columns:1fr}.actions{justify-content:center}}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #eef3f7;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #004b91;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+main {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+}
+
+form {
+  flex: 2;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.generate-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.generate-btn:hover {
+  background-color: #218838;
+}
+
+.sidebar {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
