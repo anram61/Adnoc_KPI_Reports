@@ -250,3 +250,8 @@ footer {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
 }
+
+.report-box.offshore {
+  min-height: 1150px; /* slightly taller than iframe to avoid scroll */
+}
+
