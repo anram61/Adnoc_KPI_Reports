@@ -9,18 +9,20 @@ document.getElementById("report-form").addEventListener("submit", function(e) {
   const profitabilityOps = parseFloat(document.getElementById("profitability-ops").value) || 0;
   const profitabilityFin = parseFloat(document.getElementById("profitability-fin").value) || 0;
 
+  // KPI calculation without profitability-financials
   const kpiScore = ((efficiency + people + profitabilityOps) / 3).toFixed(1);
 
   const topKPI = document.getElementById("top-kpi").value;
   const underKPI = document.getElementById("under-kpi").value;
   const remedial = document.getElementById("remedial").value;
 
+  // Save KPI for sidebar
   let companyKPIs = JSON.parse(localStorage.getItem("companyKPIs") || "{}");
   companyKPIs[company] = kpiScore;
   localStorage.setItem("companyKPIs", JSON.stringify(companyKPIs));
-
   updateCompanyKPIList();
 
+  // Create HTML dashboard
   const reportHTML = `
     <div style="font-family: Arial; background: #f7f9fc; padding: 20px; border-radius: 8px;">
       <h2 style="color:#004b91;">${company} - ${month} 2025</h2>
@@ -46,12 +48,13 @@ document.getElementById("report-form").addEventListener("submit", function(e) {
     </div>
   `;
 
+  // Save report in localStorage
   let reports = JSON.parse(localStorage.getItem("reports") || "{}");
   if (!reports[company]) reports[company] = {};
   reports[company][month] = reportHTML;
   localStorage.setItem("reports", JSON.stringify(reports));
 
-  alert("Report generated and saved!");
+  alert("✅ Report generated and saved!");
   document.getElementById("report-form").reset();
 });
 
