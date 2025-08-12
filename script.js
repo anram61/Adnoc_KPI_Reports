@@ -23,11 +23,6 @@ const reportPDFs = {
   "Adnoc Gas": { default: "reports/adnocgas.pdf" },
 };
 
-function encodePDFUrl(url) {
-  // URL encode the PDF url for embedding
-  return encodeURIComponent(window.location.origin + "/" + url);
-}
-
 function displayReport() {
   if (!selectedCompany) return;
 
@@ -50,21 +45,20 @@ function displayReport() {
     return;
   }
 
-  // Load PDF via embedded PDF.js viewer iframe
+  // Use native PDF embed for fallback
   const pdfPath = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
     reportText.innerHTML = `<p><em>Currently showing the latest available PDF report.</em></p>`;
 
-    const viewerBase = "https://mozilla.github.io/pdf.js/web/viewer.html?file=";
-    const fullUrl = viewerBase + encodePDFUrl(pdfPath);
-
-    const iframe = document.createElement("iframe");
-    iframe.src = fullUrl;
-    iframe.style.width = "100%";
-    iframe.style.height = "80vh";
-    iframe.style.border = "none";
-
-    pdfContainer.appendChild(iframe);
+    pdfContainer.innerHTML = `
+      <embed 
+        src="${pdfPath}#view=FitH" 
+        type="application/pdf" 
+        width="100%" 
+        height="80vh"
+        style="border-radius:8px;"
+      />
+    `;
   } else {
     reportText.innerHTML = `<p>No report found for <strong>${selectedCompany}</strong>.</p>`;
   }
