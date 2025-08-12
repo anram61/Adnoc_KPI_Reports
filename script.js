@@ -7,49 +7,54 @@ const pdfViewerContainer = document.getElementById("pdf-viewer-container");
 let selectedCompany = null;
 let selectedMonth = null;
 
-const offshorePDFUrl = "reports/offshore-report.pdf"; // path to offshore PDF file
+// Path to offshore PDF report iframe
+const offshorePDFUrl = "reports/offshore-report.pdf"; // update this path if needed
 
+// Clear report display
 function clearReport() {
   reportCompanyElem.textContent = "N/A";
   reportTextElem.innerHTML = "<p>Please select a company to see the KPI summary.</p>";
   pdfViewerContainer.innerHTML = "";
 }
 
-// Render PDF using PDF.js (default)
+// Render PDF with PDF.js canvas
 async function renderPDF(url) {
-  pdfViewerContainer.innerHTML = ""; // clear container
+  pdfViewerContainer.innerHTML = ""; // clear previous
 
   const loadingTask = pdfjsLib.getDocument(url);
-  const pdf = await loadingTask.promise;
-  const page = await pdf.getPage(1);
+  try {
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
 
-  const viewport = page.getViewport({ scale: 1.2 });
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
+    const viewport = page.getViewport({ scale: 1.2 });
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
 
-  pdfViewerContainer.appendChild(canvas);
+    pdfViewerContainer.appendChild(canvas);
 
-  const renderContext = {
-    canvasContext: context,
-    viewport: viewport,
-  };
-  await page.render(renderContext).promise;
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport,
+    };
+
+    await page.render(renderContext).promise;
+  } catch (error) {
+    pdfViewerContainer.innerHTML = `<p style="color:red;">Failed to load PDF: ${error.message}</p>`;
+  }
 }
 
-// Show iframe for Offshore only
+// Render Offshore PDF using iframe
 function renderOffshoreIframe() {
-  pdfViewerContainer.innerHTML = ""; // clear container
+  pdfViewerContainer.innerHTML = ""; // clear previous
   const iframe = document.createElement("iframe");
   iframe.src = offshorePDFUrl;
-  iframe.width = "100%";
-  iframe.height = "600px"; // adjust as needed
-  iframe.style.border = "none";
+  iframe.setAttribute("aria-label", "Adnoc Offshore KPI Report");
   pdfViewerContainer.appendChild(iframe);
 }
 
-// Main function to update report
+// Main update function
 function updateReport() {
   if (!selectedCompany) {
     clearReport();
@@ -58,18 +63,23 @@ function updateReport() {
 
   reportCompanyElem.textContent = selectedCompany;
 
-  // Example report text for demo, you can replace with real summary data
-  reportTextElem.innerHTML = `<p>Showing KPI summary for <strong>${selectedCompany}</strong> ${
-    selectedMonth ? `in <strong>${selectedMonth}</strong>` : ""
-  }.</p>`;
+  // Show the selected month or 'latest'
+  const monthText = selectedMonth ? `in ${selectedMonth}` : "(latest available)";
 
-  // For Offshore, use iframe viewer
+  reportTextElem.innerHTML = `<p>Showing KPI summary for <strong>${selectedCompany}</strong> ${monthText}.</p>`;
+
   if (selectedCompany === "Adnoc Offshore") {
+    // Offshore: iframe viewer
     renderOffshoreIframe();
   } else {
-    // For other companies, load the PDF using PDF.js or show a message
-    // For demo, just clear or you can add logic for other PDFs
-    pdfViewerContainer.innerHTML = "<p>No PDF viewer configured for this company.</p>";
+    // Other companies: PDF.js viewer
+    // TODO: Update with actual PDF URLs per company & month if available
+    // For demo, we show a placeholder message
+
+    // Example PDF URL pattern - adjust as per your actual storage:
+    // const pdfUrl = `reports/${selectedCompany.toLowerCase().replace(/ & /g, "-").replace(/\s+/g, "-")}-${selectedMonth ? selectedMonth.toLowerCase() : "latest"}.pdf`;
+    // For now, just show placeholder text:
+    pdfViewerContainer.innerHTML = "<p>No PDF configured for this company/month yet.</p>";
   }
 }
 
