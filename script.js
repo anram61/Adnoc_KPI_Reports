@@ -1,8 +1,12 @@
- const companies = document.querySelectorAll('.company');
+const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
-
+const pdfContainer = document.createElement('div');
+pdfContainer.id = "pdf-viewer-container";
+pdfContainer.style.width = "100%";
+pdfContainer.style.height = "auto";
+reportText.insertAdjacentElement('afterend', pdfContainer);
 let selectedCompany = '';
 let selectedMonth = '';
 
