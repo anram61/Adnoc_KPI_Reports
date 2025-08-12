@@ -97,6 +97,14 @@ function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
+  const reportBox = document.getElementById('report-box');
+
+if (selectedCompany === "Adnoc Offshore") {
+  reportBox.classList.add("offshore");
+} else {
+  reportBox.classList.remove("offshore");
+}
+
 
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
