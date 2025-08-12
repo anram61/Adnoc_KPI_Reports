@@ -220,13 +220,19 @@ footer {
 
 #pdf-viewer-container {
   width: 100%;
-  height: auto;
+  height: 80vh;      /* Fixed height for viewport on desktop/mobile */
+  overflow: auto;    /* Scroll if PDF larger than container */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
   display: flex;
   justify-content: center;
-  margin-top: 10px
+  margin-top: 10px;
 }
 
 #pdf-viewer-container canvas {
   max-width: 100%;
   height: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
 }
