@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -41,32 +41,40 @@
       <div class="month-selector">
         <select id="month-dropdown">
           <option value="">-- Select Month --</option>
-          <option>January</option><option>February</option><option>March</option>
-          <option>April</option><option>May</option><option>June</option>
-          <option>July</option><option>August</option><option>September</option>
-          <option>October</option><option>November</option><option>December</option>
+          <option>January</option>
+          <option>February</option>
+          <option>March</option>
+          <option>April</option>
+          <option>May</option>
+          <option>June</option>
+          <option>July</option>
+          <option>August</option>
+          <option>September</option>
+          <option>October</option>
+          <option>November</option>
+          <option>December</option>
         </select>
       </div>
     </section>
 
     <section class="report-box" id="report-box">
-  <h3>📂 Report Summary</h3>
-  <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
-  <div id="report-text">
-    <p>Please select a company to see the KPI summary.</p>
-  </div>
-  <div id="pdf-viewer-container" style="width:100%;height:100%;"></div>
-</section>
-    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
-
+      <h3>📂 Report Summary</h3>
+      <p><strong>Company:</strong> <span id="report-company">N/A</span></p>
+      <div id="report-text">
+        <p>Please select a company to see the KPI summary.</p>
+      </div>
+      <!-- Container where PDF.js will render -->
+      <div id="pdf-viewer-container" style="width:100%;min-height:500px;"></div>
+    </section>
   </main>
 
   <footer>
     <p>© 2025 ADNOC. All rights reserved.</p>
   </footer>
 
+  <!-- PDF.js scripts must load before script.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
