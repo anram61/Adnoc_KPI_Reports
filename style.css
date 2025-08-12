@@ -254,4 +254,5 @@ footer {
   text-decoration: underline;
   pointer-events: auto;
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
 }
