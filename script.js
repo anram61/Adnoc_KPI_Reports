@@ -23,17 +23,19 @@ const reportPDFs = {
   "Adnoc Gas": { default: "reports/adnocgas.pdf" },
 };
 
-// PDF.js setup
+// PDF.js worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
 function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = ""; // clear old content
+  pdfContainer.innerHTML = ""; // clear previous canvas
 
   const loadingTask = pdfjsLib.getDocument(pdfPath);
   loadingTask.promise.then(pdf => {
     pdf.getPage(1).then(page => {
-      const scale = 1.25; // Adjust zoom
+      // Dynamically set scale for responsiveness
+      let scale = window.innerWidth < 600 ? 0.8 : 1.25;
+
       const viewport = page.getViewport({ scale: scale });
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
@@ -58,7 +60,11 @@ function displayReport() {
   reportCompany.textContent = selectedCompany;
   const selected = selectedMonth || "default";
 
-  // Check for HTML report in localStorage
+  // Clear old report content and PDF viewer
+  reportText.innerHTML = "";
+  pdfContainer.innerHTML = "";
+
+  // Check for HTML report in localStorage (dashboard HTML)
   let reports = JSON.parse(localStorage.getItem("reports") || "{}");
   if (reports[selectedCompany] && reports[selectedCompany][selected]) {
     reportText.innerHTML = `
@@ -70,22 +76,17 @@ function displayReport() {
     return;
   }
 
-  // Fallback to PDF
+  // Fallback to PDF rendering with PDF.js
   const pdfPath = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
-    reportText.innerHTML = `
-      <p><em>Currently showing the latest available PDF report.</em></p>
-      <div class="responsive-iframe-container">
-        <embed src="${pdfPath}#view=FitH" type="application/pdf" style="width:100%;height:100%;"/>
-      </div>
-    `;
+    reportText.innerHTML = `<p><em>Currently showing the latest available PDF report.</em></p>`;
+    renderPDF(pdfPath);
   } else {
-    reportText.innerHTML = `<p>No report found for ${selectedCompany}.</p>`;
-    pdfContainer.innerHTML = "";
+    reportText.innerHTML = `<p>No report found for <strong>${selectedCompany}</strong>.</p>`;
   }
 }
 
-// Handle company selection
+// Company button click
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -95,7 +96,7 @@ companies.forEach(button => {
   });
 });
 
-// Handle month selection
+// Month dropdown change
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
