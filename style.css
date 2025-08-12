@@ -214,6 +214,19 @@ footer {
   transition: background 0.3s ease;
 }
 
+#pdf-viewer-container {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#pdf-viewer-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
 .admin-link:hover {
   background-color: #218838;
 }    
