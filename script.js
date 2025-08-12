@@ -1,126 +1,90 @@
-const companies = document.querySelectorAll('.company');
-const reportCompany = document.getElementById('report-company');
-const reportText = document.getElementById('report-text');
-const monthDropdown = document.getElementById('month-dropdown');
-const pdfContainer = document.getElementById('pdf-viewer-container');
+const companyButtons = document.querySelectorAll(".company");
+const monthDropdown = document.getElementById("month-dropdown");
+const reportCompanyElem = document.getElementById("report-company");
+const reportTextElem = document.getElementById("report-text");
+const pdfViewerContainer = document.getElementById("pdf-viewer-container");
 
-let selectedCompany = '';
-let selectedMonth = '';
+let selectedCompany = null;
+let selectedMonth = null;
 
-const reportPDFs = {
-  "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
-  "Adnoc Global Trading": { default: "reports/AGT.pdf" },
-  "Year to date Average": { default: "reports/YTD.pdf" },
-  "Adnoc Onshore": { default: "reports/onshore.pdf" },
-  "Adnoc Al Dhafra & Al Yasat": { default: "reports/alds.pdf" },
-  "Adnoc Drilling": { default: "reports/drilling.pdf" },
-  "Adnoc Sour Gas": { default: "reports/sourgas.pdf" },
-  "Adnoc Refining": { default: "reports/refining.pdf" },
-  "Adnoc Distribution": { default: "reports/distribution.pdf" },
-  "Adnoc Borouge": { default: "reports/borouge.pdf" },
-  "Adnoc L&S": { default: "reports/L&S.pdf" },
-  "GBDO": { default: "reports/gbdo.pdf" },
-  "Adnoc Gas": { default: "reports/adnocgas.pdf" },
-};
+const offshorePDFUrl = "reports/offshore-report.pdf"; // path to offshore PDF file
 
-// PDF.js setup
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
-
-async function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = ""; // Clear previous content
-
-  try {
-    const loadingTask = pdfjsLib.getDocument(pdfPath);
-    const pdf = await loadingTask.promise;
-    const page = await pdf.getPage(1);
-
-    const containerWidth = pdfContainer.clientWidth || 800;
-    const devicePixelRatio = window.devicePixelRatio || 1;
-
-    // Calculate scale for sharp rendering on retina/mobile
-    const viewport = page.getViewport({ scale: 1 });
-    let scale = containerWidth / viewport.width;
-    scale = scale * devicePixelRatio;
-
-    const scaledViewport = page.getViewport({ scale: scale });
-
-    // Setup canvas
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-
-    // CSS size for canvas (scaled down for sharpness)
-    canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
-    canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
-
-    // Container for canvas and textLayer
-    const pageContainer = document.createElement("div");
-    pageContainer.style.position = "relative";
-    pageContainer.style.width = canvas.style.width;
-    pageContainer.style.height = canvas.style.height;
-
-    pageContainer.appendChild(canvas);
-    pdfContainer.appendChild(pageContainer);
-
-    // Render PDF page to canvas
-    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-
-    // Prepare text layer div for selectable text and links
-    const textContent = await page.getTextContent();
-    const textLayerDiv = document.createElement("div");
-    textLayerDiv.className = "textLayer";
-    textLayerDiv.style.position = "absolute";
-    textLayerDiv.style.top = "0";
-    textLayerDiv.style.left = "0";
-    textLayerDiv.style.height = canvas.style.height;
-    textLayerDiv.style.width = canvas.style.width;
-    textLayerDiv.style.pointerEvents = "auto";
-
-    pageContainer.appendChild(textLayerDiv);
-
-    pdfjsLib.renderTextLayer({
-      textContent,
-      container: textLayerDiv,
-      viewport: scaledViewport,
-      textDivs: [],
-      enhanceTextSelection: true,
-    });
-
-  } catch (err) {
-    pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
-  }
+function clearReport() {
+  reportCompanyElem.textContent = "N/A";
+  reportTextElem.innerHTML = "<p>Please select a company to see the KPI summary.</p>";
+  pdfViewerContainer.innerHTML = "";
 }
 
-function displayReport() {
-  if (!selectedCompany) return;
+// Render PDF using PDF.js (default)
+async function renderPDF(url) {
+  pdfViewerContainer.innerHTML = ""; // clear container
 
-  reportCompany.textContent = selectedCompany;
+  const loadingTask = pdfjsLib.getDocument(url);
+  const pdf = await loadingTask.promise;
+  const page = await pdf.getPage(1);
 
-  const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
+  const viewport = page.getViewport({ scale: 1.2 });
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
 
-  if (pdfPath) {
-    reportText.innerHTML = `
-      <p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>
-    `;
-    renderPDF(pdfPath);
+  pdfViewerContainer.appendChild(canvas);
+
+  const renderContext = {
+    canvasContext: context,
+    viewport: viewport,
+  };
+  await page.render(renderContext).promise;
+}
+
+// Show iframe for Offshore only
+function renderOffshoreIframe() {
+  pdfViewerContainer.innerHTML = ""; // clear container
+  const iframe = document.createElement("iframe");
+  iframe.src = offshorePDFUrl;
+  iframe.width = "100%";
+  iframe.height = "600px"; // adjust as needed
+  iframe.style.border = "none";
+  pdfViewerContainer.appendChild(iframe);
+}
+
+// Main function to update report
+function updateReport() {
+  if (!selectedCompany) {
+    clearReport();
+    return;
+  }
+
+  reportCompanyElem.textContent = selectedCompany;
+
+  // Example report text for demo, you can replace with real summary data
+  reportTextElem.innerHTML = `<p>Showing KPI summary for <strong>${selectedCompany}</strong> ${
+    selectedMonth ? `in <strong>${selectedMonth}</strong>` : ""
+  }.</p>`;
+
+  // For Offshore, use iframe viewer
+  if (selectedCompany === "Adnoc Offshore") {
+    renderOffshoreIframe();
   } else {
-    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
-    pdfContainer.innerHTML = "";
+    // For other companies, load the PDF using PDF.js or show a message
+    // For demo, just clear or you can add logic for other PDFs
+    pdfViewerContainer.innerHTML = "<p>No PDF viewer configured for this company.</p>";
   }
 }
 
-companies.forEach(button => {
-  button.addEventListener('click', () => {
-    selectedCompany = button.getAttribute('data-company');
-    selectedMonth = "";
-    monthDropdown.value = "";
-    displayReport();
+// Event listeners
+companyButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    selectedCompany = btn.getAttribute("data-company");
+    updateReport();
   });
 });
 
-monthDropdown.addEventListener('change', () => {
+monthDropdown.addEventListener("change", () => {
   selectedMonth = monthDropdown.value;
-  displayReport();
+  updateReport();
 });
+
+// Initialize
+clearReport();
