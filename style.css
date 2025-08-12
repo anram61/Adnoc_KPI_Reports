@@ -220,19 +220,40 @@ footer {
 
 #pdf-viewer-container {
   width: 100%;
-  height: 80vh;      /* Fixed height for viewport on desktop/mobile */
-  overflow: auto;    /* Scroll if PDF larger than container */
+  height: 80vh;
+  margin-top: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   background-color: #fff;
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
 }
 
-#pdf-viewer-container canvas {
-  max-width: 100%;
-  height: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+#pdf-viewer-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
   border-radius: 8px;
+}
+
+/* Keep your existing responsive iframe container styles too */
+.responsive-iframe-container {
+  width: 100%;
+  aspect-ratio: 3 / 3.7;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+@media (max-width: 768px) {
+  #pdf-viewer-container {
+    height: 60vh;
+  }
+
+  .responsive-iframe-container {
+    aspect-ratio: 3 / 5;
+    transform: scale(0.95);
+    transform-origin: top center;
+  }
 }
