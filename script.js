@@ -23,48 +23,69 @@ const reportPDFs = {
   "Adnoc Gas": { default: "reports/adnocgas.pdf" },
 };
 
+// PDF.js setup
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
+
+function renderPDF(pdfPath) {
+  pdfContainer.innerHTML = ""; // clear old content
+
+  const loadingTask = pdfjsLib.getDocument(pdfPath);
+  loadingTask.promise.then(pdf => {
+    pdf.getPage(1).then(page => {
+      const scale = 1.25; // Adjust zoom
+      const viewport = page.getViewport({ scale: scale });
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      const renderContext = { canvasContext: context, viewport: viewport };
+      page.render(renderContext).promise.then(() => {
+        pdfContainer.appendChild(canvas);
+        pdfContainer.style.height = canvas.height + "px";
+      });
+    });
+  }).catch(err => {
+    pdfContainer.innerHTML = <p style="color:red;">Error loading PDF: ${err.message}</p>;
+  });
+}
+
 function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
   const selected = selectedMonth || "default";
 
-  // Clear old content
-  reportText.innerHTML = "";
-  pdfContainer.innerHTML = "";
-
-  // Check localStorage for HTML dashboard (optional)
+  // Check for HTML report in localStorage
   let reports = JSON.parse(localStorage.getItem("reports") || "{}");
   if (reports[selectedCompany] && reports[selectedCompany][selected]) {
-    reportText.innerHTML = `
+    reportText.innerHTML = 
       <p><em>Showing dashboard report for <strong>${selected} 2025</strong>.</em></p>
       <div class="responsive-iframe-container">
         ${reports[selectedCompany][selected]}
       </div>
-    `;
+    ;
     return;
   }
 
-  // Use native PDF embed for fallback
+  // Fallback to PDF
   const pdfPath = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
-    reportText.innerHTML = `<p><em>Currently showing the latest available PDF report.</em></p>`;
-
-    pdfContainer.innerHTML = `
-      <embed 
-        src="${pdfPath}#view=FitH" 
-        type="application/pdf" 
-        width="100%" 
-        height="80vh"
-        style="border-radius:8px;"
-      />
-    `;
+    reportText.innerHTML = 
+      <p><em>Currently showing the latest available PDF report.</em></p>
+      <div class="responsive-iframe-container">
+        <embed src="${pdfPath}#view=FitH" type="application/pdf" style="width:100%;height:100%;"/>
+      </div>
+    ;
   } else {
-    reportText.innerHTML = `<p>No report found for <strong>${selectedCompany}</strong>.</p>`;
+    reportText.innerHTML = <p>No report found for ${selectedCompany}.</p>;
+    pdfContainer.innerHTML = "";
   }
 }
 
-// Company buttons click
+// Handle company selection
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -74,7 +95,7 @@ companies.forEach(button => {
   });
 });
 
-// Month dropdown change
+// Handle month selection
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
