@@ -23,35 +23,9 @@ const reportPDFs = {
   "Adnoc Gas": { default: "reports/adnocgas.pdf" },
 };
 
-// PDF.js worker setup
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
-
-function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = ""; // clear previous canvas
-
-  const loadingTask = pdfjsLib.getDocument(pdfPath);
-  loadingTask.promise.then(pdf => {
-    pdf.getPage(1).then(page => {
-      // Dynamically set scale for responsiveness
-      let scale = window.innerWidth < 600 ? 0.8 : 1.25;
-
-      const viewport = page.getViewport({ scale: scale });
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      const renderContext = { canvasContext: context, viewport: viewport };
-      page.render(renderContext).promise.then(() => {
-        pdfContainer.appendChild(canvas);
-        pdfContainer.style.height = canvas.height + "px";
-      });
-    });
-  }).catch(err => {
-    pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
-  });
+function encodePDFUrl(url) {
+  // URL encode the PDF url for embedding
+  return encodeURIComponent(window.location.origin + "/" + url);
 }
 
 function displayReport() {
@@ -60,11 +34,11 @@ function displayReport() {
   reportCompany.textContent = selectedCompany;
   const selected = selectedMonth || "default";
 
-  // Clear old report content and PDF viewer
+  // Clear old content
   reportText.innerHTML = "";
   pdfContainer.innerHTML = "";
 
-  // Check for HTML report in localStorage (dashboard HTML)
+  // Check localStorage for HTML dashboard (optional)
   let reports = JSON.parse(localStorage.getItem("reports") || "{}");
   if (reports[selectedCompany] && reports[selectedCompany][selected]) {
     reportText.innerHTML = `
@@ -76,17 +50,27 @@ function displayReport() {
     return;
   }
 
-  // Fallback to PDF rendering with PDF.js
+  // Load PDF via embedded PDF.js viewer iframe
   const pdfPath = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
     reportText.innerHTML = `<p><em>Currently showing the latest available PDF report.</em></p>`;
-    renderPDF(pdfPath);
+
+    const viewerBase = "https://mozilla.github.io/pdf.js/web/viewer.html?file=";
+    const fullUrl = viewerBase + encodePDFUrl(pdfPath);
+
+    const iframe = document.createElement("iframe");
+    iframe.src = fullUrl;
+    iframe.style.width = "100%";
+    iframe.style.height = "80vh";
+    iframe.style.border = "none";
+
+    pdfContainer.appendChild(iframe);
   } else {
     reportText.innerHTML = `<p>No report found for <strong>${selectedCompany}</strong>.</p>`;
   }
 }
 
-// Company button click
+// Company buttons click
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
