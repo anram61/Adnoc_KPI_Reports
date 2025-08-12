@@ -230,3 +230,28 @@ footer {
 .admin-link:hover {
   background-color: #218838;
 }    
+
+#pdf-viewer-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  position: relative;
+}
+
+.textLayer {
+  color: transparent; /* Text will be invisible but links stay active */
+  user-select: text;
+}
+
+.textLayer span {
+  color: transparent;
+  pointer-events: auto;
+}
+
+.textLayer a {
+  color: #0077cc !important;
+  text-decoration: underline;
+  pointer-events: auto;
+  cursor: pointer;
+}
