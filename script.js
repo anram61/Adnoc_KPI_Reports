@@ -48,7 +48,7 @@ function renderPDF(pdfPath) {
       });
     });
   }).catch(err => {
-    pdfContainer.innerHTML = <p style="color:red;">Error loading PDF: ${err.message}</p>;
+    pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
   });
 }
 
@@ -56,31 +56,16 @@ function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
-  const selected = selectedMonth || "default";
 
-  // Check for HTML report in localStorage
-  let reports = JSON.parse(localStorage.getItem("reports") || "{}");
-  if (reports[selectedCompany] && reports[selectedCompany][selected]) {
-    reportText.innerHTML = 
-      <p><em>Showing dashboard report for <strong>${selected} 2025</strong>.</em></p>
-      <div class="responsive-iframe-container">
-        ${reports[selectedCompany][selected]}
-      </div>
-    ;
-    return;
-  }
+  const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
-  // Fallback to PDF
-  const pdfPath = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
-    reportText.innerHTML = 
-      <p><em>Currently showing the latest available PDF report.</em></p>
-      <div class="responsive-iframe-container">
-        <embed src="${pdfPath}#view=FitH" type="application/pdf" style="width:100%;height:100%;"/>
-      </div>
-    ;
+    reportText.innerHTML = `
+      <p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>
+    `;
+    renderPDF(pdfPath);
   } else {
-    reportText.innerHTML = <p>No report found for ${selectedCompany}.</p>;
+    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
     pdfContainer.innerHTML = "";
   }
 }
