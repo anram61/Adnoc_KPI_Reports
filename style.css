@@ -223,6 +223,7 @@ footer {
   height: auto;
   display: flex;
   justify-content: center;
+  margin-top: 10px
 }
 
 #pdf-viewer-container canvas {
