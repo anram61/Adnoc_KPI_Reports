@@ -94,6 +94,14 @@ function displayReport() {
     });
 }
 
+ if (pdfPath) {
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    loadingTask.promise.then(function (pdf) {
+      // Render first page
+      pdf.getPage(1).then(function (page) {
+        const scale = 1.2; // Adjust zoom level here
+        const viewport = page.getViewport({ scale: scale });
+
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -101,8 +109,7 @@ companies.forEach(button => {
     monthDropdown.value = '';
     displayReport();
   });
-});
-
+  
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
