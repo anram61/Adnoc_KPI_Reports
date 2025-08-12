@@ -2,10 +2,16 @@ const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
+const pdfContainer = document.createElement('div');
+pdfContainer.id = "pdf-viewer-container";
+pdfContainer.style.width = "100%";
+pdfContainer.style.height = "auto";
+reportText.insertAdjacentElement('afterend', pdfContainer);
 
 let selectedCompany = '';
 let selectedMonth = '';
 
+// Map of available reports
 const reportPDFs = {
   "Adnoc Offshore": {
     default: "reports/offshore-report.pdf"
@@ -15,87 +21,80 @@ const reportPDFs = {
   },
   "Year to date Average": {
     default: "reports/YTD.pdf"
-  },
-  "Adnoc Onshore": {
-    default: "reports/onshore.pdf"
-  },
-"Adnoc Al Dhafra & Al Yasat": {
-    default: "reports/alds.pdf"
-  },
-"Adnoc Drilling": {
-    default: "reports/drilling.pdf"
-  },
-"Adnoc Sour Gas": {
-    default: "reports/sourgas.pdf"
-  },
-"Adnoc Refining": {
-    default: "reports/refining.pdf"
-  },
-"Adnoc Distribution": {
-    default: "reports/distribution.pdf"
-  },
-"Adnoc Borouge": {
-    default: "reports/borouge.pdf"
-  },
-"Adnoc L&S": {
-    default: "reports/L&S.pdf"
-  },
-"GBDO": {
-    default: "reports/gbdo.pdf"
-  },
-"Adnoc Gas": {
-    default: "reports/adnocgas.pdf"
-  },
+  }
+  // Add more companies here if needed
 };
+
+// Initialize PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
 function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
 
-  const baseFolder = "reports";
-  const selected = selectedMonth || "default";
-  const folderName = selectedCompany.replace(/ /g, "%20");
-  const fileName = `${selected}.html`;
-  const fallbackPDF = reportPDFs[selectedCompany]?.[selected] || reportPDFs[selectedCompany]?.default;
+  let pdfPath = "";
+  let message = "";
 
-  const htmlPath = `${baseFolder}/${folderName}/${fileName}`;
+  if (selectedMonth && reportPDFs[selectedCompany]?.[selectedMonth]) {
+    pdfPath = reportPDFs[selectedCompany][selectedMonth];
+    message = `<p>Showing report for <strong>${selectedMonth} 2025</strong>.</p>`;
+  } else if (reportPDFs[selectedCompany]?.default) {
+    pdfPath = reportPDFs[selectedCompany].default;
+    message = `<p><em>Currently showing the latest available report.</em></p>`;
+  }
 
-  fetch(htmlPath)
-    .then(response => {
-      if (response.ok) {
-        reportText.innerHTML = `
-          <p><em>Showing dashboard report for <strong>${selected} 2025</strong>.</em></p>
-          <div class="responsive-iframe-container">
-            <iframe src="${htmlPath}" frameborder="0"></iframe>
-          </div>
-        `;
-      } else if (fallbackPDF) {
-        reportText.innerHTML = `
-          <p><em>Dashboard not found. Showing fallback PDF instead.</em></p>
-          <div class="responsive-iframe-container">
-            <embed src="${fallbackPDF}#view=FitH&toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" />
-          </div>
-        `;
-      } else {
-        reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong> in <strong>${selected}</strong>.</p>`;
-      }
-    })
-    .catch(() => {
-      reportText.innerHTML = `<p>Error loading report.</p>`;
+  // Show the text message above the PDF
+  reportText.innerHTML = message;
+
+  // Clear previous PDF
+  pdfContainer.innerHTML = "";
+
+  if (pdfPath) {
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    loadingTask.promise.then(function (pdf) {
+      // Render first page
+      pdf.getPage(1).then(function (page) {
+        const scale = 1.2; // Adjust zoom level here
+        const viewport = page.getViewport({ scale: scale });
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        pdfContainer.appendChild(canvas);
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+    }).catch(function (error) {
+      console.error("Error loading PDF:", error);
+      pdfContainer.innerHTML = "<p>Failed to load PDF.</p>";
     });
+  } else {
+    pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
+  }
 }
 
+// Handle company selection
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
-    selectedMonth = '';
-    monthDropdown.value = '';
+    selectedMonth = ''; // Reset to default (latest)
+    if (monthDropdown) monthDropdown.value = ''; // Reset dropdown if it exists
     displayReport();
   });
 });
 
-monthDropdown.addEventListener('change', () => {
-  selectedMonth = monthDropdown.value;
-  displayReport();
-});
+// Handle month selection
+if (monthDropdown) {
+  monthDropdown.addEventListener('change', () => {
+    selectedMonth = monthDropdown.value;
+    displayReport();
+  });
+}
