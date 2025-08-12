@@ -217,11 +217,3 @@ footer {
 .admin-link:hover {
   background-color: #218838;
 }    
-
-#pdf-viewer-container {
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
