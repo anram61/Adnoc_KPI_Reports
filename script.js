@@ -35,41 +35,49 @@ async function renderPDF(pdfPath) {
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(1);
 
-    // Calculate scale based on container width to improve clarity
     const containerWidth = pdfContainer.clientWidth || 800;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+
+    // Calculate scale for sharp rendering on retina/mobile
     const viewport = page.getViewport({ scale: 1 });
-    const scale = containerWidth / viewport.width;
+    let scale = containerWidth / viewport.width;
+    scale = scale * devicePixelRatio;
+
     const scaledViewport = page.getViewport({ scale: scale });
 
-    // Prepare canvas for rendering page
+    // Setup canvas
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     canvas.width = scaledViewport.width;
     canvas.height = scaledViewport.height;
 
-    // Container to hold canvas and text layer
+    // CSS size for canvas (scaled down for sharpness)
+    canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
+    canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
+
+    // Container for canvas and textLayer
     const pageContainer = document.createElement("div");
     pageContainer.style.position = "relative";
-    pageContainer.style.width = canvas.width + "px";
-    pageContainer.style.height = canvas.height + "px";
+    pageContainer.style.width = canvas.style.width;
+    pageContainer.style.height = canvas.style.height;
 
-    // Append canvas
     pageContainer.appendChild(canvas);
     pdfContainer.appendChild(pageContainer);
 
-    // Render PDF page on canvas
+    // Render PDF page to canvas
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
-    // Prepare text layer for selectable text and links
+    // Prepare text layer div for selectable text and links
     const textContent = await page.getTextContent();
     const textLayerDiv = document.createElement("div");
     textLayerDiv.className = "textLayer";
     textLayerDiv.style.position = "absolute";
     textLayerDiv.style.top = "0";
     textLayerDiv.style.left = "0";
-    textLayerDiv.style.height = canvas.height + "px";
-    textLayerDiv.style.width = canvas.width + "px";
-    textLayerDiv.style.pointerEvents = "auto"; // Allow interaction with links
+    textLayerDiv.style.height = canvas.style.height;
+    textLayerDiv.style.width = canvas.style.width;
+    textLayerDiv.style.pointerEvents = "auto";
+
     pageContainer.appendChild(textLayerDiv);
 
     pdfjsLib.renderTextLayer({
@@ -90,7 +98,6 @@ function displayReport() {
 
   reportCompany.textContent = selectedCompany;
 
-  // Use selected month if available or fallback to default
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
   if (pdfPath) {
@@ -104,7 +111,6 @@ function displayReport() {
   }
 }
 
-// Handle company selection
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -114,7 +120,6 @@ companies.forEach(button => {
   });
 });
 
-// Handle month selection
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
