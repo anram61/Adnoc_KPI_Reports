@@ -206,3 +206,9 @@ footer {
   max-height: 1100px;
   border-radius: 6px;
 }
+
+@media (min-width: 769px) {
+  #pdf-viewer-container {
+    transform: translateY(-50px);
+  }
+}
