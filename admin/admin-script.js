@@ -1,7 +1,6 @@
 const $ = s => document.querySelector(s);
 const latestList = $("#latest-list");
 const preview = $("#preview");
-
 const form = {
   company: $("#company"),
   month: $("#month"),
