@@ -38,10 +38,10 @@ async function renderPDF(pdfPath) {
     const containerWidth = pdfContainer.clientWidth || 800;
     const devicePixelRatio = window.devicePixelRatio || 1;
 
-    // Calculate scale for sharp rendering on retina/mobile
+    // Calculate scale for sharp rendering
     const viewport = page.getViewport({ scale: 1 });
     let scale = containerWidth / viewport.width;
-    scale = scale * devicePixelRatio;
+    scale *= devicePixelRatio;
 
     const scaledViewport = page.getViewport({ scale: scale });
 
@@ -51,42 +51,14 @@ async function renderPDF(pdfPath) {
     canvas.width = scaledViewport.width;
     canvas.height = scaledViewport.height;
 
-    // CSS size for canvas (scaled down for sharpness)
+    // CSS size for display
     canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
     canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
 
-    // Container for canvas and textLayer
-    const pageContainer = document.createElement("div");
-    pageContainer.style.position = "relative";
-    pageContainer.style.width = canvas.style.width;
-    pageContainer.style.height = canvas.style.height;
-
-    pageContainer.appendChild(canvas);
-    pdfContainer.appendChild(pageContainer);
+    pdfContainer.appendChild(canvas);
 
     // Render PDF page to canvas
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-
-    // Prepare text layer div for selectable text and links
-    const textContent = await page.getTextContent();
-    const textLayerDiv = document.createElement("div");
-    textLayerDiv.className = "textLayer";
-    textLayerDiv.style.position = "absolute";
-    textLayerDiv.style.top = "0";
-    textLayerDiv.style.left = "0";
-    textLayerDiv.style.height = canvas.style.height;
-    textLayerDiv.style.width = canvas.style.width;
-    textLayerDiv.style.pointerEvents = "auto";
-
-    pageContainer.appendChild(textLayerDiv);
-
-    pdfjsLib.renderTextLayer({
-      textContent,
-      container: textLayerDiv,
-      viewport: scaledViewport,
-      textDivs: [],
-      enhanceTextSelection: true,
-    });
 
   } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
@@ -97,14 +69,6 @@ function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
-  const reportBox = document.getElementById('report-box');
-
-if (selectedCompany === "Adnoc Offshore") {
-  reportBox.classList.add("offshore");
-} else {
-  reportBox.classList.remove("offshore");
-}
-
 
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
@@ -112,19 +76,7 @@ if (selectedCompany === "Adnoc Offshore") {
     reportText.innerHTML = `
       <p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>
     `;
-
-    if (selectedCompany === "Adnoc Offshore") {
-      // Render offshore PDF using iframe
-      pdfContainer.innerHTML = "";
-      const iframe = document.createElement("iframe");
-      iframe.src = pdfPath;
-      iframe.setAttribute("aria-label", "Adnoc Offshore KPI Report");
-      pdfContainer.appendChild(iframe);
-    } else {
-      // Render all other companies using PDF.js
-      renderPDF(pdfPath);
-    }
-
+    renderPDF(pdfPath);
   } else {
     reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
     pdfContainer.innerHTML = "";
@@ -142,5 +94,5 @@ companies.forEach(button => {
 
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
-  displayReport();
+    displayReport();
 });
