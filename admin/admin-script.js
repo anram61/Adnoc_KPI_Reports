@@ -1,6 +1,8 @@
+// ---- helpers ----
 const $ = s => document.querySelector(s);
 const latestList = $("#latest-list");
 const preview = $("#preview");
+
 const form = {
   company: $("#company"),
   month: $("#month"),
@@ -17,16 +19,19 @@ const btnGenerate = $("#btn-generate");
 const btnSaveHome = $("#btn-save-home");
 const btnDelete = $("#btn-delete");
 
-const REPORT_KEY_PREFIX = "kpi-report";
-const LATEST_KPI_KEY = "kpi-latest";
+// Storage keys
+const REPORT_KEY_PREFIX = "kpi-report"; // kpi-report::<company>::<month>
+const LATEST_KPI_KEY = "kpi-latest";    // per-company latest KPI
 
 function key(company, month) {
   return `${REPORT_KEY_PREFIX}::${company}::${month}`;
 }
 
+// Load latest KPI map
 function getLatestMap() {
-  try { return JSON.parse(localStorage.getItem(LATEST_KPI_KEY) || "{}"); }
-  catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(LATEST_KPI_KEY) || "{}");
+  } catch { return {}; }
 }
 
 function setLatest(company, kpi, month) {
@@ -59,16 +64,23 @@ function renderLatest() {
 }
 renderLatest();
 
+// Build monthly chart data
 function buildMonthlyBars(currentMonth, currentKPI) {
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const values = months.map(m => m === currentMonth.slice(0,3) ? currentKPI : 0);
   return { months, values };
 }
 
+// Escape HTML
+function escapeHtml(s=""){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+// Build dashboard HTML
 function buildDashboardHTML(data) {
   const { company, month, kpi, eff, people, ops, fin, top, under, remedial } = data;
   const bars = buildMonthlyBars(month, kpi);
-  const maxVal = 5; // out of 5
+  const maxVal = 5; // KPI out of 5
   const h = 160, barW = 20, gap = 14;
   const chartWidth = bars.values.length * (barW + gap) + gap;
 
@@ -78,11 +90,12 @@ function buildDashboardHTML(data) {
     const y = h - height - 20;
     const active = v > 0;
     return `
-      <rect class="bar" x="${x}" y="${y}" width="${barW}" height="${height}"
-        rx="4" fill="${active ? '#22c55e' : '#e5edf7'}"></rect>
+      <rect class="bar" x="${x}" y="${y}" width="${barW}" height="${height}" rx="4" fill="${active ? '#22c55e' : '#e5edf7'}"></rect>
       <text x="${x + barW/2}" y="${h-4}" text-anchor="middle" font-size="10" fill="#374151">${bars.months[i]}</text>
     `;
   }).join("");
+
+  const fillPct = Math.max(0, Math.min(100, (kpi/maxVal)*100));
 
   return `
   <div class="kpi-card">
@@ -130,7 +143,7 @@ function buildDashboardHTML(data) {
       <div class="kpi-score-wrap">
         <div class="kpi-score-number">${kpi.toFixed(1)}</div>
         <div class="kpi-therm">
-          <div class="fill" style="width:${(kpi/maxVal)*100}%;"></div>
+          <div class="fill" style="width:${fillPct}%;"></div>
           <div class="ticks">
             <span></span><span></span><span></span><span></span>
             <span></span><span></span><span></span><span></span>
@@ -152,28 +165,21 @@ function buildDashboardHTML(data) {
   `;
 }
 
-function escapeHtml(s=""){
-  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-}
-
 // ---- main actions ----
 btnGenerate.addEventListener("click", () => {
   const company = form.company.value.trim();
   const month = form.month.value.trim();
   if (!company || !month) { alert("Please choose company and month."); return; }
 
-  const eff = Number(form.eff.value || 0);
-  const people = Number(form.people.value || 0);
-  const ops = Number(form.ops.value || 0);
-  const fin = Number(form.fin.value || 0);
+  const eff = parseFloat(form.eff.value) || 0;
+  const people = parseFloat(form.people.value) || 0;
+  const ops = parseFloat(form.ops.value) || 0;
+  const fin = parseFloat(form.fin.value) || 0;
 
-  // Compute KPI automatically (average of 3 pillars)
-  const kpiCalculated = (eff + people + ops) / 3;
+  const kpi = (eff + people + ops) / 3; // overall KPI automatically
 
   const data = {
-    company, month,
-    kpi: kpiCalculated,
-    eff, people, ops, fin,
+    company, month, kpi, eff, people, ops, fin,
     top: form.top.value, under: form.under.value, remedial: form.remedial.value
   };
 
@@ -182,7 +188,10 @@ btnGenerate.addEventListener("click", () => {
   btnSaveHome.disabled = false;
   btnDelete.disabled = false;
 
-  sessionStorage.setItem("draft-dashboard", JSON.stringify({ key: key(company, month), company, month, html: preview.innerHTML, kpi: data.kpi }));
+  sessionStorage.setItem("draft-dashboard", JSON.stringify({
+    key: key(company, month),
+    company, month, html: preview.innerHTML, kpi
+  }));
 });
 
 btnSaveHome.addEventListener("click", () => {
