@@ -94,10 +94,53 @@ async function renderPDF(pdfPath) {
   }
 }
 
+function storageKey(company, month) {
+  return `kpi-report::${company}::${month}`;
+}
+
+function getLatestSavedForCompany(company) {
+  try {
+    const map = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    return map[company] || null;
+  } catch { return null; }
+}
+
 function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
+
+  // 1) If a month is chosen, try generated HTML first
+  if (selectedMonth) {
+    const html = localStorage.getItem(storageKey(selectedCompany, selectedMonth));
+    if (html) {
+      reportText.innerHTML = `<p><em>Showing generated dashboard (${selectedMonth} 2025)</em></p>`;
+      pdfContainer.innerHTML = ""; // clear PDF area
+      // render generated HTML
+      const holder = document.createElement('div');
+      holder.innerHTML = html;
+      pdfContainer.appendChild(holder);
+      return;
+    }
+  }
+
+  // 2) If no month chosen, try latest saved for company
+  if (!selectedMonth) {
+    const latest = getLatestSavedForCompany(selectedCompany);
+    if (latest && latest.month) {
+      const html = localStorage.getItem(storageKey(selectedCompany, latest.month));
+      if (html) {
+        reportText.innerHTML = `<p><em>Showing generated dashboard (Latest: ${latest.month} 2025)</em></p>`;
+        pdfContainer.innerHTML = "";
+        const holder = document.createElement('div');
+        holder.innerHTML = html;
+        pdfContainer.appendChild(holder);
+        return;
+      }
+    }
+  }
+
+  // 3) Fallback to PDF (existing logic)
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
   if (pdfPath) {
@@ -110,6 +153,7 @@ function displayReport() {
     pdfContainer.innerHTML = "";
   }
 }
+
 
 companies.forEach(button => {
   button.addEventListener('click', () => {
