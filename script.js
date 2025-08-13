@@ -78,8 +78,8 @@ async function renderPDF(pdfPath) {
         linkEl.target = '_blank';
         linkEl.style.position = 'absolute';
         linkEl.style.left = (rect[0] * scale / devicePixelRatio) + 'px';
-        const verticalOffset = window.innerWidth >= 769 ? 100 : 0;
-        linkEl.style.bottom = ((rect[1] * scale / devicePixelRatio) + verticalOffset) + 'px';
+        const verticalOffset = window.innerWidth >= 769 ? 50 : 0; // adjust 50px as needed
+        linkEl.style.bottom = (rect[1] * scale / devicePixelRatio - verticalOffset) + 'px';
         linkEl.style.width = ((rect[2] - rect[0]) * scale / devicePixelRatio) + 'px';
         linkEl.style.height = ((rect[3] - rect[1]) * scale / devicePixelRatio) + 'px';
         linkEl.style.zIndex = 10;
