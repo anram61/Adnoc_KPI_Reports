@@ -130,7 +130,7 @@ footer {
 }
 
 #pdf-viewer-container a {
-  position: absolute;
+  position: relative;
   display: block;
   background: transparent;
   cursor: pointer;
