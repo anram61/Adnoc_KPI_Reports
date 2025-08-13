@@ -64,16 +64,16 @@ function renderLatest() {
 }
 renderLatest();
 
+// Escape HTML
+function escapeHtml(s=""){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
 // Build monthly chart data
 function buildMonthlyBars(currentMonth, currentKPI) {
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const values = months.map(m => m === currentMonth.slice(0,3) ? currentKPI : 0);
   return { months, values };
-}
-
-// Escape HTML
-function escapeHtml(s=""){
-  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 
 // Build dashboard HTML
@@ -171,19 +171,26 @@ btnGenerate.addEventListener("click", () => {
   const month = form.month.value.trim();
   if (!company || !month) { alert("Please choose company and month."); return; }
 
-  const eff = parseFloat(form.eff.value) || 0;
-  const people = parseFloat(form.people.value) || 0;
-  const ops = parseFloat(form.ops.value) || 0;
-  const fin = parseFloat(form.fin.value) || 0;
+  // Safe parsing
+  const eff = Math.min(5, Math.max(0, parseFloat(form.eff.value) || 0));
+  const people = Math.min(5, Math.max(0, parseFloat(form.people.value) || 0));
+  const ops = Math.min(5, Math.max(0, parseFloat(form.ops.value) || 0));
+  const fin = Math.min(5, Math.max(0, parseFloat(form.fin.value) || 0));
 
-  const kpi = (eff + people + ops) / 3; // overall KPI automatically
+  const kpi = (eff + people + ops)/3;
 
   const data = {
     company, month, kpi, eff, people, ops, fin,
     top: form.top.value, under: form.under.value, remedial: form.remedial.value
   };
 
-  preview.innerHTML = buildDashboardHTML(data);
+  try {
+    preview.innerHTML = buildDashboardHTML(data);
+  } catch(e) {
+    console.error("Dashboard build error:", e);
+    preview.innerHTML = `<div style="color:red;">Error generating dashboard: ${e.message}</div>`;
+    return;
+  }
 
   btnSaveHome.disabled = false;
   btnDelete.disabled = false;
