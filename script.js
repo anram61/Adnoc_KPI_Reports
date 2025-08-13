@@ -169,3 +169,44 @@ monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
 });
+
+// Save Report Button
+const saveBtn = document.getElementById('save-report-btn');
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => {
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before saving.");
+      return;
+    }
+    if (pdfContainer.innerHTML.trim() === "") {
+      alert("Nothing to save. Generate the report first.");
+      return;
+    }
+    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+    alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
+  });
+}
+
+// Delete Report Button
+const deleteBtn = document.getElementById('delete-report-btn');
+if (deleteBtn) {
+  deleteBtn.addEventListener('click', () => {
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before deleting.");
+      return;
+    }
+    const key = storageKey(selectedCompany, selectedMonth);
+    localStorage.removeItem(key);
+
+    // Update latest map
+    const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    if (latestMap[selectedCompany]?.month === selectedMonth) {
+      delete latestMap[selectedCompany];
+      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+    }
+
+    alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
+    pdfContainer.innerHTML = "";
+    reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
+  });
+}
