@@ -27,24 +27,22 @@ const reportPDFs = {
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
+// Render PDF professionally
 async function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = ""; // Clear previous content
+  pdfContainer.innerHTML = "";
 
   try {
     const loadingTask = pdfjsLib.getDocument(pdfPath);
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(1);
 
-    const containerWidth = pdfContainer.clientWidth || 800;
+    const containerWidth = pdfContainer.clientWidth || 900;
     const devicePixelRatio = window.devicePixelRatio || 1;
-
-    const viewport = page.getViewport({ scale: 1 });
+    let viewport = page.getViewport({ scale: 1 });
     let scale = containerWidth / viewport.width;
     scale = scale * devicePixelRatio;
-
     const scaledViewport = page.getViewport({ scale: scale });
 
-    // Create canvas
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     canvas.width = scaledViewport.width;
@@ -52,7 +50,6 @@ async function renderPDF(pdfPath) {
     canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
     canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
 
-    // Container for PDF page and clickable areas
     const pageContainer = document.createElement("div");
     pageContainer.style.position = "relative";
     pageContainer.style.width = canvas.style.width;
@@ -61,18 +58,14 @@ async function renderPDF(pdfPath) {
     pageContainer.appendChild(canvas);
     pdfContainer.appendChild(pageContainer);
 
-    // Render the page
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
-    // Add clickable links without ghost text
+    // Add clickable links
     const annotations = await page.getAnnotations();
     annotations.forEach(annotation => {
       if (annotation.subtype === 'Link' && annotation.url) {
         const [x1, y1, x2, y2] = annotation.rect;
-        const rect = pdfjsLib.Util.normalizeRect([
-          x1, y1, x2, y2
-        ]);
-
+        const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
         const linkEl = document.createElement('a');
         linkEl.href = annotation.url;
         linkEl.target = '_blank';
@@ -84,7 +77,6 @@ async function renderPDF(pdfPath) {
         linkEl.style.zIndex = 10;
         linkEl.style.background = 'transparent';
         linkEl.style.cursor = 'pointer';
-
         pageContainer.appendChild(linkEl);
       }
     });
@@ -105,18 +97,18 @@ function getLatestSavedForCompany(company) {
   } catch { return null; }
 }
 
+// Display Report
 function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
 
-  // 1) If a month is chosen, try generated HTML first
+  // 1) If month chosen, try generated HTML first
   if (selectedMonth) {
     const html = localStorage.getItem(storageKey(selectedCompany, selectedMonth));
     if (html) {
       reportText.innerHTML = `<p><em>Showing generated dashboard (${selectedMonth} 2025)</em></p>`;
-      pdfContainer.innerHTML = ""; // clear PDF area
-      // render generated HTML
+      pdfContainer.innerHTML = "";
       const holder = document.createElement('div');
       holder.innerHTML = html;
       pdfContainer.appendChild(holder);
@@ -140,13 +132,11 @@ function displayReport() {
     }
   }
 
-  // 3) Fallback to PDF (existing logic)
+  // 3) Fallback to PDF
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
   if (pdfPath) {
-    reportText.innerHTML = `
-      <p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>
-    `;
+    reportText.innerHTML = `<p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>`;
     renderPDF(pdfPath);
   } else {
     reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
@@ -154,7 +144,17 @@ function displayReport() {
   }
 }
 
+// Save generated HTML to localStorage
+function saveReportToStorage(company, month, html) {
+  if (!company || !month) return;
+  localStorage.setItem(storageKey(company, month), html);
 
+  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+  latestMap[company] = { month };
+  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+}
+
+// Company buttons click
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -164,7 +164,8 @@ companies.forEach(button => {
   });
 });
 
+// Month dropdown change
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
-    displayReport();
+  displayReport();
 });
