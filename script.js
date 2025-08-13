@@ -38,27 +38,56 @@ async function renderPDF(pdfPath) {
     const containerWidth = pdfContainer.clientWidth || 800;
     const devicePixelRatio = window.devicePixelRatio || 1;
 
-    // Calculate scale for sharp rendering
     const viewport = page.getViewport({ scale: 1 });
     let scale = containerWidth / viewport.width;
-    scale *= devicePixelRatio;
+    scale = scale * devicePixelRatio;
 
     const scaledViewport = page.getViewport({ scale: scale });
 
-    // Setup canvas
+    // Create canvas
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     canvas.width = scaledViewport.width;
     canvas.height = scaledViewport.height;
-
-    // CSS size for display
     canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
     canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
 
-    pdfContainer.appendChild(canvas);
+    // Container for PDF page and clickable areas
+    const pageContainer = document.createElement("div");
+    pageContainer.style.position = "relative";
+    pageContainer.style.width = canvas.style.width;
+    pageContainer.style.height = canvas.style.height;
 
-    // Render PDF page to canvas
+    pageContainer.appendChild(canvas);
+    pdfContainer.appendChild(pageContainer);
+
+    // Render the page
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+    // Add clickable links without ghost text
+    const annotations = await page.getAnnotations();
+    annotations.forEach(annotation => {
+      if (annotation.subtype === 'Link' && annotation.url) {
+        const [x1, y1, x2, y2] = annotation.rect;
+        const rect = pdfjsLib.Util.normalizeRect([
+          x1, y1, x2, y2
+        ]);
+
+        const linkEl = document.createElement('a');
+        linkEl.href = annotation.url;
+        linkEl.target = '_blank';
+        linkEl.style.position = 'absolute';
+        linkEl.style.left = (rect[0] * scale / devicePixelRatio) + 'px';
+        linkEl.style.bottom = (rect[1] * scale / devicePixelRatio) + 'px';
+        linkEl.style.width = ((rect[2] - rect[0]) * scale / devicePixelRatio) + 'px';
+        linkEl.style.height = ((rect[3] - rect[1]) * scale / devicePixelRatio) + 'px';
+        linkEl.style.zIndex = 10;
+        linkEl.style.background = 'transparent';
+        linkEl.style.cursor = 'pointer';
+
+        pageContainer.appendChild(linkEl);
+      }
+    });
 
   } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
@@ -69,7 +98,6 @@ function displayReport() {
   if (!selectedCompany) return;
 
   reportCompany.textContent = selectedCompany;
-
   const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
 
   if (pdfPath) {
