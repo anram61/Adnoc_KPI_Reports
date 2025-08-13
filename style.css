@@ -199,6 +199,6 @@ footer {
 #pdf-viewer-container canvas {
   max-width: 100%;
   height: auto;
-  max-height: 1100px;
+  max-height: 1400px;
   border-radius: 6px;
 }
