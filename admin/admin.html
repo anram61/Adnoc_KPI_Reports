@@ -1,77 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generate KPI Report</title>
-  <link rel="stylesheet" href="admin-style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ADNOC – Report Generator</title>
+  <link rel="stylesheet" href="admin-style.css" />
 </head>
 <body>
-  <header>
-    <h1>📊 Generate New KPI Report</h1>
+  <header class="admin-header">
+    <h1>Generate KPI Dashboard</h1>
+    <a href="../index.html" class="btn btn-ghost">← Back to Viewer</a>
   </header>
 
-  <main>
-    <form id="report-form">
-      <label for="company">Select Company</label>
-      <select id="company" required>
-        <option value="">-- Select Company --</option>
-        <option>Adnoc Onshore</option>
-        <option>Adnoc Offshore</option>
-        <option>Adnoc Al Dhafra & Al Yasat</option>
-        <option>Adnoc Drilling</option>
-        <option>Adnoc Sour Gas</option>
-        <option>Adnoc Refining</option>
-        <option>Adnoc Distribution</option>
-        <option>Adnoc Borouge</option>
-        <option>Adnoc L & S</option>
-        <option>Adnoc Global Trading</option>
-        <option>GBDO</option>
-        <option>Adnoc Gas</option>
-        <option>Year to date Average</option>
-      </select>
+  <main class="admin-main">
+    <section class="card">
+      <h2>Report Details</h2>
+      <form id="report-form" class="form-grid">
+        <div class="form-control">
+          <label for="company">Company</label>
+          <select id="company" required>
+            <option value="">-- Select Company --</option>
+            <option>Adnoc Onshore</option>
+            <option>Adnoc Offshore</option>
+            <option>Adnoc Al Dhafra & Al Yasat</option>
+            <option>Adnoc Drilling</option>
+            <option>Adnoc Sour Gas</option>
+            <option>Adnoc Refining</option>
+            <option>Adnoc Distribution</option>
+            <option>Adnoc Borouge</option>
+            <option>Adnoc L&S</option>
+            <option>Adnoc Global Trading</option>
+            <option>GBDO</option>
+            <option>Adnoc Gas</option>
+            <option>Year to date Average</option>
+          </select>
+        </div>
 
-      <label for="month">Select Month</label>
-      <select id="month" required>
-        <option value="">-- Select Month --</option>
-        <option>January</option><option>February</option><option>March</option>
-        <option>April</option><option>May</option><option>June</option>
-        <option>July</option><option>August</option><option>September</option>
-        <option>October</option><option>November</option><option>December</option>
-      </select>
+        <div class="form-control">
+          <label for="month">Month</label>
+          <select id="month" required>
+            <option value="">-- Select Month --</option>
+            <option>January</option><option>February</option><option>March</option>
+            <option>April</option><option>May</option><option>June</option>
+            <option>July</option><option>August</option><option>September</option>
+            <option>October</option><option>November</option><option>December</option>
+          </select>
+        </div>
 
-      <h2>Pillar Ratings</h2>
-      <label>Efficiency</label>
-      <input type="number" id="efficiency" min="0" max="100" required>
+        <div class="form-control">
+          <label for="kpi">Overall KPI (0–100)</label>
+          <input id="kpi" type="number" min="0" max="100" step="0.1" placeholder="e.g., 72.5" required />
+        </div>
 
-      <label>People</label>
-      <input type="number" id="people" min="0" max="100" required>
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="efficiency">Efficiency (0–100)</label>
+            <input id="efficiency" type="number" min="0" max="100" step="0.1" required />
+          </div>
+          <div class="form-control">
+            <label for="people">People (0–100)</label>
+            <input id="people" type="number" min="0" max="100" step="0.1" required />
+          </div>
+        </div>
 
-      <label>Profitability – Operations</label>
-      <input type="number" id="profitability-ops" min="0" max="100" required>
+        <div class="grid-2">
+          <div class="form-control">
+            <label for="profitOps">Profitability – Operations (0–100)</label>
+            <input id="profitOps" type="number" min="0" max="100" step="0.1" required />
+          </div>
+          <div class="form-control">
+            <label for="profitFin">Profitability – Financials (0–100)</label>
+            <input id="profitFin" type="number" min="0" max="100" step="0.1" required />
+            <small class="muted">Note: This does not impact the KPI calculation.</small>
+          </div>
+        </div>
 
-      <label>Profitability – Financials</label>
-      <input type="number" id="profitability-fin" min="0" max="100" required>
+        <div class="form-control">
+          <label for="topKpi">Top KPI</label>
+          <textarea id="topKpi" rows="2" placeholder="Brief highlight…"></textarea>
+        </div>
+        <div class="form-control">
+          <label for="underperforming">Underperforming</label>
+          <textarea id="underperforming" rows="2" placeholder="Key area underperforming…"></textarea>
+        </div>
+        <div class="form-control">
+          <label for="remedial">Remedial Action</label>
+          <textarea id="remedial" rows="3" placeholder="What actions will be taken…"></textarea>
+        </div>
 
-      <h2>Additional Information</h2>
-      <label>Top KPIs</label>
-      <textarea id="top-kpi" rows="2"></textarea>
+        <div class="actions">
+          <button type="button" id="btn-generate" class="btn btn-primary">Generate Dashboard</button>
+          <button type="button" id="btn-save-home" class="btn btn-success" disabled>✓ Add to Homepage</button>
+          <button type="button" id="btn-delete" class="btn btn-danger" disabled>🗑 Delete</button>
+        </div>
+      </form>
+    </section>
 
-      <label>Underperforming KPIs</label>
-      <textarea id="under-kpi" rows="2"></textarea>
+    <section class="card">
+      <h2>Live Preview</h2>
+      <div id="preview" class="preview"></div>
+    </section>
 
-      <label>Remedial Actions</label>
-      <textarea id="remedial" rows="2"></textarea>
-
-      <button type="submit" class="generate-btn">✅ Generate Report</button>
-    </form>
-
-    <aside class="sidebar">
-      <h2>All Companies KPI</h2>
-      <div id="all-company-kpis"></div>
-    </aside>
+    <section class="card">
+      <h2>Company KPI (Latest)</h2>
+      <ul id="latest-list" class="latest-list"></ul>
+    </section>
   </main>
 
-  <script src="admin-script.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
