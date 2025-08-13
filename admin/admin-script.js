@@ -1,4 +1,3 @@
-// ---- helpers ----
 const $ = s => document.querySelector(s);
 const latestList = $("#latest-list");
 const preview = $("#preview");
@@ -6,7 +5,6 @@ const preview = $("#preview");
 const form = {
   company: $("#company"),
   month: $("#month"),
-  kpi: $("#kpi"),
   eff: $("#efficiency"),
   people: $("#people"),
   ops: $("#profitOps"),
@@ -20,19 +18,16 @@ const btnGenerate = $("#btn-generate");
 const btnSaveHome = $("#btn-save-home");
 const btnDelete = $("#btn-delete");
 
-// Storage keys
-const REPORT_KEY_PREFIX = "kpi-report"; // kpi-report::<company>::<month>
-const LATEST_KPI_KEY = "kpi-latest";    // per-company latest KPI
+const REPORT_KEY_PREFIX = "kpi-report";
+const LATEST_KPI_KEY = "kpi-latest";
 
 function key(company, month) {
   return `${REPORT_KEY_PREFIX}::${company}::${month}`;
 }
 
-// Load latest KPI map
 function getLatestMap() {
-  try {
-    return JSON.parse(localStorage.getItem(LATEST_KPI_KEY) || "{}");
-  } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(LATEST_KPI_KEY) || "{}"); }
+  catch { return {}; }
 }
 
 function setLatest(company, kpi, month) {
@@ -65,18 +60,16 @@ function renderLatest() {
 }
 renderLatest();
 
-// Create SVG mini chart data (12 months, fill current with KPI)
 function buildMonthlyBars(currentMonth, currentKPI) {
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const values = months.map(m => m === currentMonth.slice(0,3) ? currentKPI : 0);
   return { months, values };
 }
 
-// Build the dashboard HTML (scoped styles already in admin-style.css)
 function buildDashboardHTML(data) {
   const { company, month, kpi, eff, people, ops, fin, top, under, remedial } = data;
   const bars = buildMonthlyBars(month, kpi);
-  const maxVal = 100;
+  const maxVal = 5; // out of 5
   const h = 160, barW = 20, gap = 14;
   const chartWidth = bars.values.length * (barW + gap) + gap;
 
@@ -87,13 +80,10 @@ function buildDashboardHTML(data) {
     const active = v > 0;
     return `
       <rect class="bar" x="${x}" y="${y}" width="${barW}" height="${height}"
-        fill="${active ? '#22c55e' : '#e5edf7'}"></rect>
+        rx="4" fill="${active ? '#22c55e' : '#e5edf7'}"></rect>
       <text x="${x + barW/2}" y="${h-4}" text-anchor="middle" font-size="10" fill="#374151">${bars.months[i]}</text>
     `;
   }).join("");
-
-  // KPI fill %
-  const fillPct = Math.max(0, Math.min(100, kpi));
 
   return `
   <div class="kpi-card">
@@ -112,22 +102,22 @@ function buildDashboardHTML(data) {
           <div class="pill eff">
             <label>Efficiency</label>
             <div class="score">${eff.toFixed(1)}</div>
-            <div class="bar-wrap"><div class="bar" style="width:${eff}%;"></div></div>
+            <div class="bar-wrap"><div class="bar" style="width:${(eff/maxVal)*100}%;"></div></div>
           </div>
           <div class="pill people">
             <label>People</label>
             <div class="score">${people.toFixed(1)}</div>
-            <div class="bar-wrap"><div class="bar" style="width:${people}%;"></div></div>
+            <div class="bar-wrap"><div class="bar" style="width:${(people/maxVal)*100}%;"></div></div>
           </div>
           <div class="pill ops">
             <label>Profitability – Operations</label>
             <div class="score">${ops.toFixed(1)}</div>
-            <div class="bar-wrap"><div class="bar" style="width:${ops}%;"></div></div>
+            <div class="bar-wrap"><div class="bar" style="width:${(ops/maxVal)*100}%;"></div></div>
           </div>
           <div class="pill fin">
             <label>Profitability – Financials</label>
             <div class="score">${fin.toFixed(1)}</div>
-            <div class="bar-wrap"><div class="bar" style="width:${fin}%;"></div></div>
+            <div class="bar-wrap"><div class="bar" style="width:${(fin/maxVal)*100}%;"></div></div>
           </div>
         </div>
 
@@ -141,7 +131,7 @@ function buildDashboardHTML(data) {
       <div class="kpi-score-wrap">
         <div class="kpi-score-number">${kpi.toFixed(1)}</div>
         <div class="kpi-therm">
-          <div class="fill" style="width:${fillPct}%;"></div>
+          <div class="fill" style="width:${(kpi/maxVal)*100}%;"></div>
           <div class="ticks">
             <span></span><span></span><span></span><span></span>
             <span></span><span></span><span></span><span></span>
@@ -149,7 +139,7 @@ function buildDashboardHTML(data) {
           </div>
         </div>
         <div class="kpi-legend">
-          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+          <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
         </div>
 
         <div class="kpi-chart">
@@ -176,39 +166,31 @@ btnGenerate.addEventListener("click", () => {
   const eff = Number(form.eff.value || 0);
   const people = Number(form.people.value || 0);
   const ops = Number(form.ops.value || 0);
-  const fin = Number(form.fin.value || 0); // does not impact KPI calc
+  const fin = Number(form.fin.value || 0);
 
-  // KPI headline comes from input
-  const kpiHeadline = Number(form.kpi.value || 0);
-
-  // Also compute KPI from 3 pillars (for reference / validation)
+  // Compute KPI automatically (average of 3 pillars)
   const kpiCalculated = (eff + people + ops) / 3;
 
   const data = {
     company, month,
-    kpi: kpiHeadline || kpiCalculated,
+    kpi: kpiCalculated,
     eff, people, ops, fin,
     top: form.top.value, under: form.under.value, remedial: form.remedial.value
   };
 
-  const html = buildDashboardHTML(data);
-  preview.innerHTML = html;
+  preview.innerHTML = buildDashboardHTML(data);
 
-  // Enable actions
   btnSaveHome.disabled = false;
   btnDelete.disabled = false;
-  // Persist a “draft” in session so user can click Save to Homepage
-  sessionStorage.setItem("draft-dashboard", JSON.stringify({ key: key(company, month), company, month, html, kpi: data.kpi }));
+
+  sessionStorage.setItem("draft-dashboard", JSON.stringify({ key: key(company, month), company, month, html: preview.innerHTML, kpi: data.kpi }));
 });
 
 btnSaveHome.addEventListener("click", () => {
   const draft = JSON.parse(sessionStorage.getItem("draft-dashboard") || "null");
   if (!draft) { alert("Generate a report first."); return; }
 
-  // Save to localStorage under report key
   localStorage.setItem(draft.key, draft.html);
-
-  // Update latest KPI for company
   setLatest(draft.company, draft.kpi, draft.month);
 
   alert("Report saved and added to homepage for this company/month.");
