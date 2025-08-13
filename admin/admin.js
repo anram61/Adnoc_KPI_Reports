@@ -17,10 +17,11 @@ function saveJSON(key, value) {
 const el = (id) => document.getElementById(id);
 const companyEl = el('company');
 const monthEl = el('month');
+const monthsInputEl = el('graphMonths'); // new input for graph months
 const efficiencyEl = el('efficiency');
 const peopleEl = el('people');
 const profitOpsEl = el('profitOps');
-const profitFinEl = el('profitFin');
+const profitFinEl = el('profitFin'); // now visible in report
 const topKPIEl = el('topKPI');
 const underPerfEl = el('underPerf');
 const remedialEl = el('remedial');
@@ -69,7 +70,7 @@ function kpiToPercent(kpi){
 
 function makeStars(scoreOutOf5){
   const full = Math.floor(clampKPI(scoreOutOf5));
-  const half = (scoreOutOf5 - full) >= 0.5 ? 1 : 0; // visual: we will just fill or not (no half shape)
+  const half = (scoreOutOf5 - full) >= 0.5 ? 1 : 0;
   const total = Math.min(5, full + half);
   let html = '';
   for (let i=0;i<5;i++){
@@ -78,14 +79,14 @@ function makeStars(scoreOutOf5){
   return html;
 }
 
-// Build chart canvas (Chart.js)
+// Build chart canvas
 function buildChartCanvas(id){
   return `<canvas id="${id}" height="140"></canvas>`;
 }
 
 // Build the full HTML report string
 function buildReportHTML({
-  company, month, eff, ppl, pOps, pFin, overall, topKPI, underPerf, remedial, companyKpiMap
+  company, month, eff, ppl, pOps, pFin, overall, topKPI, underPerf, remedial, companyKpiMap, graphMonths
 }){
   const pointerLeft = kpiToPercent(overall);
   const stars = makeStars(overall);
@@ -138,14 +139,18 @@ function buildReportHTML({
               <div class="label">Profitability – Operations</div>
               <div class="val">${pOps.toFixed(2)}</div>
             </div>
+            <div class="pillar">
+              <div class="label">Profitability – Financials</div>
+              <div class="val">${pFin.toFixed(2)}</div>
+            </div>
           </div>
           <div style="margin-top:10px; color:#6b7a90; font-size:12px;">
-            <strong>Note:</strong> Profitability – Financials (${pFin.toFixed(2)}) is excluded from overall KPI.
+            <strong>Note:</strong> Overall KPI excludes Financials.
           </div>
         </div>
 
         <div class="panel chart-panel">
-          <h4>KPI Trend (Jan–Dec)</h4>
+          <h4>KPI Trend (${graphMonths || "Jan–Dec"})</h4>
           ${buildChartCanvas('trendChart')}
           <div class="legend">
             <span class="dot actual"></span> Actual
@@ -188,7 +193,7 @@ function buildReportHTML({
   `;
 }
 
-// Build company KPI map for right list using stored latest KPIs
+// Build company KPI map
 function makeCompanyKpiMap(currentCompany, currentValue){
   const companies = [
     'Adnoc Onshore','Adnoc Offshore','Adnoc Al Dhafra & Al Yasat','Adnoc Drilling',
@@ -203,77 +208,29 @@ function makeCompanyKpiMap(currentCompany, currentValue){
   return map;
 }
 
-// Draw trend chart: actuals (solid blue), projection (dashed orange)
-function renderTrendChart(canvasId, company, month, overall){
+// Render trend chart for selected months
+function renderTrendChart(canvasId, company, monthsStr, overall){
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
 
-  const monthIndexMap = {
-    January:0, February:1, March:2, April:3, May:4, June:5,
-    July:6, August:7, September:8, October:9, November:10, December:11
-  };
-  const idx = monthIndexMap[month] ?? 0;
+  const months = monthsStr ? monthsStr.split(',').map(m=>m.trim()) : 
+    ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const actual = months.map(()=>overall);
+  const projection = months.map((_,i)=>overall + (i*0.05)); // simple slope
 
-  // Gather historical actuals from saved reports for that company (overall KPI)
-  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
-  const months = Object.keys(monthIndexMap);
-  const actual = new Array(12).fill(null);
-
-  if (reports[company]){
-    months.forEach((m,i)=>{
-      const html = reports[company][m];
-      if (html){
-        // Try to parse overall KPI from stored report HTML (we embedded the score)
-        const match = html.match(/<div class="kpi-score">([\d.]+)<\/div>/);
-        if (match){ actual[i] = parseFloat(match[1]); }
-      }
-    });
-  }
-  // Set current month to this overall
-  actual[idx] = overall;
-
-  // Build simple projection: hold last actual then gentle slope
-  const projection = new Array(12).fill(null);
-  let last = overall;
-  for (let i = idx+1; i < 12; i++){
-    last = Math.max(0, Math.min(5, last + (Math.random()*0.2 - 0.05))); // subtle drift
-    projection[i] = last;
-  }
-
-  // Chart.js line
   new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [
-        {
-          label: 'Actual',
-          data: actual,
-          borderWidth: 3,
-          tension: 0.35,
-          spanGaps: true,
-        },
-        {
-          label: 'Projection',
-          data: projection,
-          borderWidth: 2,
-          borderDash: [6,6],
-          tension: 0.35,
-          spanGaps: true,
-        }
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[
+        { label:'Actual', data:actual, borderWidth:3, tension:0.35, spanGaps:true },
+        { label:'Projection', data:projection, borderWidth:2, borderDash:[6,6], tension:0.35, spanGaps:true }
       ]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: true },
-      },
-      scales: {
-        y: {
-          min: 0, max: 5, ticks: { stepSize: 1 }
-        }
-      }
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{enabled:true} },
+      scales:{ y:{ min:0, max:5, ticks:{ stepSize:1 } } }
     }
   });
 }
@@ -282,6 +239,8 @@ function renderTrendChart(canvasId, company, month, overall){
 generateBtn.addEventListener('click', () => {
   const company = companyEl.value;
   const month = monthEl.value;
+  const graphMonths = monthsInputEl?.value || "";
+
   if (!company || !month){
     alert('Please select a Company and Month.');
     return;
@@ -290,79 +249,41 @@ generateBtn.addEventListener('click', () => {
   const eff = clampKPI(parseFloat(efficiencyEl.value));
   const ppl = clampKPI(parseFloat(peopleEl.value));
   const pOps = clampKPI(parseFloat(profitOpsEl.value));
-  const pFin = clampKPI(parseFloat(profitFinEl.value)); // excluded
-  // Overall = average of three pillars (exclude Financials)
-  const overall = clampKPI((eff + ppl + pOps) / 3);
+  const pFin = clampKPI(parseFloat(profitFinEl.value));
 
-  // Build KPI side map
+  const overall = clampKPI((eff + ppl + pOps)/3);
+
   const sidebarMap = makeCompanyKpiMap(company, overall);
 
-  // Build HTML
   const html = buildReportHTML({
     company, month, eff, ppl, pOps, pFin, overall,
     topKPI: topKPIEl.value.trim(),
     underPerf: underPerfEl.value.trim(),
     remedial: remedialEl.value.trim(),
-    companyKpiMap: sidebarMap
+    companyKpiMap: sidebarMap,
+    graphMonths
   });
 
   preview.innerHTML = html;
 
-  // Render the chart
-  renderTrendChart('trendChart', company, month, overall);
+  renderTrendChart('trendChart', company, graphMonths, overall);
 
-  // Enable actions
   saveHomeBtn.disabled = false;
   deletePreviewBtn.disabled = false;
-});
 
-// ------- Save to Homepage (localStorage) -------
-saveHomeBtn.addEventListener('click', () => {
-  const reportEl = preview.querySelector('.report-doc');
-  if (!reportEl){
-    alert('No report to save. Please generate first.');
-    return;
-  }
-  const company = reportEl.getAttribute('data-company');
-  const month = reportEl.getAttribute('data-month');
-  const html = reportEl.outerHTML;
-
-  // Save report content
+  // Save immediately to localStorage
   const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
   if (!reports[company]) reports[company] = {};
   reports[company][month] = html;
   saveJSON(STORAGE_KEYS.REPORTS, reports);
 
-  // Mark latest month
   const latest = loadJSON(STORAGE_KEYS.LATEST, {});
   latest[company] = month;
   saveJSON(STORAGE_KEYS.LATEST, latest);
 
-  // Update latest KPI
-  const overallMatch = html.match(/<div class="kpi-score">([\d.]+)<\/div>/);
-  const kpiNum = overallMatch ? parseFloat(overallMatch[1]) : null;
   const kpis = loadJSON(STORAGE_KEYS.KPI, {});
-  if (typeof kpiNum === 'number') {
-    kpis[company] = kpiNum;
-    saveJSON(STORAGE_KEYS.KPI, kpis);
-  }
+  kpis[company] = overall;
+  saveJSON(STORAGE_KEYS.KPI, kpis);
 
   refreshSidebar();
-  alert('Report saved to Homepage data.');
-});
-
-// ------- Delete preview -------
-deletePreviewBtn.addEventListener('click', () => {
-  preview.innerHTML = '<div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>';
-  saveHomeBtn.disabled = true;
-  deletePreviewBtn.disabled = true;
-});
-
-// ------- Reset form -------
-resetBtn.addEventListener('click', () => {
-  document.querySelector('.form-grid').querySelectorAll('input, textarea, select').forEach(el=>{
-    if (el.tagName === 'SELECT') el.selectedIndex = 0;
-    else el.value = '';
-  });
-  deletePreviewBtn.click();
 });
