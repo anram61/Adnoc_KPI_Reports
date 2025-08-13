@@ -98,40 +98,29 @@ textarea{resize:vertical}
   display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
 }
 
-#live-preview {
-  flex: 1;
-  min-width: 350px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-#live-preview .report-dashboard {
-  width: 100%;
-  transform: scale(1);
-  transform-origin: top center;
-}
-
 .empty-state{color:#8a97a8; font-size:14px}
 
+/* KPI sidebar */
 .sidebar-card h3{margin:0 0 10px}
 .kpi-list{list-style:none; padding:0; margin:0}
 .kpi-list li{
   display:flex; align-items:center; justify-content:space-between;
-  padding:10px 12px; border:1px solid #e7edf5; border-radius:8px; margin-bottom:8px;
+  padding:6px 10px; border:1px solid #e7edf5; border-radius:6px; margin-bottom:6px;
   background:#fff;
 }
 .kpi-badge{
-  min-width:46px; text-align:center; font-weight:800; color:#fff; border-radius:8px; padding:4px 8px;
+  min-width:36px; text-align:center; font-weight:700; color:#fff; border-radius:6px; padding:2px 6px;
   background: var(--kpi-blue);
 }
 
-/* ========= Generated Report (inside preview) ========= */
+/* Preview report adjustments */
+.report-preview { width: 100%; display:flex; justify-content:center; }
 .report-doc{
   width: 100%;
-  max-width: 980px;
+  max-width: 900px;
   background:#fff;
-  border-radius:14px;
-  box-shadow:0 8px 26px rgba(0,0,0,0.08);
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
   overflow:hidden;
   margin:auto;
   font-size:14px;
@@ -144,39 +133,26 @@ textarea{resize:vertical}
   display:flex; align-items:center; justify-content:space-between;
   padding:16px 20px;
 }
-.report-head .meta{
-  display:flex; flex-direction:column;
-}
-.report-head .title{
-  font-size:22px; font-weight:800; letter-spacing:.3px;
-}
-.report-head .sub{
-  font-size:12px; opacity:.9;
-}
+.report-head .meta{display:flex; flex-direction:column;}
+.report-head .title{font-size:22px; font-weight:800; letter-spacing:.3px;}
+.report-head .sub{font-size:12px; opacity:.9;}
 .report-head .brandmark{height:38px}
 
 /* Content grid */
 .report-body{
   display:grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 1.3fr 0.7fr;
   gap:16px;
   padding:16px;
 }
-@media(max-width:900px){
-  .report-body{grid-template-columns:1fr}
-}
+@media(max-width:900px){ .report-body{grid-template-columns:1fr} }
 
-/* Left column */
-.panel{
-  background:#fff; border:1px solid #e7edf5; border-radius:12px; padding:14px;
-}
+/* Left column panels */
+.panel{background:#fff; border:1px solid #e7edf5; border-radius:12px; padding:14px; margin-bottom:12px}
 .panel h4{margin:0 0 8px; color:#0f1a2a}
-
 .panel.kpi-overall{
   display:grid; grid-template-columns: 1fr 1fr; gap:14px; align-items:center;
 }
-
-/* KPI bar */
 .kpi-bar{
   position:relative; height:18px; border-radius:12px; overflow:hidden; background:#e9eef5;
 }
@@ -184,25 +160,18 @@ textarea{resize:vertical}
 .seg.bad{width:20%; background:#e85252}
 .seg.mid{width:40%; background:#ffbf37}
 .seg.good{width:40%; background:#2fb344}
-
 .kpi-pointer{
   position:absolute; top:-6px; width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:10px solid #0b2239;
   transform:translateX(-50%);
 }
-.kpi-score{
-  font-size:42px; font-weight:900; color:#0b2239; line-height:1; text-align:right;
-}
+.kpi-score{font-size:42px; font-weight:900; color:#0b2239; line-height:1; text-align:right;}
 .star-row{display:flex; gap:4px; margin-top:6px}
 .star{width:18px; height:18px; background:#dbe5f1; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);}
 .star.on{background:#ffd166}
 
 /* Pillars */
-.pillar-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px}
-.pillar{
-  border-radius:10px; padding:10px; color:#123;
-  background:linear-gradient(145deg, #edf4ff, #ffffff);
-  border:1px solid #dbe6f5;
-}
+.pillar-grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
+.pillar{border-radius:10px; padding:10px; color:#123; background:linear-gradient(145deg, #edf4ff, #ffffff); border:1px solid #dbe6f5;}
 .pillar .label{font-weight:800; margin-bottom:4px}
 .pillar .val{font-weight:900; font-size:18px}
 
@@ -212,25 +181,17 @@ textarea{resize:vertical}
 .narrative .h{font-weight:800; margin-bottom:6px; color:#0f1a2a}
 
 /* Chart panel */
-.chart-panel .legend{
-  display:flex; gap:12px; align-items:center; margin-top:8px; color:#475569; font-size:12px;
-}
+.chart-panel .legend{display:flex; gap:12px; align-items:center; margin-top:8px; color:#475569; font-size:12px;}
 .legend .dot{width:10px; height:10px; border-radius:50%}
 .dot.actual{background:#1d7ed6}
 .dot.proj{border:2px dashed #ff7b23; background:transparent}
 
 /* Right column (Company KPI list in report) */
-.side-panel{border:1px solid #e7edf5; border-radius:12px; padding:12px}
-.side-panel h4{margin:0 0 10px}
-.side-list{list-style:none; padding:0; margin:0}
-.side-list li{
-  display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border:1px solid #edf2f8; border-radius:8px; margin-bottom:8px;
-}
+.side-panel{border:1px solid #e7edf5; border-radius:12px; padding:12px; font-size:13px}
+.side-panel h4{margin:0 0 10px; font-size:14px;}
+.side-list li{display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border:1px solid #edf2f8; border-radius:6px; margin-bottom:6px;}
 
 /* Footer */
-.report-foot{
-  padding:12px 16px; border-top:1px solid #e9eef5; display:flex; align-items:center; justify-content:space-between;
-  color:#64748b; font-size:12px;
-}
+.report-foot{padding:12px 16px; border-top:1px solid #e9eef5; display:flex; align-items:center; justify-content:space-between; color:#64748b; font-size:12px;}
 .report-foot a{color:#0e66c2; text-decoration:none}
 .report-foot a:hover{text-decoration:underline}
