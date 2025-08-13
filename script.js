@@ -94,14 +94,15 @@ async function renderPDF(pdfPath) {
   }
 }
 
-function loadSavedReport(company, month) {
-  const saved = localStorage.getItem(`report_${company}_${month}`);
-  if (saved) {
-    document.getElementById("report-text").innerHTML = saved;
-    document.getElementById("pdf-viewer-container").innerHTML = "";
-    return true;
-  }
-  return false;
+function storageKey(company, month) {
+  return `kpi-report::${company}::${month}`;
+}
+
+function getLatestSavedForCompany(company) {
+  try {
+    const map = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    return map[company] || null;
+  } catch { return null; }
 }
 
 function displayReport() {
@@ -109,21 +110,19 @@ function displayReport() {
 
   reportCompany.textContent = selectedCompany;
 
-  // If saved report exists, load it
-  if (selectedMonth && loadSavedReport(selectedCompany, selectedMonth)) {
-    return;
+  // 1) If a month is chosen, try generated HTML first
+  if (selectedMonth) {
+    const html = localStorage.getItem(storageKey(selectedCompany, selectedMonth));
+    if (html) {
+      reportText.innerHTML = `<p><em>Showing generated dashboard (${selectedMonth} 2025)</em></p>`;
+      pdfContainer.innerHTML = ""; // clear PDF area
+      // render generated HTML
+      const holder = document.createElement('div');
+      holder.innerHTML = html;
+      pdfContainer.appendChild(holder);
+      return;
+    }
   }
-
-  // Otherwise, load default PDF viewer
-  const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
-
-  if (pdfPath) {
-    renderPDF(pdfPath);
-  } else {
-    reportText.innerHTML = `<p>No KPI report found for ${selectedCompany}${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
-  }
-}
-
 
   // 2) If no month chosen, try latest saved for company
   if (!selectedMonth) {
