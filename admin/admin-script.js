@@ -1,82 +1,235 @@
-document.getElementById("report-form").addEventListener("submit", function(e) {
-  e.preventDefault();
+// ---- helpers ----
+const $ = s => document.querySelector(s);
+const latestList = $("#latest-list");
+const preview = $("#preview");
 
-  const company = document.getElementById("company").value;
-  const month = document.getElementById("month").value;
+const form = {
+  company: $("#company"),
+  month: $("#month"),
+  kpi: $("#kpi"),
+  eff: $("#efficiency"),
+  people: $("#people"),
+  ops: $("#profitOps"),
+  fin: $("#profitFin"),
+  top: $("#topKpi"),
+  under: $("#underperforming"),
+  remedial: $("#remedial"),
+};
 
-  const efficiency = parseFloat(document.getElementById("efficiency").value) || 0;
-  const people = parseFloat(document.getElementById("people").value) || 0;
-  const profitabilityOps = parseFloat(document.getElementById("profitability-ops").value) || 0;
-  const profitabilityFin = parseFloat(document.getElementById("profitability-fin").value) || 0;
+const btnGenerate = $("#btn-generate");
+const btnSaveHome = $("#btn-save-home");
+const btnDelete = $("#btn-delete");
 
-  // KPI calculation without profitability-financials
-  const kpiScore = ((efficiency + people + profitabilityOps) / 3).toFixed(1);
+// Storage keys
+const REPORT_KEY_PREFIX = "kpi-report"; // kpi-report::<company>::<month>
+const LATEST_KPI_KEY = "kpi-latest";    // per-company latest KPI
 
-  const topKPI = document.getElementById("top-kpi").value;
-  const underKPI = document.getElementById("under-kpi").value;
-  const remedial = document.getElementById("remedial").value;
+function key(company, month) {
+  return `${REPORT_KEY_PREFIX}::${company}::${month}`;
+}
 
-  // Save KPI for sidebar
-  let companyKPIs = JSON.parse(localStorage.getItem("companyKPIs") || "{}");
-  companyKPIs[company] = kpiScore;
-  localStorage.setItem("companyKPIs", JSON.stringify(companyKPIs));
-  updateCompanyKPIList();
+// Load latest KPI map
+function getLatestMap() {
+  try {
+    return JSON.parse(localStorage.getItem(LATEST_KPI_KEY) || "{}");
+  } catch { return {}; }
+}
 
-  // Create HTML dashboard
-  const reportHTML = `
-    <div style="font-family: Arial; background: #f7f9fc; padding: 20px; border-radius: 8px;">
-      <h2 style="color:#004b91;">${company} - ${month} 2025</h2>
-      <div style="margin: 20px 0;">
-        <strong>KPI Score:</strong> ${kpiScore}
-        <div style="width: 100%; height: 20px; border-radius: 10px; overflow: hidden; background: #ddd;">
-          <div style="width: ${kpiScore}%; height: 100%; background: ${getKPIColor(kpiScore)};"></div>
+function setLatest(company, kpi, month) {
+  const map = getLatestMap();
+  map[company] = { kpi: Number(kpi), month };
+  localStorage.setItem(LATEST_KPI_KEY, JSON.stringify(map));
+  renderLatest();
+}
+
+function deleteLatestIf(company, month) {
+  const map = getLatestMap();
+  if (map[company] && map[company].month === month) {
+    delete map[company];
+    localStorage.setItem(LATEST_KPI_KEY, JSON.stringify(map));
+  }
+  renderLatest();
+}
+
+function renderLatest() {
+  const map = getLatestMap();
+  latestList.innerHTML = "";
+  Object.keys(map).sort().forEach(c => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span><strong>${c}</strong></span>
+      <span class="tag">${map[c].kpi.toFixed(1)} ( ${map[c].month} )</span>
+    `;
+    latestList.appendChild(li);
+  });
+}
+renderLatest();
+
+// Create SVG mini chart data (12 months, fill current with KPI)
+function buildMonthlyBars(currentMonth, currentKPI) {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const values = months.map(m => m === currentMonth.slice(0,3) ? currentKPI : 0);
+  return { months, values };
+}
+
+// Build the dashboard HTML (scoped styles already in admin-style.css)
+function buildDashboardHTML(data) {
+  const { company, month, kpi, eff, people, ops, fin, top, under, remedial } = data;
+  const bars = buildMonthlyBars(month, kpi);
+  const maxVal = 100;
+  const h = 160, barW = 20, gap = 14;
+  const chartWidth = bars.values.length * (barW + gap) + gap;
+
+  const svgBars = bars.values.map((v, i) => {
+    const x = gap + i * (barW + gap);
+    const height = Math.round((v / maxVal) * (h - 24));
+    const y = h - height - 20;
+    const active = v > 0;
+    return `
+      <rect class="bar" x="${x}" y="${y}" width="${barW}" height="${height}"
+        fill="${active ? '#22c55e' : '#e5edf7'}"></rect>
+      <text x="${x + barW/2}" y="${h-4}" text-anchor="middle" font-size="10" fill="#374151">${bars.months[i]}</text>
+    `;
+  }).join("");
+
+  // KPI fill %
+  const fillPct = Math.max(0, Math.min(100, kpi));
+
+  return `
+  <div class="kpi-card">
+    <div class="kpi-header">
+      <div>
+        <div class="kpi-title">${company} – Performance Dashboard</div>
+        <div class="kpi-meta">Month: <strong>${month}</strong></div>
+      </div>
+      <img src="../assets/adnoc-logo.png" alt="ADNOC" style="height:36px"/>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-panel">
+        <h3 class="kpi-subtitle">Pillars</h3>
+        <div class="kpi-badges">
+          <div class="pill eff">
+            <label>Efficiency</label>
+            <div class="score">${eff.toFixed(1)}</div>
+            <div class="bar-wrap"><div class="bar" style="width:${eff}%;"></div></div>
+          </div>
+          <div class="pill people">
+            <label>People</label>
+            <div class="score">${people.toFixed(1)}</div>
+            <div class="bar-wrap"><div class="bar" style="width:${people}%;"></div></div>
+          </div>
+          <div class="pill ops">
+            <label>Profitability – Operations</label>
+            <div class="score">${ops.toFixed(1)}</div>
+            <div class="bar-wrap"><div class="bar" style="width:${ops}%;"></div></div>
+          </div>
+          <div class="pill fin">
+            <label>Profitability – Financials</label>
+            <div class="score">${fin.toFixed(1)}</div>
+            <div class="bar-wrap"><div class="bar" style="width:${fin}%;"></div></div>
+          </div>
+        </div>
+
+        <div class="kpi-summary" style="margin-top:12px">
+          <div class="row"><div class="kpi-tag">Top KPI</div><div class="kpi-text">${escapeHtml(top)}</div></div>
+          <div class="row"><div class="kpi-tag">Underperforming</div><div class="kpi-text">${escapeHtml(under)}</div></div>
+          <div class="row"><div class="kpi-tag">Remedial Action</div><div class="kpi-text">${escapeHtml(remedial)}</div></div>
         </div>
       </div>
-      <h3 style="color:#004b91;">Pillar Ratings</h3>
-      <ul>
-        <li>Efficiency: ${efficiency}</li>
-        <li>People: ${people}</li>
-        <li>Profitability – Operations: ${profitabilityOps}</li>
-        <li>Profitability – Financials: ${profitabilityFin}</li>
-      </ul>
-      <h3 style="color:#004b91;">Top KPIs</h3>
-      <p>${topKPI}</p>
-      <h3 style="color:#004b91;">Underperforming KPIs</h3>
-      <p>${underKPI}</p>
-      <h3 style="color:#004b91;">Remedial Actions</h3>
-      <p>${remedial}</p>
+
+      <div class="kpi-score-wrap">
+        <div class="kpi-score-number">${kpi.toFixed(1)}</div>
+        <div class="kpi-therm">
+          <div class="fill" style="width:${fillPct}%;"></div>
+          <div class="ticks">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span>
+          </div>
+        </div>
+        <div class="kpi-legend">
+          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        </div>
+
+        <div class="kpi-chart">
+          <svg viewBox="0 0 ${chartWidth} ${h}">
+            ${svgBars}
+          </svg>
+        </div>
+      </div>
     </div>
+  </div>
   `;
+}
 
-  // Save report in localStorage
-  let reports = JSON.parse(localStorage.getItem("reports") || "{}");
-  if (!reports[company]) reports[company] = {};
-  reports[company][month] = reportHTML;
-  localStorage.setItem("reports", JSON.stringify(reports));
+function escapeHtml(s=""){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
 
-  alert("✅ Report generated and saved!");
-  document.getElementById("report-form").reset();
+// ---- main actions ----
+btnGenerate.addEventListener("click", () => {
+  const company = form.company.value.trim();
+  const month = form.month.value.trim();
+  if (!company || !month) { alert("Please choose company and month."); return; }
+
+  const eff = Number(form.eff.value || 0);
+  const people = Number(form.people.value || 0);
+  const ops = Number(form.ops.value || 0);
+  const fin = Number(form.fin.value || 0); // does not impact KPI calc
+
+  // KPI headline comes from input
+  const kpiHeadline = Number(form.kpi.value || 0);
+
+  // Also compute KPI from 3 pillars (for reference / validation)
+  const kpiCalculated = (eff + people + ops) / 3;
+
+  const data = {
+    company, month,
+    kpi: kpiHeadline || kpiCalculated,
+    eff, people, ops, fin,
+    top: form.top.value, under: form.under.value, remedial: form.remedial.value
+  };
+
+  const html = buildDashboardHTML(data);
+  preview.innerHTML = html;
+
+  // Enable actions
+  btnSaveHome.disabled = false;
+  btnDelete.disabled = false;
+  // Persist a “draft” in session so user can click Save to Homepage
+  sessionStorage.setItem("draft-dashboard", JSON.stringify({ key: key(company, month), company, month, html, kpi: data.kpi }));
 });
 
-function getKPIColor(score) {
-  if (score >= 80) return "linear-gradient(90deg, #00c851, #007e33)";
-  if (score >= 60) return "linear-gradient(90deg, #ffbb33, #ff8800)";
-  return "linear-gradient(90deg, #ff4444, #cc0000)";
-}
+btnSaveHome.addEventListener("click", () => {
+  const draft = JSON.parse(sessionStorage.getItem("draft-dashboard") || "null");
+  if (!draft) { alert("Generate a report first."); return; }
 
-function updateCompanyKPIList() {
-  const container = document.getElementById("all-company-kpis");
-  if (!container) return;
-  let companyKPIs = JSON.parse(localStorage.getItem("companyKPIs") || "{}");
-  container.innerHTML = "";
-  for (let [company, score] of Object.entries(companyKPIs)) {
-    container.innerHTML += `
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;">
-        <span>${company}</span>
-        <span><strong>${score}</strong></span>
-      </div>
-    `;
+  // Save to localStorage under report key
+  localStorage.setItem(draft.key, draft.html);
+
+  // Update latest KPI for company
+  setLatest(draft.company, draft.kpi, draft.month);
+
+  alert("Report saved and added to homepage for this company/month.");
+});
+
+btnDelete.addEventListener("click", () => {
+  const company = form.company.value.trim();
+  const month = form.month.value.trim();
+  if (!company || !month) { alert("Choose company and month to delete."); return; }
+
+  const k = key(company, month);
+  if (localStorage.getItem(k)) {
+    if (confirm(`Delete saved report for ${company} – ${month}?`)) {
+      localStorage.removeItem(k);
+      deleteLatestIf(company, month);
+      preview.innerHTML = "";
+      btnSaveHome.disabled = true;
+      btnDelete.disabled = true;
+      alert("Report deleted.");
+    }
+  } else {
+    alert("No saved report found for that company/month.");
   }
-}
-
-document.addEventListener("DOMContentLoaded", updateCompanyKPIList);
+});
