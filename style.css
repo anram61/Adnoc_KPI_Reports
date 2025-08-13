@@ -131,6 +131,12 @@ footer {
   z-index: 1;
 }
 
+#pdf-viewer-container a {
+  position: absolute;
+  display: block;
+  background: transparent;
+  cursor: pointer;
+}
 .responsive-iframe-container {
   width: 100%;
   aspect-ratio: 3 / 3.7;
