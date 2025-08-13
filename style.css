@@ -8,7 +8,6 @@ html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
-  overflow-y: auto;
   font-family: Arial, sans-serif;
   background-color: #eef3f7;
   color: #000;
@@ -35,7 +34,7 @@ header h1 {
 }
 
 main {
-  flex: 1 0 auto;
+  flex: 1;
   padding: 30px;
   max-width: 1200px;
   margin: auto;
@@ -114,6 +113,7 @@ main {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .report-box h3 {
@@ -121,16 +121,32 @@ main {
   color: #333;
 }
 
-footer {
-  flex-shrink: 0;
-  background-color: #004b91;
-  color: white;
-  text-align: center;
-  padding: 15px 0;
+#pdf-viewer-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 10px;
   position: relative;
-  z-index: 1;
+  overflow: auto;
+  max-height: 1100px;
 }
 
+#pdf-viewer-container canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+/* Clickable links over PDFs */
+#pdf-viewer-container a {
+  position: absolute;
+  display: block;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Animated side lines */
 .animated-line {
   position: fixed;
   width: 6px;
@@ -154,28 +170,8 @@ footer {
   100% { background-position: 0% 100%; }
 }
 
-.responsive-iframe-container {
-  width: 100%;
-  aspect-ratio: 3 / 3.7;
-  overflow: hidden;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.responsive-iframe-container embed {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
+/* Responsive tweaks */
 @media (max-width: 768px) {
-  .responsive-iframe-container {
-    aspect-ratio: 3 / 5;
-    transform: scale(0.95);
-    transform-origin: top center;
-  }
-
   .company {
     font-size: 14px;
     min-width: 140px;
@@ -186,14 +182,19 @@ footer {
     font-size: 15px;
     padding: 12px 20px;
   }
+
+  #pdf-viewer-container {
+    max-height: 90vh;
+  }
 }
 
+/* Admin button */
 .admin-link {
   display: inline-block;
   margin-top: 10px;
   font-size: 16px;
   text-decoration: none;
-  background-color: #28a745; /* Green */
+  background-color: #28a745;
   color: white;
   padding: 10px 18px;
   border-radius: 6px;
@@ -203,22 +204,4 @@ footer {
 
 .admin-link:hover {
   background-color: #218838;
-}
-
-/* PDF container for all companies */
-#pdf-viewer-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  margin-top: 10px;
-  position: relative;
-  overflow-y: auto;
-}
-
-/* Canvas styling for high-quality rendering */
-#pdf-viewer-container canvas {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
 }
