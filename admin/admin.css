@@ -34,13 +34,11 @@ html,body{
   justify-content:space-between;
   padding:14px 22px;
 }
-.admin-header .brand{
-  display:flex;align-items:center;gap:12px;
-}
-.admin-header img{height:44px}
-.admin-header h1{font-size:20px;margin:0}
-.back-link{color:#fff;text-decoration:none;opacity:0.9}
-.back-link:hover{opacity:1;text-decoration:underline}
+.admin-header .brand{display:flex;align-items:center;gap:12px;}
+.admin-header img{height:44px;}
+.admin-header h1{font-size:20px;margin:0;}
+.back-link{color:#fff;text-decoration:none;opacity:0.9;}
+.back-link:hover{opacity:1;text-decoration:underline;}
 
 .admin-container {
   display: flex;
@@ -50,7 +48,7 @@ html,body{
 }
 
 @media(max-width:1000px){
-  .admin-container{grid-template-columns:1fr}
+  .admin-container{flex-direction:column;}
 }
 
 .form-card, .preview-card, .sidebar-card{
@@ -61,11 +59,6 @@ html,body{
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-
-/* --- Make preview wider without breaking layout --- */
-.form-card { flex: 1 1 420px; }
-.preview-card { flex: 2 1 700px; } /* wider preview column */
-.sidebar-card { flex: 0.8 1 320px; }
 
 .form-card h2, .preview-card h2{margin:0 0 12px}
 
@@ -88,9 +81,7 @@ input[type="number"], input[type="text"], select, textarea{
 textarea{resize:vertical}
 
 .actions{margin-top:10px; display:flex; gap:10px; flex-wrap:wrap}
-.btn{
-  border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer;
-}
+.btn{border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer;}
 .btn.primary{background:var(--blue2); color:#fff}
 .btn.primary:hover{filter:brightness(1.05)}
 .btn.ghost{background:#f2f5f9}
@@ -118,11 +109,11 @@ textarea{resize:vertical}
   background: var(--kpi-blue);
 }
 
-/* Preview report adjustments */
-.report-preview { width: 100%; display:flex; justify-content:center; padding:6px; }
+/* Preview adjustments */
+.report-preview { width: 100%; display:flex; justify-content:center; }
 .report-doc{
   width: 100%;
-  max-width: 1100px; /* was 900px; give it more breathing room */
+  max-width: 1100px;
   background:#fff;
   border-radius:12px;
   box-shadow:0 6px 20px rgba(0,0,0,0.08);
@@ -130,6 +121,7 @@ textarea{resize:vertical}
   margin:auto;
   font-size:14px;
 }
+
 
 /* Header */
 .report-head{
