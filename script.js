@@ -9,6 +9,7 @@ const pdfContainer = document.getElementById('pdf-viewer-container');
 let selectedCompany = '';
 let selectedMonth = '';
 
+// Map of default PDFs
 const reportPDFs = {
   "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
   "Adnoc Global Trading": { default: "reports/AGT.pdf" },
@@ -28,39 +29,40 @@ const reportPDFs = {
 // PDF.js setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// Render PDF
+// Render PDF function
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
+  if (!pdfPath) {
+    pdfContainer.innerHTML = `<p style="color:red;">No PDF available.</p>`;
+    return;
+  }
+
   try {
     const loadingTask = pdfjsLib.getDocument(pdfPath);
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(1);
 
     const containerWidth = pdfContainer.clientWidth || 900;
-    const devicePixelRatio = window.devicePixelRatio || 1;
     let viewport = page.getViewport({ scale: 1 });
     let scale = containerWidth / viewport.width;
-    scale = scale * devicePixelRatio;
     const scaledViewport = page.getViewport({ scale: scale });
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     canvas.width = scaledViewport.width;
     canvas.height = scaledViewport.height;
-    canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
-    canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
+    canvas.style.width = "100%";
+    canvas.style.height = "auto";
 
     const pageContainer = document.createElement("div");
-    pageContainer.style.position = "relative";
-    pageContainer.style.width = canvas.style.width;
-    pageContainer.style.height = canvas.style.height;
-
+    pageContainer.style.width = "100%";
+    pageContainer.style.overflow = "hidden";
     pageContainer.appendChild(canvas);
     pdfContainer.appendChild(pageContainer);
 
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
-    // Add clickable links
+    // clickable links (optional)
     const annotations = await page.getAnnotations();
     annotations.forEach(annotation => {
       if (annotation.subtype === 'Link' && annotation.url) {
@@ -70,10 +72,10 @@ async function renderPDF(pdfPath) {
         linkEl.href = annotation.url;
         linkEl.target = '_blank';
         linkEl.style.position = 'absolute';
-        linkEl.style.left = (rect[0] * scale / devicePixelRatio) + 'px';
-        linkEl.style.bottom = (rect[1] * scale / devicePixelRatio) + 'px';
-        linkEl.style.width = ((rect[2] - rect[0]) * scale / devicePixelRatio) + 'px';
-        linkEl.style.height = ((rect[3] - rect[1]) * scale / devicePixelRatio) + 'px';
+        linkEl.style.left = (rect[0] * scale) + 'px';
+        linkEl.style.top = (scaledViewport.height - rect[3]*scale) + 'px';
+        linkEl.style.width = ((rect[2] - rect[0]) * scale) + 'px';
+        linkEl.style.height = ((rect[3] - rect[1]) * scale) + 'px';
         linkEl.style.zIndex = 10;
         linkEl.style.background = 'transparent';
         linkEl.style.cursor = 'pointer';
@@ -116,17 +118,6 @@ function displayReport() {
     reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
     const holder = document.createElement('div');
     holder.innerHTML = html;
-
-    // Make preview responsive
-    const reportDoc = holder.querySelector('.report-doc');
-    if(reportDoc){
-      reportDoc.style.transform = 'scale(1)';
-      reportDoc.style.transformOrigin = 'top left';
-      reportDoc.style.width = '100%';
-      reportDoc.style.maxWidth = '100%';
-      reportDoc.style.margin = '0 auto';
-    }
-
     pdfContainer.appendChild(holder);
     return;
   }
@@ -176,13 +167,10 @@ if (saveBtn) {
       alert("Nothing to save. Generate the report first.");
       return;
     }
-
-    const holder = pdfContainer.querySelector('.report-doc') || pdfContainer.querySelector('div > .report-doc');
-    if(holder) saveReportToStorage(selectedCompany, selectedMonth, holder.outerHTML);
-
+    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
     alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
   });
-});
+}
 
 const deleteBtn = document.getElementById('delete-report-btn');
 if (deleteBtn) {
