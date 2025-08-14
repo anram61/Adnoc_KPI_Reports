@@ -135,34 +135,73 @@ function makeCompanyKpiMap(currentCompany, currentValue){
   return map;
 }
 
-function renderTrendChart(canvasId, monthsStr, overall){
+function renderTrendChart(canvasId, company, monthsStr, overall) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
 
-  const months = monthsStr ? monthsStr.split(',').map(m=>m.trim()) : 
-    ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const actual = months.map(()=>overall);
-  const projection = months.map((_,i)=>overall + (i*0.05)); // simple slope
+  // All months for the X-axis
+  const allMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  // Split input numbers and map them to the starting months
+  const inputVals = monthsStr
+    ? monthsStr.split(',').map(v => parseFloat(v.trim()) || 0)
+    : [];
+
+  // Build dataset with 0s for missing months
+  const actual = allMonths.map((m, i) => inputVals[i] ?? 0);
+
+  // Projection line (example: simple slope from last actual)
+  const projection = allMonths.map((_, i) => (actual[i] || 0) + 0.1 * i);
 
   new Chart(ctx, {
-    type:'line',
-    data:{
-      labels:months,
-      datasets:[
-        { label:'Actual', data:actual, borderWidth:3, borderColor:'#007bff', tension:0.35, spanGaps:true, fill:false, pointRadius:5, pointHoverRadius:6 },
-        { label:'Projection', data:projection, borderWidth:2, borderDash:[6,6], tension:0.35, spanGaps:true, fill:false, pointRadius:5 }
+    type: 'line',
+    data: {
+      labels: allMonths,
+      datasets: [
+        {
+          label: 'Actual',
+          data: actual,
+          borderColor: '#0066cc',
+          backgroundColor: 'rgba(0,102,204,0.2)',
+          borderWidth: 3,
+          tension: 0.35,
+          spanGaps: true,
+          pointRadius: 5,
+          pointBackgroundColor: '#0066cc'
+        },
+        {
+          label: 'Projection',
+          data: projection,
+          borderColor: '#00cc66',
+          borderWidth: 2,
+          borderDash: [6, 6],
+          tension: 0.35,
+          spanGaps: true,
+          pointRadius: 0
+        }
       ]
     },
-    options:{
-      responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{enabled:true} },
-      scales:{ 
-        y:{ min:0, max:5.2, ticks:{ stepSize:1 } }
-        x:{ticks:{autoSkip:false}}
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: true }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Month' }
+        },
+        y: {
+          min: 0,
+          max: 5,
+          ticks: { stepSize: 1 },
+          title: { display: true, text: 'KPI Score (0–5)' }
+        }
       }
     }
   });
 }
+
 
 // Generate report
 generateBtn.addEventListener('click',()=>{
