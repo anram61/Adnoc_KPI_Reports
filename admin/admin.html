@@ -17,7 +17,6 @@
   </header>
 
   <main class="admin-container">
-    <!-- Form -->
     <section class="form-card">
       <h2>Report Details</h2>
       <div class="form-grid">
@@ -54,8 +53,8 @@
         </div>
 
         <div class="form-field wide">
-          <label for="graphMonths">Graph Months (comma-separated)</label>
-          <input id="graphMonths" type="text" placeholder="e.g., January, February, March" />
+          <label for="graphMonths">Graph Numbers (comma-separated)</label>
+          <input id="graphMonths" type="text" placeholder="e.g., 2,3,4" />
         </div>
 
         <div class="form-field">
@@ -97,33 +96,19 @@
       <div class="actions">
         <button id="generate" class="btn primary">Generate Report</button>
         <button id="resetForm" class="btn ghost">Reset</button>
+        <button id="saveHome" class="btn success" disabled>Save to Homepage</button>
       </div>
       <p class="hint">
         Overall KPI = average(Efficiency, People, Profitability–Operations). Profitability–Financials is not included.
       </p>
     </section>
 
-    <!-- Live Preview -->
     <section class="preview-card">
-      <div class="preview-header">
-        <h2>Live Preview</h2>
-        <div class="preview-actions">
-          <button id="saveHome" class="btn success" disabled>Add to Homepage</button>
-          <button id="deletePreview" class="btn danger" disabled>Delete Report</button>
-        </div>
+      <h2>Live Preview</h2>
+      <div id="reportPreview" class="report-preview">
+        <div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>
       </div>
-     <!-- Report Preview -->
-<div id="reportPreview" class="report-preview">
-  <div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>
-</div>
-
     </section>
-
-    <!-- KPI Sidebar -->
-    <aside class="sidebar-card">
-      <h3>Company KPI (Latest)</h3>
-      <ul id="companyKpiList" class="kpi-list"></ul>
-    </aside>
   </main>
 
   <script src="admin.js"></script>
