@@ -135,36 +135,29 @@ function makeCompanyKpiMap(currentCompany, currentValue){
   return map;
 }
 
-// Render trend chart properly
-function renderTrendChart(canvasId, company, monthsStr, pillarOverall){
-  const ctx=document.getElementById(canvasId);
-  if(!ctx) return;
-  const allMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  let userVals=[];
-  if(monthsStr) userVals = monthsStr.split(',').map(s=>parseFloat(s.trim())).map(clampKPI);
-  else userVals = new Array(allMonths.length).fill(pillarOverall);
-  const data = new Array(12).fill(null);
-  for(let i=0;i<userVals.length;i++){ data[i]=userVals[i]; }
-  new Chart(ctx,{
+function renderTrendChart(canvasId, monthsStr, overall){
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  const months = monthsStr ? monthsStr.split(',').map(m=>m.trim()) : 
+    ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const actual = months.map(()=>overall);
+  const projection = months.map((_,i)=>overall + (i*0.05)); // simple slope
+
+  new Chart(ctx, {
     type:'line',
     data:{
-      labels:allMonths,
-      datasets:[{
-        label:'KPI Trend',
-        data:data,
-        borderColor:'#1d7ed6',
-        backgroundColor:'rgba(29,126,214,0.2)',
-        spanGaps:true,
-        borderWidth:3,
-        tension:0.35,
-        fill:true
-      }]
+      labels:months,
+      datasets:[
+        { label:'Actual', data:actual, borderWidth:3, borderColor:'#007bff', tension:0.35, spanGaps:true, fill:false, pointRadius:5, pointHoverRadius:6 },
+        { label:'Projection', data:projection, borderWidth:2, borderDash:[6,6], tension:0.35, spanGaps:true, fill:false, pointRadius:5 }
+      ]
     },
     options:{
       responsive:true,
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{min:0,max:5,stepSize:1},
+      plugins:{ legend:{display:false}, tooltip:{enabled:true} },
+      scales:{ 
+        y:{ min:0, max:5.2, ticks:{ stepSize:1 } }
         x:{ticks:{autoSkip:false}}
       }
     }
