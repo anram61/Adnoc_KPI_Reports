@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ADNOC – Report Generator</title>
   <link rel="stylesheet" href="admin.css" />
-  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -53,9 +52,10 @@
             <option>October</option><option>November</option><option>December</option>
           </select>
         </div>
-       <div class="form-field wide">
-         <label for="graphMonths">Graph Months (comma-separated)</label>
-         <input id="graphMonths" type="text" placeholder="e.g., January, February, March" />
+
+        <div class="form-field wide">
+          <label for="graphMonths">Graph Months (comma-separated)</label>
+          <input id="graphMonths" type="text" placeholder="e.g., January, February, March" />
         </div>
 
         <div class="form-field">
@@ -117,7 +117,7 @@
       </div>
     </section>
 
-    <!-- KPI Sidebar (shows latest KPI per company) -->
+    <!-- KPI Sidebar -->
     <aside class="sidebar-card">
       <h3>Company KPI (Latest)</h3>
       <ul id="companyKpiList" class="kpi-list"></ul>
