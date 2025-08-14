@@ -26,7 +26,6 @@ html,body{
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Admin Header */
 .admin-header{
   background: linear-gradient(90deg, var(--blue), var(--blue2));
   color:#fff;
@@ -38,34 +37,29 @@ html,body{
 .admin-header .brand{
   display:flex;align-items:center;gap:12px;
 }
-.admin-header img{height:44px; width:auto}
+.admin-header img{height:44px}
 .admin-header h1{font-size:20px;margin:0}
 .back-link{color:#fff;text-decoration:none;opacity:0.9}
 .back-link:hover{opacity:1;text-decoration:underline}
 
-/* Container */
 .admin-container {
   display: flex;
   gap: 20px;
   align-items: flex-start;
   flex-wrap: wrap;
-  padding: 20px;
-}
-@media(max-width:1000px){
-  .admin-container{flex-direction:column}
 }
 
-/* Cards */
 .form-card, .preview-card{
   flex: 1;
-  min-width: 300px;
+  min-width: 350px;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Form Grid */
+.form-card h2, .preview-card h2{margin:0 0 12px}
+
 .form-grid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
@@ -74,7 +68,6 @@ html,body{
 .form-field{display:flex;flex-direction:column;gap:6px}
 .form-field.wide{grid-column:1 / -1}
 label{font-weight:600}
-.muted{color:var(--muted); font-weight:400; font-size:12px; margin-left:4px}
 input[type="number"], input[type="text"], select, textarea{
   padding:10px 12px;
   border:1px solid #d7dee8;
@@ -84,7 +77,6 @@ input[type="number"], input[type="text"], select, textarea{
 }
 textarea{resize:vertical}
 
-/* Buttons */
 .actions{margin-top:10px; display:flex; gap:10px; flex-wrap:wrap}
 .btn{
   border:none; border-radius:8px; padding:10px 14px; font-weight:700; cursor:pointer;
@@ -97,19 +89,11 @@ textarea{resize:vertical}
 .btn:disabled{opacity:.6; cursor:not-allowed}
 .hint{color:var(--muted); font-size:12px; margin:8px 2px 0}
 
-/* Preview */
-.preview-card .preview-header{
-  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
-}
-.report-preview {
-  width: 100%;
-  display:flex; 
-  justify-content:center;
-  overflow-x:auto;
-}
+/* Preview report adjustments */
+.report-preview { width: 100%; display:flex; justify-content:center; }
 .report-doc{
   width: 100%;
-  max-width:1200px;
+  max-width: 1000px;
   background:#fff;
   border-radius:12px;
   box-shadow:0 6px 20px rgba(0,0,0,0.08);
@@ -130,16 +114,16 @@ textarea{resize:vertical}
 .report-head .sub{font-size:12px; opacity:.9;}
 .report-head .brandmark{height:38px}
 
-/* Body */
+/* Content grid */
 .report-body{
   display:grid;
-  grid-template-columns: 1.3fr 0.7fr;
+  grid-template-columns: 1.5fr 1fr;
   gap:16px;
   padding:16px;
 }
 @media(max-width:900px){ .report-body{grid-template-columns:1fr} }
 
-/* Left panels */
+/* Left column panels */
 .panel{background:#fff; border:1px solid #e7edf5; border-radius:12px; padding:14px; margin-bottom:12px}
 .panel h4{margin:0 0 8px; color:#0f1a2a}
 .panel.kpi-overall{
@@ -173,16 +157,20 @@ textarea{resize:vertical}
 .narrative .h{font-weight:800; margin-bottom:6px; color:#0f1a2a}
 
 /* Chart panel */
-.chart-panel canvas{width:100% !important; height:180px !important;}
 .chart-panel .legend{display:flex; gap:12px; align-items:center; margin-top:8px; color:#475569; font-size:12px;}
 .legend .dot{width:10px; height:10px; border-radius:50%}
 .dot.actual{background:#1d7ed6}
 .dot.proj{border:2px dashed #ff7b23; background:transparent}
 
-/* Side panel inside report */
+/* Right column (Company KPI list inside report) */
 .side-panel{border:1px solid #e7edf5; border-radius:12px; padding:12px; font-size:13px}
 .side-panel h4{margin:0 0 10px; font-size:14px;}
-.side-list li{display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border:1px solid #edf2f8; border-radius:6px; margin-bottom:6px}
+.side-list li{display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-radius:6px; margin-bottom:6px; font-weight:600;}
+.side-list li span{color:#0f1a2a;}
+.side-list li strong.kpi-green{color:var(--kpi-green);}
+.side-list li strong.kpi-amber{color:var(--kpi-amber);}
+.side-list li strong.kpi-red{color:var(--kpi-red);}
+.side-list li strong.kpi-blue{color:var(--kpi-blue);}
 
 /* Footer */
 .report-foot{padding:12px 16px; border-top:1px solid #e9eef5; display:flex; align-items:center; justify-content:space-between; color:#64748b; font-size:12px;}
