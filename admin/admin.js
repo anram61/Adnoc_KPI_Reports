@@ -1,3 +1,4 @@
+// ====== Elements ======
 const companyEl = document.getElementById('company');
 const monthEl = document.getElementById('month');
 const efficiencyEl = document.getElementById('efficiency');
@@ -8,19 +9,18 @@ const topKPIEl = document.getElementById('topKPI');
 const underPerfEl = document.getElementById('underPerf');
 const remedialEl = document.getElementById('remedial');
 const generateBtn = document.getElementById('generate');
+const preview = document.getElementById('reportPreview');
 
-// Storage Helper (shared)
-function getStorageKey(company, month) {
-  return `${company}_${month}_report`;
-}
+// ====== Storage Helpers ======
+function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
 function saveReportToStorage(company, month, html) {
-  localStorage.setItem(getStorageKey(company, month), html);
+  localStorage.setItem(storageKey(company, month), html);
   const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
   latestMap[company] = month;
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 }
 
-// Build HTML for dashboard
+// ====== Build Report HTML ======
 function buildReportHTML({company, month, eff, ppl, pOps, pFin, topKPI, underPerf, remedial}) {
   return `
     <div class="report-doc" data-company="${company}" data-month="${month}">
@@ -55,7 +55,7 @@ function buildReportHTML({company, month, eff, ppl, pOps, pFin, topKPI, underPer
   `;
 }
 
-// Generate Report
+// ====== Generate & Save ======
 generateBtn.addEventListener('click', () => {
   const company = companyEl.value;
   const month = monthEl.value;
@@ -72,6 +72,7 @@ generateBtn.addEventListener('click', () => {
     remedial: remedialEl.value.trim()
   });
 
+  preview.innerHTML = html;
   saveReportToStorage(company, month, html);
   alert(`Report saved for ${company} - ${month}`);
 });
