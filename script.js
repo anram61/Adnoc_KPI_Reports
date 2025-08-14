@@ -4,7 +4,7 @@ const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
 const pdfContainer = document.getElementById('pdf-viewer-container');
-const fallbackMessage = document.getElementById('fallback-message');
+const preview = document.getElementById('reportPreview');
 
 // ====== State ======
 let selectedCompany = '';
@@ -86,7 +86,7 @@ function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
   pdfContainer.innerHTML = "";
-  fallbackMessage.textContent = "";
+  preview.innerHTML = "";
 
   let month = selectedMonth || null;
   let html = month ? getReportFromStorage(selectedCompany, month) : null;
@@ -97,11 +97,10 @@ function displayReport() {
   }
 
   if (html) {
-    pdfContainer.innerHTML = html;
+    preview.innerHTML = html;
   } else {
     const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
     if (pdfPath) {
-      fallbackMessage.textContent = "Showing latest available report";
       renderPDF(pdfPath);
     } else {
       pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
@@ -124,16 +123,7 @@ monthDropdown.addEventListener('change', () => {
   displayReport();
 });
 
-// ====== UI Enhancements ======
-// Resize iframe if PDF used
-function resizeViewer() {
-  const iframe = pdfContainer.querySelector("iframe");
-  if (iframe) iframe.style.height = `${window.innerHeight - 250}px`;
-}
-window.addEventListener("resize", resizeViewer);
-window.addEventListener("load", resizeViewer);
-
-// Company hover animation
+// ====== Hover Glow ======
 companies.forEach(btn => {
   btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
   btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
