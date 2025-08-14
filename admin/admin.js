@@ -41,7 +41,7 @@ function makeStars(scoreOutOf5){
 function buildChartCanvas(id){ return `<canvas id="${id}" height="140"></canvas>`; }
 
 function buildReportHTML({company, month, eff, ppl, pOps, pFin, overall, topKPI, underPerf, remedial, companyKpiMap, graphMonths}){
-  const pointerLeft = kpiToPercent(overall);
+  const pointerLeft = Math.min(kpiToPercent(overall), 100); // prevent overflow
   const stars = makeStars(overall);
 
   const sideItems = Object.entries(companyKpiMap).map(([name,val])=>{
@@ -139,18 +139,10 @@ function renderTrendChart(canvasId, company, monthsStr, overall) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
 
-  // All months for the X-axis
+  // X-axis months
   const allMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  // Split input numbers and map them to the starting months
-  const inputVals = monthsStr
-    ? monthsStr.split(',').map(v => parseFloat(v.trim()) || 0)
-    : [];
-
-  // Build dataset with 0s for missing months
-  const actual = allMonths.map((m, i) => inputVals[i] ?? 0);
-
-  // Projection line (example: simple slope from last actual)
+  const inputVals = monthsStr ? monthsStr.split(',').map(v => clampKPI(parseFloat(v.trim()))) : [];
+  const actual = allMonths.map((_, i) => inputVals[i] ?? 0);
   const projection = allMonths.map((_, i) => (actual[i] || 0) + 0.1 * i);
 
   new Chart(ctx, {
@@ -166,7 +158,7 @@ function renderTrendChart(canvasId, company, monthsStr, overall) {
           borderWidth: 3,
           tension: 0.35,
           spanGaps: true,
-          pointRadius: 5,
+          pointRadius: 6,
           pointBackgroundColor: '#0066cc'
         },
         {
@@ -201,7 +193,6 @@ function renderTrendChart(canvasId, company, monthsStr, overall) {
     }
   });
 }
-
 
 // Generate report
 generateBtn.addEventListener('click',()=>{
@@ -239,8 +230,10 @@ saveHomeBtn.addEventListener('click',()=>{
   if(!reports[company]) reports[company]={};
   reports[company][month]=report.outerHTML;
   saveJSON(STORAGE_KEYS.REPORTS,reports);
-  const latest=loadJSON(STORAGE_KEYS.LATEST,{});
+
+  const latest = loadJSON(STORAGE_KEYS.LATEST,{});
   latest[company]=month; saveJSON(STORAGE_KEYS.LATEST,latest);
+
   alert(`Report for ${company} - ${month} saved successfully!`);
 });
 
