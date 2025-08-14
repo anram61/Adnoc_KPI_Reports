@@ -224,15 +224,25 @@ generateBtn.addEventListener('click',()=>{
 saveHomeBtn.addEventListener('click',()=>{
   const report = preview.querySelector('.report-doc');
   if(!report){ alert('No report to save'); return; }
-  const company = report.dataset.company;
-  const month = report.dataset.month;
+
+  // Clone and scale report HTML for saving
+  const clone = report.cloneNode(true);
+  clone.style.transform = 'scale(1)';       // ensure saved version isn't compressed
+  clone.style.transformOrigin = 'top left';
+  clone.style.width = '100%';               // make it responsive
+  clone.style.maxWidth = '100%';
+  clone.style.margin = '0 auto';
+
+  const company = clone.dataset.company;
+  const month = clone.dataset.month;
   const reports = loadJSON(STORAGE_KEYS.REPORTS,{});
   if(!reports[company]) reports[company]={};
-  reports[company][month]=report.outerHTML;
+  reports[company][month]=clone.outerHTML;
   saveJSON(STORAGE_KEYS.REPORTS,reports);
 
   const latest = loadJSON(STORAGE_KEYS.LATEST,{});
-  latest[company]=month; saveJSON(STORAGE_KEYS.LATEST,latest);
+  latest[company]=month; 
+  saveJSON(STORAGE_KEYS.LATEST,latest);
 
   alert(`Report for ${company} - ${month} saved successfully!`);
 });
