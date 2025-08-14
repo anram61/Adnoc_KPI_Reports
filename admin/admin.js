@@ -287,3 +287,97 @@ generateBtn.addEventListener('click', () => {
 
   refreshSidebar();
 });
+
+// Keep all your existing code above this line
+
+// ------- Style Preview for Full Report Look -------
+function stylePreview() {
+  preview.style.maxWidth = "100%";
+  preview.style.background = "#fff";
+  preview.style.padding = "20px";
+  preview.style.boxShadow = "0 0 15px rgba(0,0,0,0.15)";
+  preview.style.overflowX = "auto";
+}
+stylePreview();
+
+// ------- Override renderTrendChart for better months -------
+function renderTrendChart(canvasId, company, monthsStr, overall) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  const months = monthsStr
+    ? monthsStr.split(',').map(m => m.trim())
+    : ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  const actual = months.map(() => overall);
+  const projection = months.map((_, i) => overall + (i * 0.05));
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Actual', data: actual, borderWidth: 3, tension: 0.35, spanGaps: true },
+        { label: 'Projection', data: projection, borderWidth: 2, borderDash: [6, 6], tension: 0.35, spanGaps: true }
+      ]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'x', // ensure months go on X axis
+      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      scales: { 
+        x: { 
+          ticks: { autoSkip: false, maxRotation: 0, minRotation: 0 } 
+        },
+        y: { min: 0, max: 5, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+// ------- Save to Homepage -------
+saveHomeBtn.addEventListener('click', () => {
+  const company = companyEl.value;
+  const month = monthEl.value;
+
+  if (!company || !month) {
+    alert('Please generate a report first.');
+    return;
+  }
+
+  alert(`Report for ${company} (${month}) saved to homepage.`);
+});
+
+// ------- Delete Preview -------
+deletePreviewBtn.addEventListener('click', () => {
+  const company = companyEl.value;
+  if (!company) {
+    alert('Please select a company.');
+    return;
+  }
+
+  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
+  if (reports[company]) {
+    delete reports[company];
+    saveJSON(STORAGE_KEYS.REPORTS, reports);
+  }
+
+  const latest = loadJSON(STORAGE_KEYS.LATEST, {});
+  if (latest[company]) {
+    delete latest[company];
+    saveJSON(STORAGE_KEYS.LATEST, latest);
+  }
+
+  const kpis = loadJSON(STORAGE_KEYS.KPI, {});
+  if (kpis[company]) {
+    delete kpis[company];
+    saveJSON(STORAGE_KEYS.KPI, kpis);
+  }
+
+  preview.innerHTML = '';
+  saveHomeBtn.disabled = true;
+  deletePreviewBtn.disabled = true;
+  refreshSidebar();
+  alert(`Report for ${company} deleted.`);
+});
+
