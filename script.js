@@ -1,15 +1,13 @@
-// ====== Elements ======
 const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
 const pdfContainer = document.getElementById('pdf-viewer-container');
 const preview = document.getElementById('reportPreview');
-// ====== State ======
+
 let selectedCompany = '';
 let selectedMonth = '';
 
-// ====== PDF Mapping ======
 const reportPDFs = {
   "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
   "Adnoc Global Trading": { default: "reports/AGT.pdf" },
@@ -26,25 +24,10 @@ const reportPDFs = {
   "Adnoc Gas": { default: "reports/adnocgas.pdf" },
 };
 
-// ====== Storage Helpers ======
-function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
-function getLatestSavedForCompany(company) {
-  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
-  catch { return null; }
-}
-function saveReportToStorage(company, month, html) {
-  if (!company || !month) return;
-  localStorage.setItem(storageKey(company, month), html);
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-  latestMap[company] = month;
-  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-}
-function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
+// PDF.js setup
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// ====== PDF.js Setup ======
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
-
+// Render PDF
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
   try {
@@ -80,7 +63,22 @@ async function renderPDF(pdfPath) {
   }
 }
 
-// ====== Display Report ======
+// Storage helpers
+function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
+function getLatestSavedForCompany(company) {
+  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
+  catch { return null; }
+}
+function saveReportToStorage(company, month, html) {
+  if (!company || !month) return;
+  localStorage.setItem(storageKey(company, month), html);
+  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+  latestMap[company] = month;
+  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+}
+function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
+
+// Display report
 function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
@@ -107,7 +105,7 @@ function displayReport() {
   }
 }
 
-// ====== Event Listeners ======
+// Company buttons
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -117,12 +115,13 @@ companies.forEach(button => {
   });
 });
 
+// Month dropdown
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
 });
 
-// ====== Hover Glow ======
+// Hover glow
 companies.forEach(btn => {
   btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
   btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
