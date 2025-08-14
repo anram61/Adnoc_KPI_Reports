@@ -5,7 +5,6 @@ const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
 const pdfContainer = document.getElementById('pdf-viewer-container');
 const preview = document.getElementById('reportPreview');
-
 // ====== State ======
 let selectedCompany = '';
 let selectedMonth = '';
