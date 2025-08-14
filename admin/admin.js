@@ -1,128 +1,233 @@
-const companies = document.querySelectorAll('.company');
-const reportCompany = document.getElementById('report-company');
-const reportText = document.getElementById('report-text');
-const monthDropdown = document.getElementById('month-dropdown');
-const pdfContainer = document.getElementById('pdf-viewer-container');
-const preview = document.getElementById('reportPreview');
-
-let selectedCompany = '';
-let selectedMonth = '';
-
-const reportPDFs = {
-  "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
-  "Adnoc Global Trading": { default: "reports/AGT.pdf" },
-  "Year to date Average": { default: "reports/YTD.pdf" },
-  "Adnoc Onshore": { default: "reports/onshore.pdf" },
-  "Adnoc Al Dhafra & Al Yasat": { default: "reports/alds.pdf" },
-  "Adnoc Drilling": { default: "reports/drilling.pdf" },
-  "Adnoc Sour Gas": { default: "reports/sourgas.pdf" },
-  "Adnoc Refining": { default: "reports/refining.pdf" },
-  "Adnoc Distribution": { default: "reports/distribution.pdf" },
-  "Adnoc Borouge": { default: "reports/borouge.pdf" },
-  "Adnoc L&S": { default: "reports/L&S.pdf" },
-  "GBDO": { default: "reports/gbdo.pdf" },
-  "Adnoc Gas": { default: "reports/adnocgas.pdf" },
+// ------- Storage helpers -------
+const STORAGE_KEYS = {
+  REPORTS: 'adnoc_reports',
+  LATEST: 'adnoc_latest',
+  KPI: 'adnoc_kpi_scores'
 };
 
-// PDF.js setup
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+  catch { return fallback; }
+}
+function saveJSON(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 
-// Render PDF
-async function renderPDF(pdfPath) {
-  pdfContainer.innerHTML = "";
-  try {
-    const loadingTask = pdfjsLib.getDocument(pdfPath);
-    const pdf = await loadingTask.promise;
-    const page = await pdf.getPage(1);
+// ------- Elements -------
+const el = id => document.getElementById(id);
+const companyEl = el('company');
+const monthEl = el('month');
+const monthsInputEl = el('graphMonths');
+const efficiencyEl = el('efficiency');
+const peopleEl = el('people');
+const profitOpsEl = el('profitOps');
+const profitFinEl = el('profitFin');
+const topKPIEl = el('topKPI');
+const underPerfEl = el('underPerf');
+const remedialEl = el('remedial');
 
-    const containerWidth = pdfContainer.clientWidth || 900;
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    let viewport = page.getViewport({ scale: 1 });
-    let scale = (containerWidth / viewport.width) * devicePixelRatio;
-    const scaledViewport = page.getViewport({ scale });
+const generateBtn = el('generate');
+const saveHomeBtn = el('saveHome');
+const deletePreviewBtn = el('deletePreview');
+const preview = el('reportPreview');
 
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-    canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
-    canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
+// ------- Helpers -------
+function clampKPI(n) { return isNaN(n) ? 0 : Math.max(0, Math.min(5, n)); }
+function kpiToPercent(kpi) { return (clampKPI(kpi)/5)*100; }
 
-    const pageContainer = document.createElement("div");
-    pageContainer.style.position = "relative";
-    pageContainer.style.width = canvas.style.width;
-    pageContainer.style.height = canvas.style.height;
-
-    pageContainer.appendChild(canvas);
-    pdfContainer.appendChild(pageContainer);
-
-    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-
-  } catch (err) {
-    pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
-  }
+function makeStars(scoreOutOf5) {
+  const full = Math.floor(clampKPI(scoreOutOf5));
+  const half = (scoreOutOf5-full)>=0.5?1:0;
+  const total = Math.min(5, full+half);
+  let html='';
+  for(let i=0;i<5;i++){ html+=`<div class="star ${i<total?'on':''}"></div>`; }
+  return html;
 }
 
-// Storage helpers
-function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
-function getLatestSavedForCompany(company) {
-  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
-  catch { return null; }
+function buildChartCanvas(id) { return `<canvas id="${id}" height="140"></canvas>`; }
+
+function makeCompanyKpiMap(currentCompany, currentValue){
+  const companies = [
+    'Adnoc Onshore','Adnoc Offshore','Adnoc Al Dhafra & Al Yasat','Adnoc Drilling',
+    'Adnoc Sour Gas','Adnoc Refining','Adnoc Distribution','Adnoc Borouge',
+    'Adnoc L&S','Adnoc Global Trading','GBDO','Adnoc Gas','Year to date Average'
+  ];
+  const kpis = loadJSON(STORAGE_KEYS.KPI,{});
+  const map={};
+  companies.forEach(c=>{ map[c]= (c===currentCompany)?currentValue:(kpis[c]??'—'); });
+  return map;
 }
-function saveReportToStorage(company, month, html) {
-  if (!company || !month) return;
-  localStorage.setItem(storageKey(company, month), html);
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-  latestMap[company] = month;
-  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-}
-function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
 
-// Display report
-function displayReport() {
-  if (!selectedCompany) return;
-  reportCompany.textContent = selectedCompany;
-  pdfContainer.innerHTML = "";
-  preview.innerHTML = "";
+// ------- Build Report HTML -------
+function buildReportHTML({company, month, eff, ppl, pOps, pFin, overall, topKPI, underPerf, remedial, companyKpiMap, graphMonths}) {
+  const pointerLeft = Math.min(kpiToPercent(overall), 100);
+  const stars = makeStars(overall);
 
-  let month = selectedMonth || null;
-  let html = month ? getReportFromStorage(selectedCompany, month) : null;
-
-  if (!html) {
-    const latestMonth = getLatestSavedForCompany(selectedCompany);
-    if (latestMonth) html = getReportFromStorage(selectedCompany, latestMonth);
-  }
-
-  if (html) {
-    preview.innerHTML = html;
-  } else {
-    const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
-    if (pdfPath) {
-      renderPDF(pdfPath);
-    } else {
-      pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
+  const sideItems = Object.entries(companyKpiMap).map(([name,val])=>{
+    let cls='kpi-blue';
+    if(typeof val==='number'){
+      if(val>=4) cls='kpi-green';
+      else if(val>=3) cls='kpi-amber';
+      else cls='kpi-red';
     }
-  }
+    const display=typeof val==='number'?val.toFixed(2):'—';
+    return `<li><span>${name}</span><strong class="${cls}">${display}</strong></li>`;
+  }).join('');
+
+  return `
+  <div class="report-doc" data-company="${company}" data-month="${month}">
+    <div class="report-head">
+      <div class="meta">
+        <div class="title">${company} — Performance Dashboard</div>
+        <div class="sub">Month: ${month} • Year: 2025</div>
+      </div>
+      <img class="brandmark" src="../assets/adnoc-logo.png" alt="ADNOC">
+    </div>
+    <div class="report-body">
+      <div class="panel-col">
+        <div class="panel kpi-overall">
+          <div>
+            <h4>Overall KPI</h4>
+            <div class="kpi-bar">
+              <div class="seg bad"></div>
+              <div class="seg mid"></div>
+              <div class="seg good"></div>
+              <div class="kpi-pointer" style="left:${pointerLeft}%"></div>
+            </div>
+            <div class="star-row">${stars}</div>
+          </div>
+          <div class="kpi-score">${overall.toFixed(2)}</div>
+        </div>
+
+        <div class="panel">
+          <h4>Pillars (0–5)</h4>
+          <div class="pillar-grid">
+            <div class="pillar"><div class="label">Efficiency</div><div class="val">${eff.toFixed(2)}</div></div>
+            <div class="pillar"><div class="label">People</div><div class="val">${ppl.toFixed(2)}</div></div>
+            <div class="pillar"><div class="label">Profitability – Operations</div><div class="val">${pOps.toFixed(2)}</div></div>
+            <div class="pillar"><div class="label">Profitability – Financials</div><div class="val">${pFin.toFixed(2)}</div></div>
+          </div>
+          <div style="margin-top:10px; color:#6b7a90; font-size:12px;"><strong>Note:</strong> Overall KPI excludes Financials.</div>
+        </div>
+
+        <div class="panel chart-panel">
+          <h4>KPI Trend (${graphMonths||'Jan–Dec'})</h4>
+          ${buildChartCanvas('trendChart')}
+          <div class="legend">
+            <span class="dot actual"></span> Actual
+            <span class="dot proj"></span> Projection
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="narrative-grid">
+            <div class="narrative"><div class="h">Top KPI</div><div>${topKPI||'—'}</div></div>
+            <div class="narrative"><div class="h">Underperforming</div><div>${underPerf||'—'}</div></div>
+            <div class="narrative"><div class="h">Remedial Action</div><div>${remedial||'—'}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <h4>Company KPI (Latest)</h4>
+        <ul class="side-list">${sideItems}</ul>
+      </div>
+    </div>
+    <div class="report-foot">
+      <span>Generated on ${new Date().toLocaleString()}</span>
+      <a href="#" rel="noopener">Visit KPI Portal</a>
+    </div>
+  </div>
+  `;
 }
 
-// Company buttons
-companies.forEach(button => {
-  button.addEventListener('click', () => {
-    selectedCompany = button.getAttribute('data-company');
-    selectedMonth = "";
-    monthDropdown.value = "";
-    displayReport();
+// ------- Render Trend Chart -------
+function renderTrendChart(canvasId, company, monthsStr, overall) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  const allMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const inputVals = monthsStr ? monthsStr.split(',').map(v => clampKPI(parseFloat(v.trim()))) : [];
+  const actual = allMonths.map((_, i) => inputVals[i] ?? 0);
+  const projection = allMonths.map((_, i) => (actual[i] || 0) + 0.1 * i);
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: allMonths,
+      datasets: [
+        { label: 'Actual', data: actual, borderColor: '#0066cc', backgroundColor: 'rgba(0,102,204,0.2)', borderWidth: 3, tension: 0.35, spanGaps: true, pointRadius: 6, pointBackgroundColor: '#0066cc' },
+        { label: 'Projection', data: projection, borderColor: '#00cc66', borderWidth: 2, borderDash: [6,6], tension: 0.35, spanGaps: true, pointRadius:0 }
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{enabled:true} },
+      scales:{
+        x:{ title:{display:true, text:'Month'} },
+        y:{ min:0, max:5, ticks:{stepSize:1}, title:{display:true, text:'KPI Score (0–5)'} }
+      }
+    }
   });
+}
+
+// ------- Generate Report -------
+generateBtn.addEventListener('click', ()=>{
+  const company = companyEl.value;
+  const month = monthEl.value;
+  const graphMonths = monthsInputEl?.value || "";
+  if(!company||!month){alert('Select Company and Month');return;}
+
+  const eff = clampKPI(parseFloat(efficiencyEl.value));
+  const ppl = clampKPI(parseFloat(peopleEl.value));
+  const pOps = clampKPI(parseFloat(profitOpsEl.value));
+  const pFin = clampKPI(parseFloat(profitFinEl.value));
+  const overall = clampKPI((eff+ppl+pOps)/3);
+  const sidebarMap = makeCompanyKpiMap(company, overall);
+
+  const html = buildReportHTML({
+    company, month, eff, ppl, pOps, pFin, overall,
+    topKPI: topKPIEl.value.trim(),
+    underPerf: underPerfEl.value.trim(),
+    remedial: remedialEl.value.trim(),
+    companyKpiMap: sidebarMap,
+    graphMonths
+  });
+
+  preview.innerHTML = html;
+  renderTrendChart('trendChart', company, graphMonths, overall);
+  saveHomeBtn.disabled=false;
+  deletePreviewBtn.disabled=false;
 });
 
-// Month dropdown
-monthDropdown.addEventListener('change', () => {
-  selectedMonth = monthDropdown.value;
-  displayReport();
+// ------- Save Report -------
+saveHomeBtn.addEventListener('click', ()=>{
+  const report = preview.querySelector('.report-doc');
+  if(!report){ alert('No report to save'); return; }
+
+  const clone = report.cloneNode(true);
+  clone.style.transform='scale(1)';
+  clone.style.transformOrigin='top left';
+  clone.style.width='100%';
+  clone.style.maxWidth='100%';
+  clone.style.margin='0 auto';
+
+  const company = clone.dataset.company;
+  const month = clone.dataset.month;
+
+  const reports = loadJSON(STORAGE_KEYS.REPORTS,{});
+  if(!reports[company]) reports[company]={};
+  reports[company][month]=clone.outerHTML;
+  saveJSON(STORAGE_KEYS.REPORTS,reports);
+
+  const latest = loadJSON(STORAGE_KEYS.LATEST,{});
+  latest[company]=month;
+  saveJSON(STORAGE_KEYS.LATEST,latest);
+
+  alert(`Report for ${company} - ${month} saved successfully!`);
 });
 
-// Hover glow
-companies.forEach(btn => {
-  btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
-  btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
+// ------- Delete Preview -------
+deletePreviewBtn.addEventListener('click', ()=>{
+  preview.innerHTML='';
+  saveHomeBtn.disabled=true;
+  deletePreviewBtn.disabled=true;
 });
