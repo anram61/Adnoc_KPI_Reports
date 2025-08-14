@@ -1,44 +1,77 @@
-// ===== Helper Functions =====
+const companyEl = document.getElementById('company');
+const monthEl = document.getElementById('month');
+const efficiencyEl = document.getElementById('efficiency');
+const peopleEl = document.getElementById('people');
+const profitOpsEl = document.getElementById('profitOps');
+const profitFinEl = document.getElementById('profitFin');
+const topKPIEl = document.getElementById('topKPI');
+const underPerfEl = document.getElementById('underPerf');
+const remedialEl = document.getElementById('remedial');
+const generateBtn = document.getElementById('generate');
+
+// Storage Helper (shared)
 function getStorageKey(company, month) {
-    return `${company}_${month}_report`;
+  return `${company}_${month}_report`;
+}
+function saveReportToStorage(company, month, html) {
+  localStorage.setItem(getStorageKey(company, month), html);
+  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+  latestMap[company] = month;
+  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 }
 
-function saveReport(company, month, html) {
-    localStorage.setItem(getStorageKey(company, month), html);
-}
-
-// ===== Form Handling =====
-document.getElementById("reportForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const company = document.getElementById("company").value;
-    const month = document.getElementById("month").value;
-
-    const efficiency = document.getElementById("efficiency").value;
-    const people = document.getElementById("people").value;
-    const profitabilityOps = document.getElementById("profitabilityOps").value;
-    const profitabilityFin = document.getElementById("profitabilityFin").value;
-
-    const topKPIs = document.getElementById("topKPIs").value;
-    const underKPIs = document.getElementById("underKPIs").value;
-    const remedialActions = document.getElementById("remedialActions").value;
-
-    // ===== Generated Report HTML =====
-    const reportHTML = `
-        <div class="dashboard-report">
-            <h2>${company} - ${month} KPI Dashboard</h2>
-            <div class="pillar">Efficiency: ${efficiency}</div>
-            <div class="pillar">People: ${people}</div>
-            <div class="pillar">Profitability - Operations: ${profitabilityOps}</div>
-            <div class="pillar">Profitability - Financials: ${profitabilityFin}</div>
-            <div class="section"><strong>Top KPIs:</strong><br>${topKPIs}</div>
-            <div class="section"><strong>Underperforming KPIs:</strong><br>${underKPIs}</div>
-            <div class="section"><strong>Remedial Actions:</strong><br>${remedialActions}</div>
+// Build HTML for dashboard
+function buildReportHTML({company, month, eff, ppl, pOps, pFin, topKPI, underPerf, remedial}) {
+  return `
+    <div class="report-doc" data-company="${company}" data-month="${month}">
+      <div class="report-head">
+        <div class="meta">
+          <div class="title">${company} — Performance Dashboard</div>
+          <div class="sub">Month: ${month} • Year: 2025</div>
         </div>
-    `;
+        <img class="brandmark" src="../assets/adnoc-logo.png" alt="ADNOC">
+      </div>
+      <div class="report-body">
+        <div class="panel-col">
+          <div class="panel">
+            <h4>Pillars (0–5)</h4>
+            <div class="pillar-grid">
+              <div class="pillar"><div class="label">Efficiency</div><div class="val">${eff}</div></div>
+              <div class="pillar"><div class="label">People</div><div class="val">${ppl}</div></div>
+              <div class="pillar"><div class="label">Profitability – Operations</div><div class="val">${pOps}</div></div>
+              <div class="pillar"><div class="label">Profitability – Financials</div><div class="val">${pFin}</div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="narrative-grid">
+              <div class="narrative"><div class="h">Top KPI</div><div>${topKPI}</div></div>
+              <div class="narrative"><div class="h">Underperforming</div><div>${underPerf}</div></div>
+              <div class="narrative"><div class="h">Remedial Action</div><div>${remedial}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-    saveReport(company, month, reportHTML);
+// Generate Report
+generateBtn.addEventListener('click', () => {
+  const company = companyEl.value;
+  const month = monthEl.value;
+  if (!company || !month) { alert('Select Company and Month'); return; }
 
-    alert(`Report for ${company} (${month}) saved successfully.`);
-    this.reset();
+  const html = buildReportHTML({
+    company, month,
+    eff: parseFloat(efficiencyEl.value),
+    ppl: parseFloat(peopleEl.value),
+    pOps: parseFloat(profitOpsEl.value),
+    pFin: parseFloat(profitFinEl.value),
+    topKPI: topKPIEl.value.trim(),
+    underPerf: underPerfEl.value.trim(),
+    remedial: remedialEl.value.trim()
+  });
+
+  saveReportToStorage(company, month, html);
+  alert(`Report saved for ${company} - ${month}`);
 });
