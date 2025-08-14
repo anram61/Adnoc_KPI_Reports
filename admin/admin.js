@@ -1,17 +1,15 @@
 // ------- Storage helpers -------
 const STORAGE_KEYS = {
-  REPORTS: 'adnoc_reports',       // { [company]: { [month]: htmlString } }
-  LATEST: 'adnoc_latest',         // { [company]: 'Month' }
-  KPI: 'adnoc_kpi_scores'         // { [company]: number }
+  REPORTS: 'adnoc_reports',       
+  LATEST: 'adnoc_latest',         
+  KPI: 'adnoc_kpi_scores'         
 };
 
 function loadJSON(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) || fallback; }
   catch { return fallback; }
 }
-function saveJSON(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+function saveJSON(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 
 // ------- Elements -------
 const el = (id) => document.getElementById(id);
@@ -27,15 +25,11 @@ const underPerfEl = el('underPerf');
 const remedialEl = el('remedial');
 
 const generateBtn = el('generate');
-const resetBtn = el('resetForm');
 const saveHomeBtn = el('saveHome');
 const deletePreviewBtn = el('deletePreview');
 const preview = el('reportPreview');
 
-function clampKPI(n){
-  if (isNaN(n)) return 0;
-  return Math.max(0, Math.min(5, n));
-}
+function clampKPI(n){ return isNaN(n)?0:Math.max(0, Math.min(5,n)); }
 function kpiToPercent(kpi){ return (clampKPI(kpi)/5)*100; }
 function makeStars(scoreOutOf5){
   const full = Math.floor(clampKPI(scoreOutOf5));
@@ -52,9 +46,11 @@ function buildReportHTML({company, month, eff, ppl, pOps, pFin, overall, topKPI,
 
   const sideItems = Object.entries(companyKpiMap).map(([name,val])=>{
     let cls='kpi-blue';
-    if(val>=4) cls='kpi-green';
-    else if(val>=3) cls='kpi-amber';
-    else if(val>=0) cls='kpi-red';
+    if(typeof val==='number'){
+      if(val>=4) cls='kpi-green';
+      else if(val>=3) cls='kpi-amber';
+      else cls='kpi-red';
+    }
     const display=typeof val==='number'?val.toFixed(2):'—';
     return `<li><span>${name}</span><strong class="${cls}">${display}</strong></li>`;
   }).join('');
@@ -139,35 +135,36 @@ function makeCompanyKpiMap(currentCompany, currentValue){
   return map;
 }
 
-// Render chart
-function renderTrendChart(canvasId, company, monthsStr, overall){
+// Render trend chart properly
+function renderTrendChart(canvasId, company, monthsStr, pillarOverall){
   const ctx=document.getElementById(canvasId);
   if(!ctx) return;
   const allMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const userMonths = monthsStr?monthsStr.split(',').map(m=>m.trim()):allMonths;
-  const monthIndexMap={}; allMonths.forEach((m,i)=>monthIndexMap[m]=i);
-  const dataArray = new Array(12).fill(null);
-  userMonths.forEach((m,i)=>{ dataArray[monthIndexMap[m]] = overall+(i*0.05); }); // trend
-
+  let userVals=[];
+  if(monthsStr) userVals = monthsStr.split(',').map(s=>parseFloat(s.trim())).map(clampKPI);
+  else userVals = new Array(allMonths.length).fill(pillarOverall);
+  const data = new Array(12).fill(null);
+  for(let i=0;i<userVals.length;i++){ data[i]=userVals[i]; }
   new Chart(ctx,{
     type:'line',
     data:{
       labels:allMonths,
       datasets:[{
-        label:'Trend',
-        data:dataArray,
+        label:'KPI Trend',
+        data:data,
         borderColor:'#1d7ed6',
         backgroundColor:'rgba(29,126,214,0.2)',
         spanGaps:true,
         borderWidth:3,
-        tension:0.35
+        tension:0.35,
+        fill:true
       }]
     },
     options:{
       responsive:true,
       plugins:{legend:{display:false}},
       scales:{
-        y:{min:0,max:5, ticks:{stepSize:1}},
+        y:{min:0,max:5,stepSize:1},
         x:{ticks:{autoSkip:false}}
       }
     }
@@ -179,7 +176,7 @@ generateBtn.addEventListener('click',()=>{
   const company=companyEl.value;
   const month=monthEl.value;
   const graphMonths=monthsInputEl?.value || "";
-  if(!company || !month){ alert('Please select a Company and Month.'); return; }
+  if(!company||!month){alert('Select Company and Month');return;}
   const eff=clampKPI(parseFloat(efficiencyEl.value));
   const ppl=clampKPI(parseFloat(peopleEl.value));
   const pOps=clampKPI(parseFloat(profitOpsEl.value));
@@ -187,7 +184,7 @@ generateBtn.addEventListener('click',()=>{
   const overall=clampKPI((eff+ppl+pOps)/3);
   const sidebarMap=makeCompanyKpiMap(company,overall);
   const html=buildReportHTML({
-    company, month, eff, ppl, pOps, pFin, overall,
+    company,month,eff,ppl,pOps,pFin,overall,
     topKPI:topKPIEl.value.trim(),
     underPerf:underPerfEl.value.trim(),
     remedial:remedialEl.value.trim(),
@@ -200,7 +197,7 @@ generateBtn.addEventListener('click',()=>{
   deletePreviewBtn.disabled=false;
 });
 
-// Save report to homepage/localStorage
+// Save report
 saveHomeBtn.addEventListener('click',()=>{
   const report = preview.querySelector('.report-doc');
   if(!report){ alert('No report to save'); return; }
