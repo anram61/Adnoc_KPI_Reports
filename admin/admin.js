@@ -141,37 +141,66 @@ function makeCompanyKpiMap(currentCompany, currentValue){
   return map;
 }
 
-// Render trend chart
-function renderTrendChart(canvasId, monthsStr, overall) {
+function renderTrendChart(canvasId, graphMonthsStr, eff, ppl, pOps) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
 
-  const months = monthsStr 
-    ? monthsStr.split(',').map(m => m.trim()) 
-    : ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  // X-axis labels
+  const months = graphMonthsStr 
+    ? graphMonthsStr.split(',').map(m=>m.trim())
+    : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  const actual = months.map(() => overall);
-  const projection = months.map((_,i) => Math.min(5, overall + i*0.05));
+  // Example KPI values for trend (replace with real monthly data if available)
+  const overall = (eff + ppl + pOps) / 3;
+  const actual = months.map((_, i) => Math.min(5, Math.max(0, overall + (Math.random()-0.5)*0.5)));
+  const projection = months.map((_, i) => Math.min(5, Math.max(0, overall + 0.2 + i*0.1)));
 
   new Chart(ctx, {
     type: 'line',
     data: {
       labels: months,
       datasets: [
-        { label: 'Actual', data: actual, borderColor: '#2fb344', borderWidth: 3, fill: false, tension:0.3 },
-        { label: 'Projection', data: projection, borderColor: '#ffb200', borderWidth: 2, fill: false, borderDash:[6,6], tension:0.3 }
+        {
+          label: 'Actual',
+          data: actual,
+          borderColor: '#1d7ed6',
+          backgroundColor: 'rgba(29,126,214,0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: 'Projection',
+          data: projection,
+          borderColor: '#ff7b23',
+          borderWidth: 2,
+          borderDash: [6,6],
+          tension: 0.4,
+          fill: false
+        }
       ]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      plugins: {
+        legend: { display: true },
+        tooltip: { enabled: true }
+      },
       scales: {
-        y: { min: 0, max: 5, ticks: { stepSize: 1 } },
-        x: { ticks: { autoSkip: false } }
+        y: { 
+          min: 0,
+          max: 5,
+          ticks: { stepSize: 1 },
+          title: { display: true, text: 'KPI Score' }
+        },
+        x: {
+          title: { display: true, text: 'Month' }
+        }
       }
     }
   });
 }
+
 
 // ------- Event Listeners -------
 generateBtn.addEventListener('click', () => {
@@ -213,19 +242,33 @@ resetBtn.addEventListener('click', () => {
   deletePreviewBtn.disabled = true;
 });
 
-// Save report to homepage/localStorage
 saveHomeBtn.addEventListener('click', () => {
   const reportDiv = preview.querySelector('.report-doc');
   if (!reportDiv) return alert('No report to save.');
 
   const company = reportDiv.dataset.company;
   const month = reportDiv.dataset.month;
-  const html = reportDiv.outerHTML;
+  
+  // Wrap report in full HTML with CSS
+  const htmlToSave = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>${company} - ${month} Report</title>
+    <link rel="stylesheet" href="../admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    ${reportDiv.outerHTML}
+  </body>
+  </html>
+  `;
 
   // Save to reports
   const reports = loadJSON(STORAGE_KEYS.REPORTS,{});
   if (!reports[company]) reports[company] = {};
-  reports[company][month] = html;
+  reports[company][month] = htmlToSave;
   saveJSON(STORAGE_KEYS.REPORTS, reports);
 
   // Latest month
@@ -242,6 +285,8 @@ saveHomeBtn.addEventListener('click', () => {
   refreshSidebar();
   alert(`Report for ${company} (${month}) saved successfully!`);
 });
+
+
 
 // Delete preview report
 deletePreviewBtn.addEventListener('click', () => {
