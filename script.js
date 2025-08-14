@@ -97,52 +97,39 @@ function getLatestSavedForCompany(company) {
   } catch { return null; }
 }
 
-// Display Report
 function displayReport() {
   if (!selectedCompany) return;
-
   reportCompany.textContent = selectedCompany;
+  pdfContainer.innerHTML = "";
 
-  // 1) If month chosen, try generated HTML first
-  if (selectedMonth) {
-    const html = localStorage.getItem(storageKey(selectedCompany, selectedMonth));
-    if (html) {
-      reportText.innerHTML = `<p><em>Showing generated dashboard (${selectedMonth} 2025)</em></p>`;
-      pdfContainer.innerHTML = "";
-      const holder = document.createElement('div');
-      holder.innerHTML = html;
-      pdfContainer.appendChild(holder);
-      return;
-    }
-  }
+  const month = selectedMonth || null;
+  let html = null;
 
-  // 2) If no month chosen, try latest saved for company
-  if (!selectedMonth) {
+  // Try localStorage HTML first
+  if (month) html = localStorage.getItem(storageKey(selectedCompany, month));
+  else {
     const latest = getLatestSavedForCompany(selectedCompany);
-    if (latest && latest.month) {
-      const html = localStorage.getItem(storageKey(selectedCompany, latest.month));
-      if (html) {
-        reportText.innerHTML = `<p><em>Showing generated dashboard (Latest: ${latest.month} 2025)</em></p>`;
-        pdfContainer.innerHTML = "";
-        const holder = document.createElement('div');
-        holder.innerHTML = html;
-        pdfContainer.appendChild(holder);
-        return;
-      }
-    }
+    if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
-  // 3) Fallback to PDF
-  const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
+  if (html) {
+    reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    pdfContainer.appendChild(holder);
+    return;
+  }
 
+  // Fallback to PDF
+  const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
-    reportText.innerHTML = `<p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>`;
+    reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available PDF."}</em></p>`;
     renderPDF(pdfPath);
   } else {
-    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
-    pdfContainer.innerHTML = "";
+    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
   }
 }
+
 
 // Save generated HTML to localStorage
 function saveReportToStorage(company, month, html) {
