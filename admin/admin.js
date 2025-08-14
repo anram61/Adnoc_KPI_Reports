@@ -1,383 +1,120 @@
-// ------- Storage helpers -------
-const STORAGE_KEYS = {
-  REPORTS: 'adnoc_reports',       // { [company]: { [month]: htmlString } }
-  LATEST: 'adnoc_latest',         // { [company]: 'Month' }
-  KPI: 'adnoc_kpi_scores'         // { [company]: number }
-};
+// admin.js
 
-function loadJSON(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
-  catch { return fallback; }
-}
-function saveJSON(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("reportForm");
+    const previewContainer = document.getElementById("reportPreview");
+    const saveHomeBtn = document.getElementById("saveHome");
 
-// ------- Elements -------
-const el = (id) => document.getElementById(id);
-const companyEl = el('company');
-const monthEl = el('month');
-const monthsInputEl = el('graphMonths'); // new input for graph months
-const efficiencyEl = el('efficiency');
-const peopleEl = el('people');
-const profitOpsEl = el('profitOps');
-const profitFinEl = el('profitFin'); // now visible in report
-const topKPIEl = el('topKPI');
-const underPerfEl = el('underPerf');
-const remedialEl = el('remedial');
+    // Generate Live Preview
+    form.addEventListener("input", generatePreview);
 
-const generateBtn = el('generate');
-const resetBtn = el('resetForm');
-const saveHomeBtn = el('saveHome');
-const deletePreviewBtn = el('deletePreview');
-const preview = el('reportPreview');
-const kpiList = el('companyKpiList');
+    function generatePreview() {
+        const company = document.getElementById("company").value;
+        const month = document.getElementById("month").value;
+        const efficiency = document.getElementById("efficiency").value;
+        const people = document.getElementById("people").value;
+        const profitabilityOps = document.getElementById("profitOps").value;
+        const profitabilityFin = document.getElementById("profitFin").value;
+        const topKpis = document.getElementById("topKpis").value;
+        const underKpis = document.getElementById("underKpis").value;
+        const actions = document.getElementById("actions").value;
 
-// ------- Init KPI sidebar -------
-function refreshSidebar() {
-  const kpis = loadJSON(STORAGE_KEYS.KPI, {});
-  const companies = [
-    'Adnoc Onshore','Adnoc Offshore','Adnoc Al Dhafra & Al Yasat','Adnoc Drilling',
-    'Adnoc Sour Gas','Adnoc Refining','Adnoc Distribution','Adnoc Borouge',
-    'Adnoc L&S','Adnoc Global Trading','GBDO','Adnoc LNG','Adnoc Gas','Year to date Average'
-  ];
-  kpiList.innerHTML = '';
-  companies.forEach(c=>{
-    const val = (kpis[c] ?? '—');
-    const li = document.createElement('li');
-    const name = document.createElement('span');
-    name.textContent = c;
-    const badge = document.createElement('span');
-    badge.className = 'kpi-badge';
-    badge.textContent = (typeof val === 'number') ? val.toFixed(2) : val;
-    li.appendChild(name);
-    li.appendChild(badge);
-    kpiList.appendChild(li);
-  });
-}
-refreshSidebar();
+        // Check if we have minimum data for preview
+        if (!company || !month) {
+            previewContainer.innerHTML = `<p class="empty-preview">Fill in the details above to preview the report.</p>`;
+            saveHomeBtn.disabled = true;
+            return;
+        }
 
-// ------- Utilities -------
-function clampKPI(n){
-  if (isNaN(n)) return 0;
-  return Math.max(0, Math.min(5, n));
-}
-
-// Returns [0..100]% for pointer based on KPI out of 5
-function kpiToPercent(kpi){
-  return (clampKPI(kpi) / 5) * 100;
-}
-
-function makeStars(scoreOutOf5){
-  const full = Math.floor(clampKPI(scoreOutOf5));
-  const half = (scoreOutOf5 - full) >= 0.5 ? 1 : 0;
-  const total = Math.min(5, full + half);
-  let html = '';
-  for (let i=0;i<5;i++){
-    html += `<div class="star ${i<total ? 'on':''}"></div>`;
-  }
-  return html;
-}
-
-// Build chart canvas
-function buildChartCanvas(id){
-  return `<canvas id="${id}" height="140"></canvas>`;
-}
-
-// Build the full HTML report string
-function buildReportHTML({
-  company, month, eff, ppl, pOps, pFin, overall, topKPI, underPerf, remedial, companyKpiMap, graphMonths
-}){
-  const pointerLeft = kpiToPercent(overall);
-  const stars = makeStars(overall);
-
-  // side list with latest KPI per company
-  const sideItems = Object.entries(companyKpiMap).map(([name, val])=>{
-    const display = typeof val === 'number' ? val.toFixed(2) : '—';
-    return `<li><span>${name}</span><strong>${display}</strong></li>`;
-  }).join('');
-
-  return `
-  <div class="report-doc" data-company="${company}" data-month="${month}">
-    <div class="report-head">
-      <div class="meta">
-        <div class="title">${company} — Performance Dashboard</div>
-        <div class="sub">Month: ${month} &nbsp;•&nbsp; Year: 2025</div>
-      </div>
-      <img class="brandmark" src="../assets/adnoc-logo.png" alt="ADNOC">
-    </div>
-
-    <div class="report-body">
-      <!-- Left -->
-      <div class="panel-col">
-        <div class="panel kpi-overall">
-          <div>
-            <h4>Overall KPI</h4>
-            <div class="kpi-bar">
-              <div class="seg bad"></div>
-              <div class="seg mid"></div>
-              <div class="seg good"></div>
-              <div class="kpi-pointer" style="left:${pointerLeft}%"></div>
+        // Generate clean, spaced out report layout
+        previewContainer.innerHTML = `
+            <div class="report-card">
+                <h2>${company} - ${month} KPI Dashboard</h2>
+                <div class="pillars">
+                    <div class="pillar"><strong>Efficiency:</strong> ${efficiency || "-"}</div>
+                    <div class="pillar"><strong>People:</strong> ${people || "-"}</div>
+                    <div class="pillar"><strong>Profitability - Operations:</strong> ${profitabilityOps || "-"}</div>
+                    <div class="pillar"><strong>Profitability - Financials:</strong> ${profitabilityFin || "-"}</div>
+                </div>
+                <div class="kpi-section">
+                    <h3>Top KPIs</h3>
+                    <p>${topKpis || "No data"}</p>
+                </div>
+                <div class="kpi-section">
+                    <h3>Underperforming KPIs</h3>
+                    <p>${underKpis || "No data"}</p>
+                </div>
+                <div class="kpi-section">
+                    <h3>Remedial Actions</h3>
+                    <p>${actions || "No data"}</p>
+                </div>
+                <div class="chart-placeholder">
+                    <canvas id="kpiChart"></canvas>
+                </div>
             </div>
-            <div class="star-row">${stars}</div>
-          </div>
-          <div class="kpi-score">${overall.toFixed(2)}</div>
-        </div>
+        `;
 
-        <div class="panel">
-          <h4>Pillars (0–5)</h4>
-          <div class="pillar-grid">
-            <div class="pillar">
-              <div class="label">Efficiency</div>
-              <div class="val">${eff.toFixed(2)}</div>
-            </div>
-            <div class="pillar">
-              <div class="label">People</div>
-              <div class="val">${ppl.toFixed(2)}</div>
-            </div>
-            <div class="pillar">
-              <div class="label">Profitability – Operations</div>
-              <div class="val">${pOps.toFixed(2)}</div>
-            </div>
-            <div class="pillar">
-              <div class="label">Profitability – Financials</div>
-              <div class="val">${pFin.toFixed(2)}</div>
-            </div>
-          </div>
-          <div style="margin-top:10px; color:#6b7a90; font-size:12px;">
-            <strong>Note:</strong> Overall KPI excludes Financials.
-          </div>
-        </div>
+        // Enable save button
+        saveHomeBtn.disabled = false;
 
-        <div class="panel chart-panel">
-          <h4>KPI Trend (${graphMonths || "Jan–Dec"})</h4>
-          ${buildChartCanvas('trendChart')}
-          <div class="legend">
-            <span class="dot actual"></span> Actual
-            <span class="dot proj"></span> Projection
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="narrative-grid">
-            <div class="narrative">
-              <div class="h">Top KPI</div>
-              <div>${topKPI || '—'}</div>
-            </div>
-            <div class="narrative">
-              <div class="h">Underperforming</div>
-              <div>${underPerf || '—'}</div>
-            </div>
-            <div class="narrative">
-              <div class="h">Remedial Action</div>
-              <div>${remedial || '—'}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right -->
-      <div class="side-panel">
-        <h4>Company KPI (Latest)</h4>
-        <ul class="side-list">
-          ${sideItems}
-        </ul>
-      </div>
-    </div>
-
-    <div class="report-foot">
-      <span>Generated on ${new Date().toLocaleString()}</span>
-      <a href="#" rel="noopener">Visit KPI Portal</a>
-    </div>
-  </div>
-  `;
-}
-
-// Build company KPI map
-function makeCompanyKpiMap(currentCompany, currentValue){
-  const companies = [
-    'Adnoc Onshore','Adnoc Offshore','Adnoc Al Dhafra & Al Yasat','Adnoc Drilling',
-    'Adnoc Sour Gas','Adnoc Refining','Adnoc Distribution','Adnoc Borouge',
-    'Adnoc L&S','Adnoc Global Trading','GBDO','Adnoc LNG','Adnoc Gas','Year to date Average'
-  ];
-  const kpis = loadJSON(STORAGE_KEYS.KPI, {});
-  const map = {};
-  companies.forEach(c=>{
-    map[c] = (c === currentCompany) ? currentValue : (kpis[c] ?? '—');
-  });
-  return map;
-}
-
-// Render trend chart for selected months
-function renderTrendChart(canvasId, company, monthsStr, overall){
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return;
-
-  const months = monthsStr ? monthsStr.split(',').map(m=>m.trim()) : 
-    ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const actual = months.map(()=>overall);
-  const projection = months.map((_,i)=>overall + (i*0.05)); // simple slope
-
-  new Chart(ctx, {
-    type:'line',
-    data:{
-      labels:months,
-      datasets:[
-        { label:'Actual', data:actual, borderWidth:3, tension:0.35, spanGaps:true },
-        { label:'Projection', data:projection, borderWidth:2, borderDash:[6,6], tension:0.35, spanGaps:true }
-      ]
-    },
-    options:{
-      responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{enabled:true} },
-      scales:{ y:{ min:0, max:5, ticks:{ stepSize:1 } } }
+        // Render chart
+        renderChart(efficiency, people, profitabilityOps, profitabilityFin);
     }
-  });
-}
 
-// ------- Generate click -------
-generateBtn.addEventListener('click', () => {
-  const company = companyEl.value;
-  const month = monthEl.value;
-  const graphMonths = monthsInputEl?.value || "";
+    // Save to Homepage
+    saveHomeBtn.addEventListener("click", () => {
+        const company = document.getElementById("company").value;
+        const month = document.getElementById("month").value;
 
-  if (!company || !month){
-    alert('Please select a Company and Month.');
-    return;
-  }
+        if (!company || !month) {
+            alert("Please fill in at least company and month before saving.");
+            return;
+        }
 
-  const eff = clampKPI(parseFloat(efficiencyEl.value));
-  const ppl = clampKPI(parseFloat(peopleEl.value));
-  const pOps = clampKPI(parseFloat(profitOpsEl.value));
-  const pFin = clampKPI(parseFloat(profitFinEl.value));
+        const reportHTML = previewContainer.innerHTML;
+        const storedReports = JSON.parse(localStorage.getItem("kpiReports") || "{}");
 
-  const overall = clampKPI((eff + ppl + pOps)/3);
+        if (!storedReports[company]) storedReports[company] = {};
+        storedReports[company][month] = reportHTML;
 
-  const sidebarMap = makeCompanyKpiMap(company, overall);
+        localStorage.setItem("kpiReports", JSON.stringify(storedReports));
 
-  const html = buildReportHTML({
-    company, month, eff, ppl, pOps, pFin, overall,
-    topKPI: topKPIEl.value.trim(),
-    underPerf: underPerfEl.value.trim(),
-    remedial: remedialEl.value.trim(),
-    companyKpiMap: sidebarMap,
-    graphMonths
-  });
+        alert("Report saved to homepage successfully!");
+    });
 
-  preview.innerHTML = html;
+    function renderChart(efficiency, people, profitabilityOps, profitabilityFin) {
+        const ctx = document.getElementById("kpiChart");
+        if (!ctx) return;
 
-  renderTrendChart('trendChart', company, graphMonths, overall);
-
-  saveHomeBtn.disabled = false;
-  deletePreviewBtn.disabled = false;
-
-  // Save immediately to localStorage
-  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
-  if (!reports[company]) reports[company] = {};
-  reports[company][month] = html;
-  saveJSON(STORAGE_KEYS.REPORTS, reports);
-
-  const latest = loadJSON(STORAGE_KEYS.LATEST, {});
-  latest[company] = month;
-  saveJSON(STORAGE_KEYS.LATEST, latest);
-
-  const kpis = loadJSON(STORAGE_KEYS.KPI, {});
-  kpis[company] = overall;
-  saveJSON(STORAGE_KEYS.KPI, kpis);
-
-  refreshSidebar();
-});
-
-// Keep all your existing code above this line
-
-// ------- Style Preview for Full Report Look -------
-function stylePreview() {
-  preview.style.maxWidth = "100%";
-  preview.style.background = "#fff";
-  preview.style.padding = "20px";
-  preview.style.boxShadow = "0 0 15px rgba(0,0,0,0.15)";
-  preview.style.overflowX = "auto";
-}
-stylePreview();
-
-// ------- Override renderTrendChart for better months -------
-function renderTrendChart(canvasId, company, monthsStr, overall) {
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return;
-
-  const months = monthsStr
-    ? monthsStr.split(',').map(m => m.trim())
-    : ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  
-  const actual = months.map(() => overall);
-  const projection = months.map((_, i) => overall + (i * 0.05));
-
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [
-        { label: 'Actual', data: actual, borderWidth: 3, tension: 0.35, spanGaps: true },
-        { label: 'Projection', data: projection, borderWidth: 2, borderDash: [6, 6], tension: 0.35, spanGaps: true }
-      ]
-    },
-    options: {
-      responsive: true,
-      indexAxis: 'x', // ensure months go on X axis
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
-      scales: { 
-        x: { 
-          ticks: { autoSkip: false, maxRotation: 0, minRotation: 0 } 
-        },
-        y: { min: 0, max: 5, ticks: { stepSize: 1 } }
-      }
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: ["Efficiency", "People", "Profit Ops", "Profit Fin"],
+                datasets: [{
+                    label: "KPI Ratings",
+                    data: [
+                        Number(efficiency) || 0,
+                        Number(people) || 0,
+                        Number(profitabilityOps) || 0,
+                        Number(profitabilityFin) || 0
+                    ],
+                    fill: false,
+                    borderColor: "#0077b6",
+                    tension: 0.3,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointBackgroundColor: "#0077b6"
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 10 }
+                }
+            }
+        });
     }
-  });
-}
-
-// ------- Save to Homepage -------
-saveHomeBtn.addEventListener('click', () => {
-  const company = companyEl.value;
-  const month = monthEl.value;
-
-  if (!company || !month) {
-    alert('Please generate a report first.');
-    return;
-  }
-
-  alert(`Report for ${company} (${month}) saved to homepage.`);
 });
-
-// ------- Delete Preview -------
-deletePreviewBtn.addEventListener('click', () => {
-  const company = companyEl.value;
-  if (!company) {
-    alert('Please select a company.');
-    return;
-  }
-
-  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
-  if (reports[company]) {
-    delete reports[company];
-    saveJSON(STORAGE_KEYS.REPORTS, reports);
-  }
-
-  const latest = loadJSON(STORAGE_KEYS.LATEST, {});
-  if (latest[company]) {
-    delete latest[company];
-    saveJSON(STORAGE_KEYS.LATEST, latest);
-  }
-
-  const kpis = loadJSON(STORAGE_KEYS.KPI, {});
-  if (kpis[company]) {
-    delete kpis[company];
-    saveJSON(STORAGE_KEYS.KPI, kpis);
-  }
-
-  preview.innerHTML = '';
-  saveHomeBtn.disabled = true;
-  deletePreviewBtn.disabled = true;
-  refreshSidebar();
-  alert(`Report for ${company} deleted.`);
-});
-
