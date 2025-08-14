@@ -116,6 +116,17 @@ function displayReport() {
     reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
     const holder = document.createElement('div');
     holder.innerHTML = html;
+
+    // Make preview responsive
+    const reportDoc = holder.querySelector('.report-doc');
+    if(reportDoc){
+      reportDoc.style.transform = 'scale(1)';
+      reportDoc.style.transformOrigin = 'top left';
+      reportDoc.style.width = '100%';
+      reportDoc.style.maxWidth = '100%';
+      reportDoc.style.margin = '0 auto';
+    }
+
     pdfContainer.appendChild(holder);
     return;
   }
@@ -165,10 +176,13 @@ if (saveBtn) {
       alert("Nothing to save. Generate the report first.");
       return;
     }
-    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+
+    const holder = pdfContainer.querySelector('.report-doc') || pdfContainer.querySelector('div > .report-doc');
+    if(holder) saveReportToStorage(selectedCompany, selectedMonth, holder.outerHTML);
+
     alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
   });
-}
+});
 
 const deleteBtn = document.getElementById('delete-report-btn');
 if (deleteBtn) {
