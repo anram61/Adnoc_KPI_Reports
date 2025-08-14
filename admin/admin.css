@@ -289,3 +289,29 @@ button:disabled {
   color:#999;
   font-style:italic;
 }
+
+/* Admin report preview */
+.report-preview {
+  width: 100%;
+  min-height: 600px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+  overflow-x: auto;  /* horizontal scroll if too wide */
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.report-preview .report-doc {
+  width: 1000px; /* fixed width to resemble a real report */
+  max-width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+.report-preview .report-doc img.brandmark {
+  max-height: 50px;
+}
