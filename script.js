@@ -1,9 +1,10 @@
+// ------- Home Page Script -------
+
 const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
 const monthDropdown = document.getElementById('month-dropdown');
 const pdfContainer = document.getElementById('pdf-viewer-container');
-const preview = document.getElementById('reportPreview');
 
 let selectedCompany = '';
 let selectedMonth = '';
@@ -38,8 +39,9 @@ async function renderPDF(pdfPath) {
     const containerWidth = pdfContainer.clientWidth || 900;
     const devicePixelRatio = window.devicePixelRatio || 1;
     let viewport = page.getViewport({ scale: 1 });
-    let scale = (containerWidth / viewport.width) * devicePixelRatio;
-    const scaledViewport = page.getViewport({ scale });
+    let scale = containerWidth / viewport.width;
+    scale = scale * devicePixelRatio;
+    const scaledViewport = page.getViewport({ scale: scale });
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -58,54 +60,86 @@ async function renderPDF(pdfPath) {
 
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
+    // Add clickable links
+    const annotations = await page.getAnnotations();
+    annotations.forEach(annotation => {
+      if (annotation.subtype === 'Link' && annotation.url) {
+        const [x1, y1, x2, y2] = annotation.rect;
+        const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
+        const linkEl = document.createElement('a');
+        linkEl.href = annotation.url;
+        linkEl.target = '_blank';
+        linkEl.style.position = 'absolute';
+        linkEl.style.left = (rect[0] * scale / devicePixelRatio) + 'px';
+        linkEl.style.bottom = (rect[1] * scale / devicePixelRatio) + 'px';
+        linkEl.style.width = ((rect[2] - rect[0]) * scale / devicePixelRatio) + 'px';
+        linkEl.style.height = ((rect[3] - rect[1]) * scale / devicePixelRatio) + 'px';
+        linkEl.style.zIndex = 10;
+        linkEl.style.background = 'transparent';
+        linkEl.style.cursor = 'pointer';
+        pageContainer.appendChild(linkEl);
+      }
+    });
+
   } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
   }
 }
 
 // Storage helpers
-function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
+function storageKey(company, month) {
+  return `kpi-report::${company}::${month}`;
+}
 function getLatestSavedForCompany(company) {
-  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
-  catch { return null; }
+  try {
+    const map = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    return map[company] || null;
+  } catch { return null; }
 }
-function saveReportToStorage(company, month, html) {
-  if (!company || !month) return;
-  localStorage.setItem(storageKey(company, month), html);
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-  latestMap[company] = month;
-  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-}
-function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
 
 // Display report
 function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
   pdfContainer.innerHTML = "";
-  preview.innerHTML = "";
 
-  let month = selectedMonth || null;
-  let html = month ? getReportFromStorage(selectedCompany, month) : null;
+  const month = selectedMonth || null;
+  let html = null;
 
-  if (!html) {
-    const latestMonth = getLatestSavedForCompany(selectedCompany);
-    if (latestMonth) html = getReportFromStorage(selectedCompany, latestMonth);
+  if (month) html = localStorage.getItem(storageKey(selectedCompany, month));
+  else {
+    const latest = getLatestSavedForCompany(selectedCompany);
+    if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
   if (html) {
-    preview.innerHTML = html;
+    reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    pdfContainer.appendChild(holder);
+    return;
+  }
+
+  const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
+  if (pdfPath) {
+    reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available PDF."}</em></p>`;
+    renderPDF(pdfPath);
   } else {
-    const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
-    if (pdfPath) {
-      renderPDF(pdfPath);
-    } else {
-      pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
-    }
+    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
   }
 }
 
-// Company buttons
+// Save generated report
+function saveReportToStorage(company, month, html) {
+  if (!company || !month) return;
+  localStorage.setItem(storageKey(company, month), html);
+
+  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+  latestMap[company] = { month };
+  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+}
+
+// Event listeners
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
@@ -115,14 +149,45 @@ companies.forEach(button => {
   });
 });
 
-// Month dropdown
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
 });
 
-// Hover glow
-companies.forEach(btn => {
-  btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
-  btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
-});
+const saveBtn = document.getElementById('save-report-btn');
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => {
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before saving.");
+      return;
+    }
+    if (pdfContainer.innerHTML.trim() === "") {
+      alert("Nothing to save. Generate the report first.");
+      return;
+    }
+    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+    alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
+  });
+}
+
+const deleteBtn = document.getElementById('delete-report-btn');
+if (deleteBtn) {
+  deleteBtn.addEventListener('click', () => {
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before deleting.");
+      return;
+    }
+    const key = storageKey(selectedCompany, selectedMonth);
+    localStorage.removeItem(key);
+
+    const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    if (latestMap[selectedCompany]?.month === selectedMonth) {
+      delete latestMap[selectedCompany];
+      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+    }
+
+    alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
+    pdfContainer.innerHTML = "";
+    reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
+  });
+}
