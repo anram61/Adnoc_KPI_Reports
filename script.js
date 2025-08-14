@@ -7,7 +7,7 @@ const pdfContainer = document.getElementById('pdf-viewer-container');
 let selectedCompany = '';
 let selectedMonth = '';
 
-// PDF paths
+// PDF fallback paths
 const reportPDFs = {
   "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
   "Adnoc Global Trading": { default: "reports/AGT.pdf" },
@@ -28,19 +28,7 @@ const reportPDFs = {
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// Utility keys
-function storageKey(company, month) {
-  return `kpi-report::${company}::${month}`;
-}
-
-function getLatestSavedForCompany(company) {
-  try {
-    const map = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-    return map[company] || null;
-  } catch { return null; }
-}
-
-// Render PDF
+// Render PDF professionally
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
 
@@ -73,7 +61,7 @@ async function renderPDF(pdfPath) {
 
     await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
-    // Clickable links
+    // Add clickable links
     const annotations = await page.getAnnotations();
     annotations.forEach(annotation => {
       if (annotation.subtype === 'Link' && annotation.url) {
@@ -99,33 +87,42 @@ async function renderPDF(pdfPath) {
   }
 }
 
-// Build chart for saved dashboard
-function renderTrendChart(container, monthsStr, dataPoints) {
-  const canvas = document.createElement('canvas');
-  container.appendChild(canvas);
+// Storage helpers
+function storageKey(company, month) {
+  return `kpi-report::${company}::${month}`;
+}
 
-  const monthsAll = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const data = new Array(12).fill(null);
+function getLatestSavedForCompany(company) {
+  try {
+    const map = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    return map[company] || null;
+  } catch { return null; }
+}
 
-  if (monthsStr && dataPoints) {
-    const months = monthsStr.split(',').map(m=>m.trim());
-    months.forEach((m,i)=>{
-      const idx = monthsAll.indexOf(m);
-      if(idx>=0 && dataPoints[i]!=null) data[idx]=dataPoints[i];
-    });
-  }
+// Render trend chart
+function renderTrendChart(canvasId, months, values) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
 
-  new Chart(canvas, {
+  // Ensure 12 months are always shown
+  const allMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthMap = {};
+  months.forEach((m,i)=>monthMap[m] = values[i]);
+  const displayValues = allMonths.map(m => monthMap[m] ?? null);
+
+  new Chart(ctx, {
     type:'line',
     data:{
-      labels: monthsAll,
+      labels: allMonths,
       datasets:[{
-        label:'KPI Trend',
-        data:data,
-        borderColor:'blue',
-        backgroundColor:'rgba(0,0,255,0.1)',
-        tension:0.35,
-        spanGaps:true
+        label:'Trend',
+        data: displayValues,
+        borderWidth: 3,
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0,123,255,0.2)',
+        spanGaps: true,
+        tension: 0.3,
+        fill: true
       }]
     },
     options:{
@@ -136,113 +133,116 @@ function renderTrendChart(container, monthsStr, dataPoints) {
   });
 }
 
-// Display report
+// Display Report
 function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
 
-  // 1) Check if a generated dashboard exists
-  const month = selectedMonth || getLatestSavedForCompany(selectedCompany)?.month;
-  if(month){
-    const saved = localStorage.getItem(storageKey(selectedCompany, month));
-    if(saved){
-      reportText.innerHTML = `<p><em>Showing generated dashboard (${month} 2025)</em></p>`;
-      pdfContainer.innerHTML = "";
-      const holder = document.createElement('div');
-      holder.innerHTML = saved;
-      pdfContainer.appendChild(holder);
+  if (selectedMonth) {
+    const saved = localStorage.getItem(storageKey(selectedCompany, selectedMonth));
+    if (saved) {
+      const data = JSON.parse(saved);
+      reportText.innerHTML = `<p><em>Showing generated dashboard (${selectedMonth} 2025)</em></p>`;
+      pdfContainer.innerHTML = data.html;
 
-      // Rebuild chart if stored
-      const chartContainer = holder.querySelector('.chart-container');
-      const monthsStr = chartContainer?.getAttribute('data-months');
-      const dataPoints = chartContainer?.getAttribute('data-points')?.split(',').map(Number);
-      if(chartContainer && monthsStr && dataPoints){
-        chartContainer.innerHTML = '';
-        renderTrendChart(chartContainer, monthsStr, dataPoints);
+      // Render chart
+      if (data.chart) {
+        renderTrendChart('trendChart', data.chart.months, data.chart.values);
       }
       return;
     }
   }
 
-  // 2) Fallback to PDF
-  const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
-  if(pdfPath){
-    reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available report."}</em></p>`;
+  // Latest
+  if (!selectedMonth) {
+    const latest = getLatestSavedForCompany(selectedCompany);
+    if (latest && latest.month) {
+      const saved = localStorage.getItem(storageKey(selectedCompany, latest.month));
+      if (saved) {
+        const data = JSON.parse(saved);
+        reportText.innerHTML = `<p><em>Showing generated dashboard (Latest: ${latest.month} 2025)</em></p>`;
+        pdfContainer.innerHTML = data.html;
+        if (data.chart) renderTrendChart('trendChart', data.chart.months, data.chart.values);
+        return;
+      }
+    }
+  }
+
+  // Fallback to PDF
+  const pdfPath = reportPDFs[selectedCompany]?.[selectedMonth] || reportPDFs[selectedCompany]?.default;
+  if (pdfPath) {
+    reportText.innerHTML = `<p><em>${selectedMonth ? `Showing report for ${selectedMonth} 2025` : "Currently showing the latest available report."}</em></p>`;
     renderPDF(pdfPath);
   } else {
-    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in "+month : ""}.</p>`;
+    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${selectedMonth ? " in " + selectedMonth : ""}.</p>`;
     pdfContainer.innerHTML = "";
   }
 }
 
-// Save generated dashboard HTML to localStorage
-function saveReportToStorage(company, month, html, monthsStr='', dataPoints=''){
-  if(!company || !month) return;
-  localStorage.setItem(storageKey(company, month), html);
+// Save generated HTML to localStorage
+function saveReportToStorage(company, month, html, chartData) {
+  if (!company || !month) return;
+  const obj = { html, chart: chartData };
+  localStorage.setItem(storageKey(company, month), JSON.stringify(obj));
 
-  // Store latest
   const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
   latestMap[company] = { month };
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-
-  // Store chart data as attributes
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const chartDiv = doc.querySelector('.chart-container');
-  if(chartDiv){
-    chartDiv.setAttribute('data-months', monthsStr);
-    chartDiv.setAttribute('data-points', dataPoints.join(','));
-    localStorage.setItem(storageKey(company, month), doc.body.innerHTML);
-  }
 }
 
-// Company buttons click
+// Event Listeners
 companies.forEach(button => {
   button.addEventListener('click', () => {
     selectedCompany = button.getAttribute('data-company');
-    selectedMonth = '';
-    monthDropdown.value = '';
+    selectedMonth = "";
+    monthDropdown.value = "";
     displayReport();
   });
 });
 
-// Month dropdown change
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
 });
 
-// Save Report Button
+// Save button (assumes you have a button with id="save-report-btn")
 const saveBtn = document.getElementById('save-report-btn');
-if(saveBtn){
+if (saveBtn) {
   saveBtn.addEventListener('click', () => {
-    if(!selectedCompany || !selectedMonth){
-      alert("Select a company and month before saving.");
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before saving.");
       return;
     }
-    if(pdfContainer.innerHTML.trim()===""){
-      alert("Nothing to save. Generate report first.");
+    if (!pdfContainer.innerHTML.trim()) {
+      alert("Nothing to save. Generate the report first.");
       return;
     }
-    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+
+    // Gather chart data if canvas exists
+    const chartCanvas = document.getElementById('trendChart');
+    let chartData = null;
+    if (chartCanvas && chartCanvas.chartData) chartData = chartCanvas.chartData;
+
+    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML, chartData);
     alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
   });
-}
+});
 
-// Delete Report Button
+// Delete button (assumes button with id="delete-report-btn")
 const deleteBtn = document.getElementById('delete-report-btn');
-if(deleteBtn){
-  deleteBtn.addEventListener('click', ()=>{
-    if(!selectedCompany || !selectedMonth){
-      alert("Select a company and month before deleting.");
+if (deleteBtn) {
+  deleteBtn.addEventListener('click', () => {
+    if (!selectedCompany || !selectedMonth) {
+      alert("Please select a company and month before deleting.");
       return;
     }
-    localStorage.removeItem(storageKey(selectedCompany, selectedMonth));
-    const latestMap = JSON.parse(localStorage.getItem('kpi-latest')||'{}');
-    if(latestMap[selectedCompany]?.month === selectedMonth){
-      delete latestMap[selectedCompany];
-      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-    }
+    const key = storageKey(selectedCompany, selectedMonth);
+    localStorage.removeItem(key);
+
+    const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    if (latestMap[selectedCompany]?.month === selectedMonth) delete latestMap[selectedCompany];
+    localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+
     alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
     pdfContainer.innerHTML = "";
     reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
