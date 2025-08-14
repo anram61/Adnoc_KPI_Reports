@@ -6,10 +6,11 @@ const monthDropdown = document.getElementById('month-dropdown');
 const pdfContainer = document.getElementById('pdf-viewer-container');
 const fallbackMessage = document.getElementById('fallback-message');
 
+// ====== State ======
 let selectedCompany = '';
 let selectedMonth = '';
 
-// ====== Reports PDF Mapping ======
+// ====== PDF Mapping ======
 const reportPDFs = {
   "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
   "Adnoc Global Trading": { default: "reports/AGT.pdf" },
@@ -27,19 +28,19 @@ const reportPDFs = {
 };
 
 // ====== Storage Helpers ======
-function getStorageKey(company, month) {
-  return `${company}_${month}_report`;
+function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
+function getLatestSavedForCompany(company) {
+  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
+  catch { return null; }
 }
 function saveReportToStorage(company, month, html) {
   if (!company || !month) return;
-  localStorage.setItem(getStorageKey(company, month), html);
+  localStorage.setItem(storageKey(company, month), html);
   const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
   latestMap[company] = month;
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 }
-function getReportFromStorage(company, month) {
-  return localStorage.getItem(getStorageKey(company, month));
-}
+function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
 
 // ====== PDF.js Setup ======
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -56,7 +57,7 @@ async function renderPDF(pdfPath) {
     const devicePixelRatio = window.devicePixelRatio || 1;
     let viewport = page.getViewport({ scale: 1 });
     let scale = (containerWidth / viewport.width) * devicePixelRatio;
-    const scaledViewport = page.getViewport({ scale: scale });
+    const scaledViewport = page.getViewport({ scale });
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -85,31 +86,26 @@ function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
   pdfContainer.innerHTML = "";
+  fallbackMessage.textContent = "";
 
-  const month = selectedMonth || null;
-  let html = null;
+  let month = selectedMonth || null;
+  let html = month ? getReportFromStorage(selectedCompany, month) : null;
 
-  if (month) html = getReportFromStorage(selectedCompany, month);
-  else {
-    const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-    const latestMonth = latestMap[selectedCompany];
+  if (!html) {
+    const latestMonth = getLatestSavedForCompany(selectedCompany);
     if (latestMonth) html = getReportFromStorage(selectedCompany, latestMonth);
   }
 
   if (html) {
-    fallbackMessage.textContent = "";
     pdfContainer.innerHTML = html;
-    return;
-  }
-
-  // Fallback PDF
-  const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
-  if (pdfPath) {
-    fallbackMessage.textContent = "Showing latest available report";
-    renderPDF(pdfPath);
   } else {
-    fallbackMessage.textContent = "";
-    pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
+    const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
+    if (pdfPath) {
+      fallbackMessage.textContent = "Showing latest available report";
+      renderPDF(pdfPath);
+    } else {
+      pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
+    }
   }
 }
 
@@ -126,4 +122,19 @@ companies.forEach(button => {
 monthDropdown.addEventListener('change', () => {
   selectedMonth = monthDropdown.value;
   displayReport();
+});
+
+// ====== UI Enhancements ======
+// Resize iframe if PDF used
+function resizeViewer() {
+  const iframe = pdfContainer.querySelector("iframe");
+  if (iframe) iframe.style.height = `${window.innerHeight - 250}px`;
+}
+window.addEventListener("resize", resizeViewer);
+window.addEventListener("load", resizeViewer);
+
+// Company hover animation
+companies.forEach(btn => {
+  btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
+  btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
 });
