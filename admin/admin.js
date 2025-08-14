@@ -1,77 +1,128 @@
-// ====== Elements ======
-const companyEl = document.getElementById('company');
-const monthEl = document.getElementById('month');
-const efficiencyEl = document.getElementById('efficiency');
-const peopleEl = document.getElementById('people');
-const profitOpsEl = document.getElementById('profitOps');
-const profitFinEl = document.getElementById('profitFin');
-const topKPIEl = document.getElementById('topKPI');
-const underPerfEl = document.getElementById('underPerf');
-const remedialEl = document.getElementById('remedial');
-const generateBtn = document.getElementById('generate');
+const companies = document.querySelectorAll('.company');
+const reportCompany = document.getElementById('report-company');
+const reportText = document.getElementById('report-text');
+const monthDropdown = document.getElementById('month-dropdown');
+const pdfContainer = document.getElementById('pdf-viewer-container');
 const preview = document.getElementById('reportPreview');
 
-// ====== Storage Helpers ======
+let selectedCompany = '';
+let selectedMonth = '';
+
+const reportPDFs = {
+  "Adnoc Offshore": { default: "reports/offshore-report.pdf" },
+  "Adnoc Global Trading": { default: "reports/AGT.pdf" },
+  "Year to date Average": { default: "reports/YTD.pdf" },
+  "Adnoc Onshore": { default: "reports/onshore.pdf" },
+  "Adnoc Al Dhafra & Al Yasat": { default: "reports/alds.pdf" },
+  "Adnoc Drilling": { default: "reports/drilling.pdf" },
+  "Adnoc Sour Gas": { default: "reports/sourgas.pdf" },
+  "Adnoc Refining": { default: "reports/refining.pdf" },
+  "Adnoc Distribution": { default: "reports/distribution.pdf" },
+  "Adnoc Borouge": { default: "reports/borouge.pdf" },
+  "Adnoc L&S": { default: "reports/L&S.pdf" },
+  "GBDO": { default: "reports/gbdo.pdf" },
+  "Adnoc Gas": { default: "reports/adnocgas.pdf" },
+};
+
+// PDF.js setup
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
+
+// Render PDF
+async function renderPDF(pdfPath) {
+  pdfContainer.innerHTML = "";
+  try {
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
+
+    const containerWidth = pdfContainer.clientWidth || 900;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    let viewport = page.getViewport({ scale: 1 });
+    let scale = (containerWidth / viewport.width) * devicePixelRatio;
+    const scaledViewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+    canvas.style.width = (scaledViewport.width / devicePixelRatio) + "px";
+    canvas.style.height = (scaledViewport.height / devicePixelRatio) + "px";
+
+    const pageContainer = document.createElement("div");
+    pageContainer.style.position = "relative";
+    pageContainer.style.width = canvas.style.width;
+    pageContainer.style.height = canvas.style.height;
+
+    pageContainer.appendChild(canvas);
+    pdfContainer.appendChild(pageContainer);
+
+    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+  } catch (err) {
+    pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
+  }
+}
+
+// Storage helpers
 function storageKey(company, month) { return `kpi-report::${company}::${month}`; }
+function getLatestSavedForCompany(company) {
+  try { return JSON.parse(localStorage.getItem('kpi-latest') || '{}')[company] || null; }
+  catch { return null; }
+}
 function saveReportToStorage(company, month, html) {
+  if (!company || !month) return;
   localStorage.setItem(storageKey(company, month), html);
   const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
   latestMap[company] = month;
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 }
-// ====== Build Report HTML ======
-function buildReportHTML({company, month, eff, ppl, pOps, pFin, topKPI, underPerf, remedial}) {
-  return `
-    <div class="report-doc" data-company="${company}" data-month="${month}">
-      <div class="report-head">
-        <div class="meta">
-          <div class="title">${company} — Performance Dashboard</div>
-          <div class="sub">Month: ${month} • Year: 2025</div>
-        </div>
-        <img class="brandmark" src="../assets/adnoc-logo.png" alt="ADNOC">
-      </div>
-      <div class="report-body">
-        <div class="panel-col">
-          <div class="panel">
-            <h4>Pillars (0–5)</h4>
-            <div class="pillar-grid">
-              <div class="pillar"><div class="label">Efficiency</div><div class="val">${eff}</div></div>
-              <div class="pillar"><div class="label">People</div><div class="val">${ppl}</div></div>
-              <div class="pillar"><div class="label">Profitability – Operations</div><div class="val">${pOps}</div></div>
-              <div class="pillar"><div class="label">Profitability – Financials</div><div class="val">${pFin}</div></div>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="narrative-grid">
-              <div class="narrative"><div class="h">Top KPI</div><div>${topKPI}</div></div>
-              <div class="narrative"><div class="h">Underperforming</div><div>${underPerf}</div></div>
-              <div class="narrative"><div class="h">Remedial Action</div><div>${remedial}</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+function getReportFromStorage(company, month) { return localStorage.getItem(storageKey(company, month)); }
+
+// Display report
+function displayReport() {
+  if (!selectedCompany) return;
+  reportCompany.textContent = selectedCompany;
+  pdfContainer.innerHTML = "";
+  preview.innerHTML = "";
+
+  let month = selectedMonth || null;
+  let html = month ? getReportFromStorage(selectedCompany, month) : null;
+
+  if (!html) {
+    const latestMonth = getLatestSavedForCompany(selectedCompany);
+    if (latestMonth) html = getReportFromStorage(selectedCompany, latestMonth);
+  }
+
+  if (html) {
+    preview.innerHTML = html;
+  } else {
+    const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
+    if (pdfPath) {
+      renderPDF(pdfPath);
+    } else {
+      pdfContainer.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
+    }
+  }
 }
 
-// ====== Generate & Save ======
-generateBtn.addEventListener('click', () => {
-  const company = companyEl.value;
-  const month = monthEl.value;
-  if (!company || !month) { alert('Select Company and Month'); return; }
-
-  const html = buildReportHTML({
-    company, month,
-    eff: parseFloat(efficiencyEl.value),
-    ppl: parseFloat(peopleEl.value),
-    pOps: parseFloat(profitOpsEl.value),
-    pFin: parseFloat(profitFinEl.value),
-    topKPI: topKPIEl.value.trim(),
-    underPerf: underPerfEl.value.trim(),
-    remedial: remedialEl.value.trim()
+// Company buttons
+companies.forEach(button => {
+  button.addEventListener('click', () => {
+    selectedCompany = button.getAttribute('data-company');
+    selectedMonth = "";
+    monthDropdown.value = "";
+    displayReport();
   });
+});
 
-  preview.innerHTML = html;
-  saveReportToStorage(company, month, html);
-  alert(`Report saved for ${company} - ${month}`);
+// Month dropdown
+monthDropdown.addEventListener('change', () => {
+  selectedMonth = monthDropdown.value;
+  displayReport();
+});
+
+// Hover glow
+companies.forEach(btn => {
+  btn.addEventListener("mouseover", () => btn.classList.add("hover-glow"));
+  btn.addEventListener("mouseout", () => btn.classList.remove("hover-glow"));
 });
