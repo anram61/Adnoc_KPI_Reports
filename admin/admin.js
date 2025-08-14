@@ -19,7 +19,6 @@ function saveReportToStorage(company, month, html) {
   latestMap[company] = month;
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 }
-
 // ====== Build Report HTML ======
 function buildReportHTML({company, month, eff, ppl, pOps, pFin, topKPI, underPerf, remedial}) {
   return `
