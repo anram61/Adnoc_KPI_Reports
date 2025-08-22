@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="animated-line left-line"></div>
+  <div class="animated-line right-line"></div>
+
   <header>
     <img src="assets/adnoc-logo.png" alt="ADNOC Logo" class="logo" />
     <h1>KPI Report Viewer</h1>
@@ -38,10 +41,18 @@
       <div class="month-selector">
         <select id="month-dropdown">
           <option value="">-- Select Month --</option>
-          <option>January</option><option>February</option><option>March</option>
-          <option>April</option><option>May</option><option>June</option>
-          <option>July</option><option>August</option><option>September</option>
-          <option>October</option><option>November</option><option>December</option>
+          <option>January</option>
+          <option>February</option>
+          <option>March</option>
+          <option>April</option>
+          <option>May</option>
+          <option>June</option>
+          <option>July</option>
+          <option>August</option>
+          <option>September</option>
+          <option>October</option>
+          <option>November</option>
+          <option>December</option>
         </select>
       </div>
     </section>
@@ -52,8 +63,7 @@
       <div id="report-text">
         <p>Please select a company to see the KPI summary.</p>
       </div>
-
-      <!-- Where saved HTML or PDF iframe will appear -->
+      <!-- Container where PDF.js will render -->
       <div id="pdf-viewer-container"></div>
     </section>
   </main>
@@ -62,6 +72,9 @@
     <p>© 2025 ADNOC. All rights reserved.</p>
   </footer>
 
+  <!-- PDF.js scripts must load before script.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
