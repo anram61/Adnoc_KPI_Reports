@@ -189,6 +189,9 @@ generateBtn.addEventListener('click',()=>{
 
   preview.innerHTML=html;
   renderTrendChart('trendChart',company,graphMonths,overall);
+  saveHomeBtn.disabled=false;
+  deletePreviewBtn.disabled=false;
+});
 
   saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
