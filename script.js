@@ -29,7 +29,7 @@ const reportPDFs = {
 // PDF.js setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// Render PDF function
+// Render PDF function (fixed)
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
   if (!pdfPath) {
@@ -40,53 +40,57 @@ async function renderPDF(pdfPath) {
   try {
     const loadingTask = pdfjsLib.getDocument(pdfPath);
     const pdf = await loadingTask.promise;
-    const page = await pdf.getPage(1);
 
-    const containerWidth = pdfContainer.clientWidth || 900;
-    let viewport = page.getViewport({ scale: 1 });
-    let scale = containerWidth / viewport.width;
-    const scaledViewport = page.getViewport({ scale: scale });
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
 
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-    canvas.style.width = "100%";
-    canvas.style.height = "auto";
+      const containerWidth = pdfContainer.clientWidth || 900;
+      let viewport = page.getViewport({ scale: 1 });
+      let scale = containerWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
 
-    const pageContainer = document.createElement("div");
-    pageContainer.style.width = "100%";
-    pageContainer.style.overflow = "hidden";
-    pageContainer.appendChild(canvas);
-    pdfContainer.appendChild(pageContainer);
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      canvas.width = scaledViewport.width;
+      canvas.height = scaledViewport.height;
+      canvas.style.width = "100%";
+      canvas.style.height = "auto";
 
-    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+      const pageWrapper = document.createElement("div");
+      pageWrapper.style.position = "relative";
+      pageWrapper.style.width = "100%";
+      pageWrapper.appendChild(canvas);
+      pdfContainer.appendChild(pageWrapper);
 
-    // clickable links (optional)
-    const annotations = await page.getAnnotations();
-    annotations.forEach(annotation => {
-      if (annotation.subtype === 'Link' && annotation.url) {
-        const [x1, y1, x2, y2] = annotation.rect;
-        const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
-        const linkEl = document.createElement('a');
-        linkEl.href = annotation.url;
-        linkEl.target = '_blank';
-        linkEl.style.position = 'absolute';
-        linkEl.style.left = (rect[0] * scale) + 'px';
-        linkEl.style.top = (scaledViewport.height - rect[3]*scale) + 'px';
-        linkEl.style.width = ((rect[2] - rect[0]) * scale) + 'px';
-        linkEl.style.height = ((rect[3] - rect[1]) * scale) + 'px';
-        linkEl.style.zIndex = 10;
-        linkEl.style.background = 'transparent';
-        linkEl.style.cursor = 'pointer';
-        pageContainer.appendChild(linkEl);
-      }
-    });
+      await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
+      // clickable links (fixed placement for desktop & mobile)
+      const annotations = await page.getAnnotations();
+      annotations.forEach(annotation => {
+        if (annotation.subtype === 'Link' && annotation.url) {
+          const [x1, y1, x2, y2] = annotation.rect;
+          const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
+
+          const linkEl = document.createElement('a');
+          linkEl.href = annotation.url;
+          linkEl.target = '_blank';
+          linkEl.style.position = 'absolute';
+          linkEl.style.left = (rect[0] * scale) + 'px';
+          linkEl.style.top = (scaledViewport.height - rect[3] * scale) + 'px';
+          linkEl.style.width = ((rect[2] - rect[0]) * scale) + 'px';
+          linkEl.style.height = ((rect[3] - rect[1]) * scale) + 'px';
+          linkEl.style.cursor = 'pointer';
+          linkEl.style.background = 'rgba(0,0,0,0)';
+
+          pageWrapper.appendChild(linkEl);
+        }
+      });
+    }
   } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
   }
 }
+
 
 // Storage helpers
 function storageKey(company, month) {
