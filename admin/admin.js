@@ -194,7 +194,6 @@ generateBtn.addEventListener('click',()=>{
   deletePreviewBtn.disabled=false;
 });
 
-// Save report
 saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
   if (!report) { alert('No report to save'); return; }
@@ -221,8 +220,18 @@ saveHomeBtn.addEventListener('click', () => {
   saveJSON(STORAGE_KEYS.LATEST, latest);
 
   // --- FIX: Save exactly as HTML for homepage ---
-  const htmlContent = report.outerHTML;
-  localStorage.setItem(`kpi-report::${company}::${month}`, htmlContent);
+  // Clone the node to ensure all canvases and charts are preserved
+  const clone = report.cloneNode(true);
+  // Replace any canvas/chart elements with images
+  clone.querySelectorAll('canvas').forEach(canvas => {
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL("image/png");
+    img.style.width = canvas.style.width;
+    img.style.height = canvas.style.height;
+    canvas.replaceWith(img);
+  });
+
+  localStorage.setItem(`kpi-report::${company}::${month}`, clone.outerHTML);
 
   // Update homepage latest map
   const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
@@ -231,6 +240,7 @@ saveHomeBtn.addEventListener('click', () => {
 
   alert(`Report for ${company} - ${month} saved successfully and will display exactly as in preview on homepage.`);
 });
+
 
 // Delete preview
 deletePreviewBtn.addEventListener('click',()=>{
