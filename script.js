@@ -29,7 +29,7 @@ const reportPDFs = {
 // PDF.js setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// Render PDF function (fixed)
+// Render PDF function
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
   if (!pdfPath) {
@@ -40,57 +40,54 @@ async function renderPDF(pdfPath) {
   try {
     const loadingTask = pdfjsLib.getDocument(pdfPath);
     const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
 
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
+    const containerWidth = pdfContainer.clientWidth || 900;
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = containerWidth / viewport.width;
+    const scaledViewport = page.getViewport({ scale: scale });
 
-      const containerWidth = pdfContainer.clientWidth || 900;
-      let viewport = page.getViewport({ scale: 1 });
-      let scale = containerWidth / viewport.width;
-      const scaledViewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+    canvas.style.width = "100%";
+    canvas.style.height = "auto";
 
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      canvas.width = scaledViewport.width;
-      canvas.height = scaledViewport.height;
-      canvas.style.width = "100%";
-      canvas.style.height = "auto";
+    const pageContainer = document.createElement("div");
+    pageContainer.style.width = "100%";
+    pageContainer.style.overflow = "hidden";
+    pageContainer.style.position = "relative";
+    pageContainer.appendChild(canvas);
+    pdfContainer.appendChild(pageContainer);
 
-      const pageWrapper = document.createElement("div");
-      pageWrapper.style.position = "relative";
-      pageWrapper.style.width = "100%";
-      pageWrapper.appendChild(canvas);
-      pdfContainer.appendChild(pageWrapper);
+    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
-      await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+    // clickable links
+    const annotations = await page.getAnnotations();
+    annotations.forEach(annotation => {
+      if (annotation.subtype === 'Link' && annotation.url) {
+        const [x1, y1, x2, y2] = annotation.rect;
+        const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
+        const linkEl = document.createElement('a');
+        linkEl.href = annotation.url;
+        linkEl.target = '_blank';
+        linkEl.style.position = 'absolute';
+        linkEl.style.left = (rect[0] * scale) + 'px';
+        linkEl.style.top = (scaledViewport.height - rect[3]*scale) + 'px';
+        linkEl.style.width = ((rect[2] - rect[0]) * scale) + 'px';
+        linkEl.style.height = ((rect[3] - rect[1]) * scale) + 'px';
+        linkEl.style.zIndex = 10;
+        linkEl.style.background = 'transparent';
+        linkEl.style.cursor = 'pointer';
+        pageContainer.appendChild(linkEl);
+      }
+    });
 
-      // clickable links (fixed placement for desktop & mobile)
-      const annotations = await page.getAnnotations();
-      annotations.forEach(annotation => {
-        if (annotation.subtype === 'Link' && annotation.url) {
-          const [x1, y1, x2, y2] = annotation.rect;
-          const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
-
-          const linkEl = document.createElement('a');
-          linkEl.href = annotation.url;
-          linkEl.target = '_blank';
-          linkEl.style.position = 'absolute';
-          linkEl.style.left = (rect[0] * scale) + 'px';
-          linkEl.style.top = (scaledViewport.height - rect[3] * scale) + 'px';
-          linkEl.style.width = ((rect[2] - rect[0]) * scale) + 'px';
-          linkEl.style.height = ((rect[3] - rect[1]) * scale) + 'px';
-          linkEl.style.cursor = 'pointer';
-          linkEl.style.background = 'rgba(0,0,0,0)';
-
-          pageWrapper.appendChild(linkEl);
-        }
-      });
-    }
   } catch (err) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
   }
 }
-
 
 // Storage helpers
 function storageKey(company, month) {
@@ -103,59 +100,40 @@ function getLatestSavedForCompany(company) {
   } catch { return null; }
 }
 
-function displayReport(company, month) {
-  const reportText = document.getElementById('reportText');
-  const pdfContainer = document.getElementById('pdfContainer');
-  pdfContainer.innerHTML = '';
-  reportText.innerHTML = '';
+// Display report
+function displayReport() {
+  if (!selectedCompany) return;
+  reportCompany.textContent = selectedCompany;
+  pdfContainer.innerHTML = "";
 
-  // --- 1) Check for saved HTML dashboard first ---
-  const html = localStorage.getItem(`kpi-report::${company}::${month}`);
+  const month = selectedMonth || null;
+  let html = null;
+
+  if (month) html = localStorage.getItem(storageKey(selectedCompany, month));
+  else {
+    const latest = getLatestSavedForCompany(selectedCompany);
+    if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
+  }
+
   if (html) {
     reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
-    pdfContainer.innerHTML = html;
-
-    // Re-render chart if canvas exists
-    const chartCanvas = pdfContainer.querySelector('#trendChart');
-    if (chartCanvas && typeof Chart !== 'undefined') {
-      const ctx = chartCanvas.getContext('2d');
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-          datasets: [{
-            label: 'KPI Rating',
-            data: [65, 70, 72, 68, 74, 77],
-            borderWidth: 2,
-            fill: false
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    pdfContainer.appendChild(holder);
     return;
   }
 
-  // --- 2) Otherwise fall back to PDF files ---
-  if (company === 'Adnoc Offshore') {
-    const url = 'reports/offshore-report.pdf';
-    reportText.innerHTML = `<p><em>Showing latest report (June 2025)</em></p>`;
-    pdfContainer.innerHTML = `
-     <object data="${url}#zoom=page-fit" type="application/pdf" 
-    width="100%" height="800px" style="border:none;">
-    <p>Your browser does not support PDFs. 
-       <a href="${url}" target="_blank">Download PDF</a></p>
-  </object>`;
-
-    return;
+  const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
+  if (pdfPath) {
+    reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available PDF."}</em></p>`;
+    renderPDF(pdfPath);
+  } else {
+    reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
   }
-
-  reportText.innerHTML = `<p>No report available for ${company} - ${month} 2025</p>`;
 }
 
-
-// Save generated report
-function saveReportToStorage(company, month, html) {
+// Save generated report to homepage
+function saveReportToHome(company, month, html) {
   if (!company || !month) return;
   localStorage.setItem(storageKey(company, month), html);
 
@@ -179,18 +157,13 @@ monthDropdown.addEventListener('change', () => {
   displayReport();
 });
 
+// Save / Delete buttons if they exist
 const saveBtn = document.getElementById('save-report-btn');
 if (saveBtn) {
   saveBtn.addEventListener('click', () => {
-    if (!selectedCompany || !selectedMonth) {
-      alert("Please select a company and month before saving.");
-      return;
-    }
-    if (pdfContainer.innerHTML.trim() === "") {
-      alert("Nothing to save. Generate the report first.");
-      return;
-    }
-    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+    if (!selectedCompany || !selectedMonth) { alert("Select company & month."); return; }
+    if (pdfContainer.innerHTML.trim() === "") { alert("Nothing to save."); return; }
+    saveReportToHome(selectedCompany, selectedMonth, pdfContainer.innerHTML);
     alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
   });
 }
@@ -198,21 +171,14 @@ if (saveBtn) {
 const deleteBtn = document.getElementById('delete-report-btn');
 if (deleteBtn) {
   deleteBtn.addEventListener('click', () => {
-    if (!selectedCompany || !selectedMonth) {
-      alert("Please select a company and month before deleting.");
-      return;
-    }
+    if (!selectedCompany || !selectedMonth) { alert("Select company & month."); return; }
     const key = storageKey(selectedCompany, selectedMonth);
     localStorage.removeItem(key);
-
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-    if (latestMap[selectedCompany]?.month === selectedMonth) {
-      delete latestMap[selectedCompany];
-      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-    }
-
-    alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
+    if (latestMap[selectedCompany]?.month === selectedMonth) delete latestMap[selectedCompany];
+    localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
     pdfContainer.innerHTML = "";
     reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
+    alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
   });
 }
