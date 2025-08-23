@@ -195,38 +195,41 @@ generateBtn.addEventListener('click',()=>{
 });
 
 // Save report
-saveHomeBtn.addEventListener('click',()=>{
+saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
-  if(!report){ alert('No report to save'); return; }
+  if (!report) { alert('No report to save'); return; }
 
-  // Ensure perfect scaling
-  report.style.transform='scale(1)';
-  report.style.transformOrigin='top left';
-  report.style.width='100%';
-  report.style.maxWidth='100%';
-  report.style.margin='0 auto';
+  // Ensure proper scaling and styling
+  report.style.transform = 'scale(1)';
+  report.style.transformOrigin = 'top left';
+  report.style.width = '100%';
+  report.style.maxWidth = '100%';
+  report.style.margin = '0 auto';
 
   const company = report.dataset.company;
   const month = report.dataset.month;
 
   // Save for admin storage
-  const reports = loadJSON(STORAGE_KEYS.REPORTS,{});
-  if(!reports[company]) reports[company]={};
-  reports[company][month]=report.outerHTML;
-  saveJSON(STORAGE_KEYS.REPORTS,reports);
+  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
+  if (!reports[company]) reports[company] = {};
+  reports[company][month] = report.outerHTML;
+  saveJSON(STORAGE_KEYS.REPORTS, reports);
 
   // Save as latest
-  const latest = loadJSON(STORAGE_KEYS.LATEST,{});
-  latest[company]=month;
-  saveJSON(STORAGE_KEYS.LATEST,latest);
+  const latest = loadJSON(STORAGE_KEYS.LATEST, {});
+  latest[company] = month;
+  saveJSON(STORAGE_KEYS.LATEST, latest);
 
-  // --- Save for homepage JS to pick up instantly ---
-  localStorage.setItem(`kpi-report::${company}::${month}`, report.outerHTML);
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest')||'{}');
+  // --- FIX: Save exactly as HTML for homepage ---
+  const htmlContent = report.outerHTML;
+  localStorage.setItem(`kpi-report::${company}::${month}`, htmlContent);
+
+  // Update homepage latest map
+  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
   latestMap[company] = { month };
   localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 
-  alert(`Report for ${company} - ${month} saved successfully and available on homepage!`);
+  alert(`Report for ${company} - ${month} saved successfully and will display exactly as in preview on homepage.`);
 });
 
 // Delete preview
