@@ -118,13 +118,21 @@ function displayReport() {
     if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
-  if (html) {
-    reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
-    const holder = document.createElement('div');
-    holder.innerHTML = html;
-    pdfContainer.appendChild(holder);
-    return;
+ if (html) {
+  reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
+  pdfContainer.innerHTML = html;
+
+  // re-run chart.js rendering if needed
+  const trendCanvas = pdfContainer.querySelector('#trendChart');
+  if (trendCanvas && typeof Chart !== 'undefined') {
+    // re-render chart using stored months if available
+    const company = selectedCompany;
+    const monthsData = ""; // we can’t restore graphMonths from storage easily unless we save it too
+    renderTrendChart('trendChart', company, monthsData, 0);
   }
+  return;
+}
+
 
   const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
