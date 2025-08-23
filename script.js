@@ -100,7 +100,7 @@ function getLatestSavedForCompany(company) {
   } catch { return null; }
 }
 
-// Display report
+// Display report (restored exactly as original)
 function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
@@ -132,8 +132,8 @@ function displayReport() {
   }
 }
 
-// Save generated report to homepage
-function saveReportToHome(company, month, html) {
+// Save generated report
+function saveReportToStorage(company, month, html) {
   if (!company || !month) return;
   localStorage.setItem(storageKey(company, month), html);
 
@@ -157,13 +157,13 @@ monthDropdown.addEventListener('change', () => {
   displayReport();
 });
 
-// Save / Delete buttons if they exist
+// Save / Delete buttons
 const saveBtn = document.getElementById('save-report-btn');
 if (saveBtn) {
   saveBtn.addEventListener('click', () => {
     if (!selectedCompany || !selectedMonth) { alert("Select company & month."); return; }
     if (pdfContainer.innerHTML.trim() === "") { alert("Nothing to save."); return; }
-    saveReportToHome(selectedCompany, selectedMonth, pdfContainer.innerHTML);
+    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
     alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
   });
 }
