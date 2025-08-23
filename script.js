@@ -120,7 +120,8 @@ function displayReport() {
     reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
 
     // If the saved report starts with <html>, treat it as an iframe
-    if (html.trim().startsWith('<html')) {
+    // If the saved report starts with <html> or <div>, treat it as an iframe
+if (html.trim().startsWith('<html') || html.trim().startsWith('<div')) {
       const iframe = document.createElement('iframe');
       iframe.style.width = "100%";
       iframe.style.height = "700px";
