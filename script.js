@@ -29,7 +29,6 @@ const reportPDFs = {
 // PDF.js setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js";
 
-// Render PDF function - updated for clarity and link alignment
 async function renderPDF(pdfPath) {
   pdfContainer.innerHTML = "";
   if (!pdfPath) {
@@ -38,50 +37,49 @@ async function renderPDF(pdfPath) {
   }
 
   try {
-    const loadingTask = pdfjsLib.getDocument(pdfPath);
-    const pdf = await loadingTask.promise;
+    const pdf = await pdfjsLib.getDocument(pdfPath).promise;
     const page = await pdf.getPage(1);
 
     const containerWidth = pdfContainer.clientWidth || 900;
     const viewport = page.getViewport({ scale: 1 });
-    const scale = (containerWidth / viewport.width) * window.devicePixelRatio;
+
+    // High DPI scale
+    const scale = containerWidth / viewport.width * window.devicePixelRatio;
     const scaledViewport = page.getViewport({ scale: scale });
 
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
     canvas.width = scaledViewport.width;
     canvas.height = scaledViewport.height;
     canvas.style.width = containerWidth + "px";
     canvas.style.height = (scaledViewport.height / window.devicePixelRatio) + "px";
-    canvas.style.borderRadius = "6px";
+
+    const context = canvas.getContext("2d");
+    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
 
     const pageContainer = document.createElement("div");
     pageContainer.style.width = "100%";
-    pageContainer.style.overflow = "hidden";
-    pageContainer.style.position = "relative"; // ensures links position correctly
+    pageContainer.style.position = "relative";
     pageContainer.appendChild(canvas);
     pdfContainer.appendChild(pageContainer);
 
-    await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
-
-    // Add clickable links
+    // Add links
     const annotations = await page.getAnnotations();
-    annotations.forEach(annotation => {
-      if (annotation.subtype === 'Link' && annotation.url) {
-        const [x1, y1, x2, y2] = annotation.rect;
+    annotations.forEach(a => {
+      if (a.subtype === 'Link' && a.url) {
+        const [x1, y1, x2, y2] = a.rect;
         const rect = pdfjsLib.Util.normalizeRect([x1, y1, x2, y2]);
-        const linkEl = document.createElement('a');
-        linkEl.href = annotation.url;
-        linkEl.target = '_blank';
-        linkEl.style.position = 'absolute';
-        linkEl.style.left = (rect[0] * scale / window.devicePixelRatio) + 'px';
-        linkEl.style.top = (scaledViewport.height / window.devicePixelRatio - rect[3] * scale / window.devicePixelRatio) + 'px';
-        linkEl.style.width = ((rect[2] - rect[0]) * scale / window.devicePixelRatio) + 'px';
-        linkEl.style.height = ((rect[3] - rect[1]) * scale / window.devicePixelRatio) + 'px';
-        linkEl.style.zIndex = 10;
-        linkEl.style.background = 'transparent';
-        linkEl.style.cursor = 'pointer';
-        pageContainer.appendChild(linkEl);
+        const link = document.createElement('a');
+        link.href = a.url;
+        link.target = '_blank';
+        link.style.position = 'absolute';
+        link.style.left = (rect[0] * scale / window.devicePixelRatio) + 'px';
+        link.style.top = (scaledViewport.height / window.devicePixelRatio - rect[3] * scale / window.devicePixelRatio) + 'px';
+        link.style.width = ((rect[2] - rect[0]) * scale / window.devicePixelRatio) + 'px';
+        link.style.height = ((rect[3] - rect[1]) * scale / window.devicePixelRatio) + 'px';
+        link.style.zIndex = 10;
+        link.style.background = 'transparent';
+        link.style.cursor = 'pointer';
+        pageContainer.appendChild(link);
       }
     });
 
@@ -89,6 +87,7 @@ async function renderPDF(pdfPath) {
     pdfContainer.innerHTML = `<p style="color:red;">Error loading PDF: ${err.message}</p>`;
   }
 }
+
 
 
 // Storage helpers
