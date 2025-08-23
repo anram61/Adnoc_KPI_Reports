@@ -116,13 +116,29 @@ function displayReport() {
     if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
-  if (html) {
+ if (html) {
     reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
-    const holder = document.createElement('div');
-    holder.innerHTML = html;
-    pdfContainer.appendChild(holder);
-    return;
+
+    // If the saved report starts with <html>, treat it as an iframe
+    if (html.trim().startsWith('<html')) {
+      const iframe = document.createElement('iframe');
+      iframe.style.width = "100%";
+      iframe.style.height = "700px";
+      iframe.style.border = "none";
+      pdfContainer.appendChild(iframe);
+
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      return;
+    } else {
+      // fallback if anything else is stored
+      pdfContainer.innerHTML = html;
+      return;
+    }
   }
+
 
   const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
