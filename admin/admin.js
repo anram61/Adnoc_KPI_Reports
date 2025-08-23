@@ -201,23 +201,25 @@ saveHomeBtn.addEventListener('click', async () => {
   const company = report.dataset.company;
   const month = report.dataset.month;
 
-  // Use html2canvas to render the entire report as an image
   try {
-    const canvas = await html2canvas(report, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL('image/png');
+    // Replace canvases with images for saving
+    report.querySelectorAll('canvas').forEach(canvas => {
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');  // preserve chart pixels
+      img.style.width = canvas.style.width;
+      img.style.height = canvas.style.height;
+      canvas.replaceWith(img);
+    });
 
-    const imgWrapper = `<div class="report-doc" data-company="${company}" data-month="${month}" style="width:100%;text-align:center;">
-      <img src="${imgData}" style="width:100%;height:auto;" />
-    </div>`;
-
-    localStorage.setItem(`kpi-report::${company}::${month}`, imgWrapper);
+    // Save exactly as HTML to localStorage for homepage
+    localStorage.setItem(`kpi-report::${company}::${month}`, report.outerHTML);
 
     // Update homepage latest map
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
     latestMap[company] = { month };
     localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 
-    alert(`Report for ${company} - ${month} saved successfully and will display exactly as in preview on homepage.`);
+    alert(`Report for ${company} - ${month} saved successfully and will display exactly like preview on homepage.`);
   } catch (err) {
     alert('Error saving report: ' + err.message);
   }
