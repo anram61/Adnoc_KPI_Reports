@@ -194,51 +194,33 @@ generateBtn.addEventListener('click',()=>{
   deletePreviewBtn.disabled=false;
 });
 
-saveHomeBtn.addEventListener('click', () => {
+saveHomeBtn.addEventListener('click', async () => {
   const report = preview.querySelector('.report-doc');
   if (!report) { alert('No report to save'); return; }
-
-  // Ensure proper scaling and styling
-  report.style.transform = 'scale(1)';
-  report.style.transformOrigin = 'top left';
-  report.style.width = '100%';
-  report.style.maxWidth = '100%';
-  report.style.margin = '0 auto';
 
   const company = report.dataset.company;
   const month = report.dataset.month;
 
-  // Save for admin storage
-  const reports = loadJSON(STORAGE_KEYS.REPORTS, {});
-  if (!reports[company]) reports[company] = {};
-  reports[company][month] = report.outerHTML;
-  saveJSON(STORAGE_KEYS.REPORTS, reports);
+  // Use html2canvas to render the entire report as an image
+  try {
+    const canvas = await html2canvas(report, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/png');
 
-  // Save as latest
-  const latest = loadJSON(STORAGE_KEYS.LATEST, {});
-  latest[company] = month;
-  saveJSON(STORAGE_KEYS.LATEST, latest);
+    const imgWrapper = `<div class="report-doc" data-company="${company}" data-month="${month}" style="width:100%;text-align:center;">
+      <img src="${imgData}" style="width:100%;height:auto;" />
+    </div>`;
 
-  // --- FIX: Save exactly as HTML for homepage ---
-  // Clone the node to ensure all canvases and charts are preserved
-  const clone = report.cloneNode(true);
-  // Replace any canvas/chart elements with images
-  clone.querySelectorAll('canvas').forEach(canvas => {
-    const img = document.createElement('img');
-    img.src = canvas.toDataURL("image/png");
-    img.style.width = canvas.style.width;
-    img.style.height = canvas.style.height;
-    canvas.replaceWith(img);
-  });
+    localStorage.setItem(`kpi-report::${company}::${month}`, imgWrapper);
 
-  localStorage.setItem(`kpi-report::${company}::${month}`, clone.outerHTML);
+    // Update homepage latest map
+    const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+    latestMap[company] = { month };
+    localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 
-  // Update homepage latest map
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-  latestMap[company] = { month };
-  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-
-  alert(`Report for ${company} - ${month} saved successfully and will display exactly as in preview on homepage.`);
+    alert(`Report for ${company} - ${month} saved successfully and will display exactly as in preview on homepage.`);
+  } catch (err) {
+    alert('Error saving report: ' + err.message);
+  }
 });
 
 
