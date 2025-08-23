@@ -194,7 +194,7 @@ generateBtn.addEventListener('click',()=>{
   deletePreviewBtn.disabled=false;
 });
 
-  saveHomeBtn.addEventListener('click', () => {
+ saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
   if (!report) { alert('No report to save'); return; }
 
@@ -202,19 +202,31 @@ generateBtn.addEventListener('click',()=>{
   const month = report.dataset.month;
 
   try {
-    // Replace Chart.js canvases with images for saving
+    // Replace Chart.js canvases with images
     report.querySelectorAll('canvas').forEach(canvas => {
       const img = document.createElement('img');
-      img.src = canvas.toDataURL('image/png');  // capture chart pixels
+      img.src = canvas.toDataURL('image/png');
       img.style.width = canvas.style.width;
       img.style.height = canvas.style.height;
       canvas.replaceWith(img);
     });
 
-    // Save exact HTML to homepage storage
-    localStorage.setItem(`kpi-report::${company}::${month}`, report.outerHTML);
+    // Wrap report in standalone HTML for iframe
+    const reportHTML = `
+      <html>
+        <head>
+          <link rel="stylesheet" href="style.css">
+        </head>
+        <body>
+          ${report.outerHTML}
+        </body>
+      </html>
+    `;
 
-    // Update latest map for homepage
+    // Save to localStorage
+    localStorage.setItem(`kpi-report::${company}::${month}`, reportHTML);
+
+    // Update latest pointer
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
     latestMap[company] = { month };
     localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
@@ -224,6 +236,7 @@ generateBtn.addEventListener('click',()=>{
     alert('Error saving report: ' + err.message);
   }
 });
+
 
 
 // Delete preview
