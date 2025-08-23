@@ -190,11 +190,7 @@ generateBtn.addEventListener('click',()=>{
   preview.innerHTML=html;
   renderTrendChart('trendChart',company,graphMonths,overall);
 
-  saveHomeBtn.disabled=false;
-  deletePreviewBtn.disabled=false;
-});
-
-saveHomeBtn.addEventListener('click', async () => {
+  saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
   if (!report) { alert('No report to save'); return; }
 
@@ -202,19 +198,19 @@ saveHomeBtn.addEventListener('click', async () => {
   const month = report.dataset.month;
 
   try {
-    // Replace canvases with images for saving
+    // Replace Chart.js canvases with images for saving
     report.querySelectorAll('canvas').forEach(canvas => {
       const img = document.createElement('img');
-      img.src = canvas.toDataURL('image/png');  // preserve chart pixels
+      img.src = canvas.toDataURL('image/png');  // capture chart pixels
       img.style.width = canvas.style.width;
       img.style.height = canvas.style.height;
       canvas.replaceWith(img);
     });
 
-    // Save exactly as HTML to localStorage for homepage
+    // Save exact HTML to homepage storage
     localStorage.setItem(`kpi-report::${company}::${month}`, report.outerHTML);
 
-    // Update homepage latest map
+    // Update latest map for homepage
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
     latestMap[company] = { month };
     localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
