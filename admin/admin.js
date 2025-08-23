@@ -64,7 +64,7 @@ function buildReportHTML({company, month, eff, ppl, pOps, pFin, overall, topKPI,
       <div class="title">${company} — Performance Dashboard</div>
       <div class="sub">Month: ${month} • Year: 2025</div>
     </div>
-    <img class="brandmark" src="../assets/adnoc-logo.png" alt="ADNOC">
+    <img class="brandmark" src="assets/adnoc-logo.png" alt="ADNOC">
   </div>
   <div class="report-body">
     <div class="panel-col">
