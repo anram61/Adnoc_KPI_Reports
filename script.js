@@ -124,14 +124,6 @@ function displayReport() {
     return;
   }
 
-  // Re-render charts
-holder.querySelectorAll('canvas').forEach(canvas => {
-  const chartData = JSON.parse(canvas.dataset.chart || '{}');
-  if (chartData.labels) {
-    new Chart(canvas, chartData);
-  }
-});
-
   const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
     reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available PDF."}</em></p>`;
