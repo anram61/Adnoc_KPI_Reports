@@ -160,29 +160,31 @@ monthDropdown.addEventListener('change', () => {
   displayReport();
 });
 
-// Delete button on homepage
-const deleteBtn = document.getElementById('delete-report-btn');
-if (deleteBtn) {
-  deleteBtn.addEventListener('click', () => {
+const deleteGeneratedBtn = document.getElementById('delete-generated-report-btn');
+if (deleteGeneratedBtn) {
+  deleteGeneratedBtn.addEventListener('click', () => {
     if (!selectedCompany || !selectedMonth) {
       alert("Select company & month.");
       return;
     }
 
-    const key = storageKey(selectedCompany, selectedMonth);
+    const key = `kpi-report::${selectedCompany}::${selectedMonth}`;
+    if (!localStorage.getItem(key)) {
+      alert("No generated report to delete for this selection.");
+      return;
+    }
+
     localStorage.removeItem(key);
 
     // Update latest map
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
     if (latestMap[selectedCompany]?.month === selectedMonth) {
       delete latestMap[selectedCompany];
+      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
     }
-    localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
 
-    // Clear viewer
-    pdfContainer.innerHTML = "";
-    reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
-
-    alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
+    pdfContainer.innerHTML = '';
+    reportText.innerHTML = `<p>Generated report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
+    alert(`Deleted generated report for ${selectedCompany} (${selectedMonth} 2025)`);
   });
 }
