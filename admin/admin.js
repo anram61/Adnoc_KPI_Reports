@@ -237,11 +237,24 @@ generateBtn.addEventListener('click',()=>{
   }
 });
 
+deletePreviewBtn.addEventListener('click', () => {
+  const report = preview.querySelector('.report-doc');
+  if (report) {
+    const company = report.dataset.company;
+    const month = report.dataset.month;
+    const key = `kpi-report::${company}::${month}`;
 
+    // Delete from storage
+    if (localStorage.getItem(key)) {
+      localStorage.removeItem(key);
+      const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
+      if (latestMap[company]?.month === month) delete latestMap[company];
+      localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+      alert(`Deleted report for ${company} - ${month} 2025`);
+    }
+  }
 
-// Delete preview
-deletePreviewBtn.addEventListener('click',()=>{
-  preview.innerHTML='';
-  saveHomeBtn.disabled=true;
-  deletePreviewBtn.disabled=true;
+  preview.innerHTML = '';
+  saveHomeBtn.disabled = true;
+  deletePreviewBtn.disabled = true;
 });
