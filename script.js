@@ -145,16 +145,6 @@ if (html) {
   }
 }
 
-// Save generated report
-function saveReportToStorage(company, month, html) {
-  if (!company || !month) return;
-  localStorage.setItem(storageKey(company, month), html);
-
-  const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-  latestMap[company] = { month };
-  localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
-}
-
 // Event listeners
 companies.forEach(button => {
   button.addEventListener('click', () => {
