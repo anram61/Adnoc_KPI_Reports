@@ -116,29 +116,24 @@ function displayReport() {
     if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
- if (html) {
-    reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
+if (html) {
+  reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
 
-    // If the saved report starts with <html>, treat it as an iframe
-    // If the saved report starts with <html> or <div>, treat it as an iframe
-if (html.trim().startsWith('<html') || html.trim().startsWith('<div')) {
-      const iframe = document.createElement('iframe');
-      iframe.style.width = "100%";
-      iframe.style.height = "700px";
-      iframe.style.border = "none";
-      pdfContainer.appendChild(iframe);
+  if (html.trim().startsWith('<html') || html.trim().startsWith('<div')) {
+    const iframe = document.createElement('iframe');
+    iframe.style.width = "100%";
+    iframe.style.height = "700px";
+    iframe.style.border = "none";
+    pdfContainer.appendChild(iframe);
 
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      doc.open();
-      doc.write(html);
-      doc.close();
-      return;
-    } else {
-      // fallback if anything else is stored
-      pdfContainer.innerHTML = html;
-      return;
-    }
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+    return;
   }
+}
+
 
 
   const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
@@ -175,28 +170,29 @@ monthDropdown.addEventListener('change', () => {
   displayReport();
 });
 
-// Save / Delete buttons
-const saveBtn = document.getElementById('save-report-btn');
-if (saveBtn) {
-  saveBtn.addEventListener('click', () => {
-    if (!selectedCompany || !selectedMonth) { alert("Select company & month."); return; }
-    if (pdfContainer.innerHTML.trim() === "") { alert("Nothing to save."); return; }
-    saveReportToStorage(selectedCompany, selectedMonth, pdfContainer.innerHTML);
-    alert(`Report saved for ${selectedCompany} (${selectedMonth} 2025).`);
-  });
-}
-
+// Delete button on homepage
 const deleteBtn = document.getElementById('delete-report-btn');
 if (deleteBtn) {
   deleteBtn.addEventListener('click', () => {
-    if (!selectedCompany || !selectedMonth) { alert("Select company & month."); return; }
+    if (!selectedCompany || !selectedMonth) {
+      alert("Select company & month.");
+      return;
+    }
+
     const key = storageKey(selectedCompany, selectedMonth);
     localStorage.removeItem(key);
+
+    // Update latest map
     const latestMap = JSON.parse(localStorage.getItem('kpi-latest') || '{}');
-    if (latestMap[selectedCompany]?.month === selectedMonth) delete latestMap[selectedCompany];
+    if (latestMap[selectedCompany]?.month === selectedMonth) {
+      delete latestMap[selectedCompany];
+    }
     localStorage.setItem('kpi-latest', JSON.stringify(latestMap));
+
+    // Clear viewer
     pdfContainer.innerHTML = "";
     reportText.innerHTML = `<p>Report deleted for <strong>${selectedCompany}</strong> (${selectedMonth} 2025).</p>`;
+
     alert(`Report deleted for ${selectedCompany} (${selectedMonth} 2025).`);
   });
 }
