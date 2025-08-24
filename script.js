@@ -101,7 +101,6 @@ function getLatestSavedForCompany(company) {
   } catch { return null; }
 }
 
-// Display report (restored exactly as original)
 function displayReport() {
   if (!selectedCompany) return;
   reportCompany.textContent = selectedCompany;
@@ -116,10 +115,10 @@ function displayReport() {
     if (latest?.month) html = localStorage.getItem(storageKey(selectedCompany, latest.month));
   }
 
-if (html) {
-  reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
+  if (html) {
+    reportText.innerHTML = `<p><em>Showing generated dashboard${month ? ` (${month} 2025)` : ""}</em></p>`;
 
-  if (html.trim().startsWith('<html') || html.trim().startsWith('<div')) {
+    // Inject saved HTML into an iframe to render properly
     const iframe = document.createElement('iframe');
     iframe.style.width = "100%";
     iframe.style.height = "700px";
@@ -128,14 +127,12 @@ if (html) {
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
     doc.open();
-    doc.write(html);
+    doc.write(html);  // <--- ensures charts & layout render exactly like preview
     doc.close();
     return;
   }
-}
 
-
-
+  // If no saved report, fallback to PDF
   const pdfPath = reportPDFs[selectedCompany]?.[month] || reportPDFs[selectedCompany]?.default;
   if (pdfPath) {
     reportText.innerHTML = `<p><em>${month ? `Showing report for ${month} 2025` : "Currently showing the latest available PDF."}</em></p>`;
@@ -144,6 +141,7 @@ if (html) {
     reportText.innerHTML = `<p>No KPI report found for <strong>${selectedCompany}</strong>${month ? " in " + month : ""}.</p>`;
   }
 }
+
 
 // Event listeners
 companies.forEach(button => {
