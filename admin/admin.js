@@ -272,29 +272,25 @@ deletePreviewBtn.addEventListener('click', () => {
   deletePreviewBtn.disabled = true;
 });
 
-// Reset button: clears the generator form + preview
 const resetBtn = document.getElementById('resetForm');
-if (resetBtn) {
-  resetBtn.addEventListener('click', () => {
-    // Clear all input/select/textarea fields
-    companyEl.value = "";
-    monthEl.value = "";
-    monthsInputEl.value = "";
-    efficiencyEl.value = "";
-    peopleEl.value = "";
-    profitOpsEl.value = "";
-    profitFinEl.value = "";
-    topKPIEl.value = "";
-    underPerfEl.value = "";
-    remedialEl.value = "";
 
-    // Reset preview
-    preview.innerHTML = '<div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>';
+resetBtn.addEventListener('click', () => {
+  // Clear all form fields
+  companyEl.value = "";
+  monthEl.value = "";
+  monthsInputEl.value = "";
+  efficiencyEl.value = "";
+  peopleEl.value = "";
+  profitOpsEl.value = "";
+  profitFinEl.value = "";
+  topKPIEl.value = "";
+  underPerfEl.value = "";
+  remedialEl.value = "";
 
-    // Disable save/delete buttons until new report is generated
-    saveHomeBtn.disabled = true;
-    deletePreviewBtn.disabled = true;
+  // Clear preview
+  preview.innerHTML = '';
 
-    alert('Report generator has been reset.');
-  });
-}
+  // Disable save/delete buttons until new report is generated
+  saveHomeBtn.disabled = true;
+  deletePreviewBtn.disabled = true;
+});
