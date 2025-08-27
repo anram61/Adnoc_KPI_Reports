@@ -1,6 +1,3 @@
-// ------- Admin Page Script -------
-
-// Storage helpers
 const STORAGE_KEYS = {
   REPORTS: 'adnoc_reports',
   LATEST: 'adnoc_latest',
