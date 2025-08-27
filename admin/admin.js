@@ -273,22 +273,27 @@ deletePreviewBtn.addEventListener('click', () => {
 });
 
 // Reset button: clears the generator form + preview
-const resetBtn = document.getElementById('reset-btn');
+const resetBtn = document.getElementById('resetForm');
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {
-    // Clear all form fields
-    document.getElementById('report-form').reset();
+    // Clear all input/select/textarea fields
+    companyEl.value = "";
+    monthEl.value = "";
+    monthsInputEl.value = "";
+    efficiencyEl.value = "";
+    peopleEl.value = "";
+    profitOpsEl.value = "";
+    profitFinEl.value = "";
+    topKPIEl.value = "";
+    underPerfEl.value = "";
+    remedialEl.value = "";
 
-    // Clear preview
-    preview.innerHTML = '';
+    // Reset preview
+    preview.innerHTML = '<div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>';
 
     // Disable save/delete buttons until new report is generated
     saveHomeBtn.disabled = true;
     deletePreviewBtn.disabled = true;
-
-    // Reset selected company/month state if you track them
-    selectedCompany = null;
-    selectedMonth = null;
 
     alert('Report generator has been reset.');
   });
