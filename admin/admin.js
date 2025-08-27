@@ -194,7 +194,7 @@ generateBtn.addEventListener('click',()=>{
   deletePreviewBtn.disabled=false;
 });
 
- saveHomeBtn.addEventListener('click', () => {
+saveHomeBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
   if (!report) { alert('No report to save'); return; }
 
@@ -211,11 +211,22 @@ generateBtn.addEventListener('click',()=>{
       canvas.replaceWith(img);
     });
 
-    // Wrap report in standalone HTML for iframe
+    // Grab CSS from your main stylesheet
+    const styles = Array.from(document.styleSheets)
+      .map(ss => {
+        try {
+          return Array.from(ss.cssRules).map(r => r.cssText).join("\n");
+        } catch {
+          return "";
+        }
+      })
+      .join("\n");
+
+    // Wrap report in standalone HTML with inline CSS
     const reportHTML = `
       <html>
         <head>
-          <link rel="stylesheet" href="style.css">
+          <style>${styles}</style>
         </head>
         <body>
           ${report.outerHTML}
@@ -236,6 +247,7 @@ generateBtn.addEventListener('click',()=>{
     alert('Error saving report: ' + err.message);
   }
 });
+
 
 deletePreviewBtn.addEventListener('click', () => {
   const report = preview.querySelector('.report-doc');
