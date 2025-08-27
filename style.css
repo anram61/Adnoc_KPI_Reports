@@ -138,9 +138,8 @@ footer {
 
 .responsive-iframe-container {
   width: 100%;
-  height: auto;        /* allow container to expand */
-  min-height: 90vh;    /* keep minimum screen height */
-  overflow: visible;   /* remove internal scrolling */
+  height: 90vh;        /* fill most of the screen height */
+  overflow: hidden;
   border-radius: 8px;
   background-color: #fff;
   display: flex;
