@@ -271,3 +271,25 @@ deletePreviewBtn.addEventListener('click', () => {
   saveHomeBtn.disabled = true;
   deletePreviewBtn.disabled = true;
 });
+
+// Reset button: clears the generator form + preview
+const resetBtn = document.getElementById('reset-btn');
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    // Clear all form fields
+    document.getElementById('report-form').reset();
+
+    // Clear preview
+    preview.innerHTML = '';
+
+    // Disable save/delete buttons until new report is generated
+    saveHomeBtn.disabled = true;
+    deletePreviewBtn.disabled = true;
+
+    // Reset selected company/month state if you track them
+    selectedCompany = null;
+    selectedMonth = null;
+
+    alert('Report generator has been reset.');
+  });
+}
