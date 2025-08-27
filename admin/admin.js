@@ -284,8 +284,12 @@ resetBtn.addEventListener('click', () => {
   underPerfEl.value = "";
   remedialEl.value = "";
 
+  // Remove any Chart.js canvases to avoid ghost charts
+  const canvases = preview.querySelectorAll('canvas');
+  canvases.forEach(c => c.remove());
+
   // Clear preview
-  preview.innerHTML = '';
+  preview.innerHTML = `<div class="empty-state">Fill the form and click “Generate Report” to see a live preview.</div>`;
 
   // Disable save/delete buttons until new report is generated
   saveHomeBtn.disabled = true;
