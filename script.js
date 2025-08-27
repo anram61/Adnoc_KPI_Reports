@@ -119,7 +119,7 @@ function displayReport() {
     // Inject saved HTML into an iframe to render properly
     const iframe = document.createElement('iframe');
     iframe.style.width = "100%";
-    iframe.style.height = "800px;
+    iframe.style.height = 800px;
     iframe.style.border = "none";
     pdfContainer.appendChild(iframe);
 
