@@ -1,5 +1,3 @@
-// ------- Home Page Script -------
-
 const companies = document.querySelectorAll('.company');
 const reportCompany = document.getElementById('report-company');
 const reportText = document.getElementById('report-text');
